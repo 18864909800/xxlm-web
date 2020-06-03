@@ -2,6 +2,9 @@
 .DS_Store
 Thumbs.db
 
+# system files
+.history
+
 # Dependencies
 node_modules/
 

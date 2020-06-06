@@ -40,8 +40,8 @@ export default {
 			<!-- LOGO -->
 			<a href="/" class="navbar-brand mr-0 mr-md-2 logo">
 				<span class="logo-lg">
-					<img src="@assets/images/logo.png" alt height="24" />
-					<span class="d-inline h5 ml-2 text-logo">Shreyu</span>
+					<img src="@assets/images/xxlm/logo.png" alt height="55" />
+					<span class="d-inline h5 ml-2 text-logo">xxlm</span>
 				</span>
 				<span class="logo-sm">
 					<img src="@assets/images/logo.png" alt height="24" />
@@ -85,22 +85,22 @@ export default {
 
 
 
-				<li
-					id="setting-tooltip"
-					class="dropdown notification-list"
-					title="Settings"
-				>
-					<a
-						href="javascript:void(0);"
-						class="nav-link right-bar-toggle toggle-right"
-						@click="toggleRightSidebar"
-					>
-						<feather type="settings" class="toggle-right"></feather>
-					</a>
-					<b-tooltip target="setting-tooltip" placement="left"
-						>Settings</b-tooltip
-					>
-				</li>
+<!--				<li-->
+<!--					id="setting-tooltip"-->
+<!--					class="dropdown notification-list"-->
+<!--					title="Settings"-->
+<!--				>-->
+<!--					<a-->
+<!--						href="javascript:void(0);"-->
+<!--						class="nav-link right-bar-toggle toggle-right"-->
+<!--						@click="toggleRightSidebar"-->
+<!--					>-->
+<!--						<feather type="settings" class="toggle-right"></feather>-->
+<!--					</a>-->
+<!--					<b-tooltip target="setting-tooltip" placement="left"-->
+<!--						>Settings</b-tooltip-->
+<!--					>-->
+<!--				</li>-->
 
 				<b-nav-item-dropdown
 					right

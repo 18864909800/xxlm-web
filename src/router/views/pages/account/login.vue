@@ -11,9 +11,9 @@
 									<div class="col-md-6 p-5">
 										<div class="mx-auto mb-5">
 											<a routerLink="/">
-												<img src="@assets/images/logo.png" alt height="24" />
+												<img src="@assets/images/xxlm/logo.png" alt height="44" />
 												<h3 class="d-inline align-middle ml-1 text-logo"
-												>Shreyu</h3
+												>xxlm</h3
 												>
 											</a>
 										</div>
@@ -110,7 +110,7 @@
 												<p class="lead"
 												>"It's a elegent templete. I love it very much!"</p
 												>
-												<p>- Admin User</p>
+												<p>- 隋亮亮</p>
 											</div>
 										</div>
 									</div>

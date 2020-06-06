@@ -38,9 +38,10 @@ body {
   position: relative;
   height: 100%;
   padding: 0;
-  background-image: url('~~~@assets/images/auth-bg.jpg');
+  background-image: url('~~~@assets/images/xxlm/logo.png')  ;
   background-repeat: no-repeat;
-  background-size: cover;
+  background-size: contain;
+  background-position: center center;
 
   .overlay {
     position: absolute;

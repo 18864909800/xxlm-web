@@ -88,7 +88,7 @@ const passwordAppsRoutes = [
 const noticeAppsRoutes = [
   {
     path: '/',
-    name: '公告|作业',
+    name: '公告',
     header: '',
     icon: 'calendar',
     component: () => lazyLoadView(import('@views/pages/apps/notice')),
@@ -99,72 +99,61 @@ const noticeAppsRoutes = [
 // 资料
 const dataAppsRoutes = [
   {
-    path: '/apps/data',
+    path: '/apps/data/allData',
     name: '资料',
     icon: 'inbox',
+    component: () => lazyLoadView(import('@views/pages/apps/data/allData')),
     meta: { authRequired: true },
-    // create a container component
-    component: {
-      render(c) {
-        return c('router-view')
-      },
-    },
     props: (route) => ({ user: store.state.auth.currentUser || {} }),
-    children: [
-      {
-        name: '全部资料',
-        path: 'allData',
-        meta: { authRequired: true },
-        component: () =>
-          lazyLoadView(import('@views/pages/apps/data/allData')),
-      },
-      {
-        path: 'myData',
-        name: '我的资料分享',
-        meta: { authRequired: true },
-        component: () =>
-          lazyLoadView(import('@views/pages/apps/data/myData')),
-      },
-      // {
-      //   path: 'compose',
-      //   name: 'Compose Email',
-      //   meta: { authRequired: true },
-      //   component: () =>
-      //     lazyLoadView(import('@views/pages/apps/data/emailcompose')),
-      // },
-    ],
   }
 ];
+// const dataAppsRoutes = [
+//   {
+//     path: '/apps/data',
+//     name: '资料',
+//     icon: 'inbox',
+//     meta: { authRequired: true },
+//     // create a container component
+//     component: {
+//       render(c) {
+//         return c('router-view')
+//       },
+//     },
+//     props: (route) => ({ user: store.state.auth.currentUser || {} }),
+//     children: [
+//       {
+//         name: '全部资料',
+//         path: 'allData',
+//         meta: { authRequired: true },
+//         component: () =>
+//           lazyLoadView(import('@views/pages/apps/data/allData')),
+//       },
+//       {
+//         path: 'myData',
+//         name: '我的资料分享',
+//         meta: { authRequired: true },
+//         component: () =>
+//           lazyLoadView(import('@views/pages/apps/data/myData')),
+//       },
+//       // {
+//       //   path: 'compose',
+//       //   name: 'Compose Email',
+//       //   meta: { authRequired: true },
+//       //   component: () =>
+//       //     lazyLoadView(import('@views/pages/apps/data/emailcompose')),
+//       // },
+//     ],
+//   }
+// ];
 // 博客
 const blogAppsRoutes = [
   {
-    path: '/apps/blog',
+    path: '/apps/blog/allBlog',
     name: '博客',
     icon: 'briefcase',
     meta: { authRequired: true },
-    // create a container component
-    component: {
-      render(c) {
-        return c('router-view')
-      },
-    },
+    component: () => lazyLoadView(import('@views/pages/apps/blog/allBlog')),
     props: (route) => ({ user: store.state.auth.currentUser || {} }),
-    children: [
-      {
-        path: 'allBlog',
-        name: '全部博客',
-        meta: { authRequired: true },
-        component: () =>
-          lazyLoadView(import('@views/pages/apps/blog/allBlog')),
-      },
-      {
-        path: 'myBlog',
-        name: '我的博客分享',
-        meta: { authRequired: true },
-        component: () =>
-          lazyLoadView(import('@views/pages/apps/blog/myBlog')),
-      },
-    ],
   }
 ];
 

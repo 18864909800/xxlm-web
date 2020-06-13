@@ -84,67 +84,78 @@ const passwordAppsRoutes = [
     }
 ];
 
-// 公告/作业
-const noticeAppsRoutes = [
+// 首页
+const AppsRoutes = [
     {
         path: '/',
-        name: '公告',
+        name: '首页',
         header: '',
         icon: 'calendar',
-        component: () => lazyLoadView(import('@views/pages/apps/notice')),
+        component: () => lazyLoadView(import('@views/pages/apps/notice/index')),
         meta: {authRequired: true},
         props: (route) => ({user: store.state.auth.currentUser || {}}),
     }
 ];
+
+// 公告/作业
+const noticeAppsRoutes = [
+    {
+        path: '/notice',
+        name: '公告',
+        header: '',
+        icon: 'calendar',
+        meta: {authRequired: true},
+        component: {
+            render(c) {
+                return c('router-view')
+            },
+        },
+        props: (route) => ({user: store.state.auth.currentUser || {}}),
+        children: [
+            {
+                name: '公告',
+                path: 'notice',
+                meta: { authRequired: true },
+                component: () => lazyLoadView(import('@views/pages/apps/notice/index')),
+                // children: [
+                //     {
+                //         path:'details',
+                //         component: () => (import('@views/pages/apps/notice/noticeDetails'))
+                //     }
+                // ]
+            },
+            {
+                name: '发表公告',
+                path: 'notice-publish',
+                meta: { authRequired: true },
+                component: () => lazyLoadView(import('@views/pages/apps/notice/noticePublish')),
+            }
+        ]
+    }
+];
+
+// 公告详情
+// const routes = [
+//     {
+//         path: '/notice/notice/notice-details',
+//         header: '',
+//         component: () => lazyLoadView(import('@views/pages/apps/notice/noticeDetails')),
+//         meta: {authRequired: true},
+//         props: (route) => ({user: store.state.auth.currentUser || {}}),
+//     }
+// ];
+
 // 资料
 const dataAppsRoutes = [
     {
         path: '/apps/data/allData',
         name: '资料',
         icon: 'inbox',
-        component: () => lazyLoadView(import('@views/pages/apps/data/allData')),
+        component: () => lazyLoadView(import('@views/pages/apps/data/components/allData')),
         meta: {authRequired: true},
         props: (route) => ({user: store.state.auth.currentUser || {}}),
     }
 ];
-// const dataAppsRoutes = [
-//   {
-//     path: '/apps/data',
-//     name: '资料',
-//     icon: 'inbox',
-//     meta: { authRequired: true },
-//     // create a container component
-//     component: {
-//       render(c) {
-//         return c('router-view')
-//       },
-//     },
-//     props: (route) => ({ user: store.state.auth.currentUser || {} }),
-//     children: [
-//       {
-//         name: '全部资料',
-//         path: 'allData',
-//         meta: { authRequired: true },
-//         component: () =>
-//           lazyLoadView(import('@views/pages/apps/data/allData')),
-//       },
-//       {
-//         path: 'myData',
-//         name: '我的资料分享',
-//         meta: { authRequired: true },
-//         component: () =>
-//           lazyLoadView(import('@views/pages/apps/data/myData')),
-//       },
-//       // {
-//       //   path: 'compose',
-//       //   name: 'Compose Email',
-//       //   meta: { authRequired: true },
-//       //   component: () =>
-//       //     lazyLoadView(import('@views/pages/apps/data/emailcompose')),
-//       // },
-//     ],
-//   }
-// ];
 // 博客
 const blogAppsRoutes = [
     {
@@ -152,7 +163,7 @@ const blogAppsRoutes = [
         name: '博客',
         icon: 'briefcase',
         meta: {authRequired: true},
-        component: () => lazyLoadView(import('@views/pages/apps/blog/allBlog')),
+        component: () => lazyLoadView(import('@views/pages/apps/blog/components/allBlog')),
         props: (route) => ({user: store.state.auth.currentUser || {}}),
     }
 ];
@@ -169,7 +180,7 @@ const signinAppsRoutes = [
     }
 ];
 
-// 签到记录
+// 我的团队
 const myTeamRoutes = [
     {
         path: '/apps/myTeam/myTeam',
@@ -183,6 +194,7 @@ const myTeamRoutes = [
 
 
 const appsRoutes = [
+    ...AppsRoutes,
     ...noticeAppsRoutes,
     ...dataAppsRoutes,
     ...blogAppsRoutes,
@@ -198,6 +210,8 @@ const settingRoutes = [
     ...headPortraitAppsRoutes,
     ...passwordAppsRoutes
 ]
+
+
 const allRoutes = [...authRoutes, ...authProtectedRoutes, ...errorPagesRoutes, ...headPortraitAppsRoutes, ...passwordAppsRoutes]
 
 export {allRoutes, authProtectedRoutes, settingRoutes}

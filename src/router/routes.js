@@ -6,20 +6,20 @@ const authRoutes = [
         path: '/',
         name: 'login',
         component: () => lazyLoadView(import('@views/pages/account/login')),
-        meta: {
-            authRequired: true,
-            // beforeResolve(routeTo, routeFrom, next) {
-            //     // If the user is already logged in
-            //     if (store.getters['auth/loggedIn']) {
-            //         // Redirect to the home page instead
-            //         console.log("nnnn")
-            //
-            //     } else {
-            //         // Continue to the login page
-            //         next()
-            //     }
-            // },
-        },
+        // meta: {
+        //     authRequired: true,
+        //     // beforeResolve(routeTo, routeFrom, next) {
+        //     //     // If the user is already logged in
+        //     //     if (store.getters['auth/loggedIn']) {
+        //     //         // Redirect to the home page instead
+        //     //         console.log("nnnn")
+        //     //
+        //     //     } else {
+        //     //         // Continue to the login page
+        //     //         next()
+        //     //     }
+        //     // },
+        // },
         props: (route) => ({user: store.state.auth.currentUser || {}}),
     },
     {
@@ -94,7 +94,7 @@ const noticeAppsRoutes = [
         header: '',
         icon: 'calendar',
         component: () => lazyLoadView(import('@views/pages/apps/notice')),
-        meta: {authRequired: true},
+        // meta: {authRequired: true},
         props: (route) => ({user: store.state.auth.currentUser || {}}),
     }
 ];

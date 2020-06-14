@@ -189,9 +189,10 @@
             tryToLogIn() {
                 this.tryingToLogIn = true
                 this.authError = null
+                const that = this
                 this.axios({
                     method: "post",
-                    url: "https://api.lightingsui.com/user/login",
+                    url: "http://localhost:8081/user/login",
                     headers: {
                         'Content-type': 'application/x-www-form-urlencoded'
                     },
@@ -202,10 +203,15 @@
                         }
                     )
                 }).then(function (response) {
-                    // this.tryingToLogIn = false
-                    // this.isAuthError = false
+                    that.tryingToLogIn = false
+                    that.isAuthError = false
                     console.log(response);
+                   //  that.$router.push({path: '/notice'})
+                    that.$router.push(
+                        that.$route.query.redirectFrom || {name: 'Dashboard'}
+                    )
                 })
+
 
             }
         }

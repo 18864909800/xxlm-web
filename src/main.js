@@ -12,6 +12,9 @@ import vco from 'v-click-outside'
 import VueRouter from 'vue-router'
 import VueFeather from 'vue-feather'
 import flatPickr from 'vue-flatpickr-component'
+import axios from 'axios'
+
+Vue.prototype.axios = axios;
 
 Vue.use(VueFeather)
 Vue.use(flatPickr)

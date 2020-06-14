@@ -3,22 +3,24 @@ import store from '@state/store'
 // auth related routes
 const authRoutes = [
     {
-        path: '/login',
+        path: '/',
         name: 'login',
         component: () => lazyLoadView(import('@views/pages/account/login')),
-        // meta: {
-        //   beforeResolve(routeTo, routeFrom, next) {
-        //     // If the user is already logged in
-        //     if (store.getters['auth/loggedIn']) {
-        //       // Redirect to the home page instead
-        //       console.log("nnnn")
-        //
-        //     } else {
-        //       // Continue to the login page
-        //       next()
-        //     }
-        //   },
-        // },
+        meta: {
+            authRequired: true,
+            // beforeResolve(routeTo, routeFrom, next) {
+            //     // If the user is already logged in
+            //     if (store.getters['auth/loggedIn']) {
+            //         // Redirect to the home page instead
+            //         console.log("nnnn")
+            //
+            //     } else {
+            //         // Continue to the login page
+            //         next()
+            //     }
+            // },
+        },
+        props: (route) => ({user: store.state.auth.currentUser || {}}),
     },
     {
         path: '/logout',
@@ -87,7 +89,7 @@ const passwordAppsRoutes = [
 // 公告/作业
 const noticeAppsRoutes = [
     {
-        path: '/',
+        path: '/notice',
         name: '公告',
         header: '',
         icon: 'calendar',

@@ -19,8 +19,6 @@ export const layoutComputed = {
 export const authMethods = mapActions('auth', [
   'logIn',
   'logOut',
-  'register',
-  'resetPassword',
 ])
 
 export const layoutMethods = mapActions('layout', [

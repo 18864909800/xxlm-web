@@ -6,21 +6,7 @@ const authRoutes = [
         path: '/',
         name: 'login',
         component: () => lazyLoadView(import('@views/pages/account/login')),
-        // meta: {
-        //     authRequired: true,
-        //     // beforeResolve(routeTo, routeFrom, next) {
-        //     //     // If the user is already logged in
-        //     //     if (store.getters['auth/loggedIn']) {
-        //     //         // Redirect to the home page instead
-        //     //         console.log("nnnn")
-        //     //
-        //     //     } else {
-        //     //         // Continue to the login page
-        //     //         next()
-        //     //     }
-        //     // },
-        // },
-        props: (route) => ({user: store.state.auth.currentUser || {}}),
+       // props: (route) => ({user: store.state.auth.currentUser || {}}),
     },
     {
         path: '/logout',
@@ -65,6 +51,7 @@ const errorPagesRoutes = [
         redirect: '404',
     },
 ];
+
 // 修改头像
 const headPortraitAppsRoutes = [
     {
@@ -75,6 +62,7 @@ const headPortraitAppsRoutes = [
         props: (route) => ({user: store.state.auth.currentUser || {}}),
     }
 ];
+
 // 修改密码
 const passwordAppsRoutes = [
     {
@@ -94,10 +82,11 @@ const noticeAppsRoutes = [
         header: '',
         icon: 'calendar',
         component: () => lazyLoadView(import('@views/pages/apps/notice')),
-        // meta: {authRequired: true},
+        meta: {authRequired: true},
         props: (route) => ({user: store.state.auth.currentUser || {}}),
     }
 ];
+
 // 资料
 const dataAppsRoutes = [
     {
@@ -109,44 +98,7 @@ const dataAppsRoutes = [
         props: (route) => ({user: store.state.auth.currentUser || {}}),
     }
 ];
-// const dataAppsRoutes = [
-//   {
-//     path: '/apps/data',
-//     name: '资料',
-//     icon: 'inbox',
-//     meta: { authRequired: true },
-//     // create a container component
-//     component: {
-//       render(c) {
-//         return c('router-view')
-//       },
-//     },
-//     props: (route) => ({ user: store.state.auth.currentUser || {} }),
-//     children: [
-//       {
-//         name: '全部资料',
-//         path: 'allData',
-//         meta: { authRequired: true },
-//         component: () =>
-//           lazyLoadView(import('@views/pages/apps/data/allData')),
-//       },
-//       {
-//         path: 'myData',
-//         name: '我的资料分享',
-//         meta: { authRequired: true },
-//         component: () =>
-//           lazyLoadView(import('@views/pages/apps/data/myData')),
-//       },
-//       // {
-//       //   path: 'compose',
-//       //   name: 'Compose Email',
-//       //   meta: { authRequired: true },
-//       //   component: () =>
-//       //     lazyLoadView(import('@views/pages/apps/data/emailcompose')),
-//       // },
-//     ],
-//   }
-// ];
+
 // 博客
 const blogAppsRoutes = [
     {
@@ -171,7 +123,7 @@ const signinAppsRoutes = [
     }
 ];
 
-// 签到记录
+// 我的团队
 const myTeamRoutes = [
     {
         path: '/apps/myTeam/myTeam',
@@ -200,7 +152,7 @@ const settingRoutes = [
     ...headPortraitAppsRoutes,
     ...passwordAppsRoutes
 ]
-const allRoutes = [...authRoutes, ...authProtectedRoutes, ...errorPagesRoutes, ...headPortraitAppsRoutes, ...passwordAppsRoutes]
+const allRoutes = [ ...authRoutes,...authProtectedRoutes, ...errorPagesRoutes, ...headPortraitAppsRoutes, ...passwordAppsRoutes]
 
 export {allRoutes, authProtectedRoutes, settingRoutes}
 

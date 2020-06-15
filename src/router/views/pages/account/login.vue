@@ -2,6 +2,13 @@
     <Layout>
         <!-- end row -->
         <div class="account-pages my-5">
+            <div style="width: 890px;margin-left:100px ">
+                <b-alert variant="danger" show dismissible
+                >账号或者用户名错误
+                </b-alert>
+            </div>
+
+
             <div class="container">
                 <div class="row justify-content-center">
                     <div class="col-xl-10">
@@ -127,7 +134,7 @@
     import Layout from '@layouts/default'
     import {authMethods} from '@state/helpers'
     import appConfig from '@src/app.config'
-    import querystring from 'querystring'
+    // import querystring from 'querystring'
 
     /**
      * Login component
@@ -148,72 +155,88 @@
                 isAuthError: false,
             }
         },
-        computed: {
-            // placeholders() {
-            // 	return process.env.NODE_ENV === 'production'
-            // 		? {}
-            // 		: {
-            // 				username: 'Use "admin" to log in with the mock API',
-            // 				password: 'Use "password" to log in with the mock API',
-            // 		  }
-            // },
-        },
+        // computed: {
+        //     placeholders() {
+        //     	return process.env.NODE_ENV === 'production'
+        //     		? {}
+        //     		: {
+        //     				username: 'Use "admin" to log in with the mock API',
+        //     				password: 'Use "password" to log in with the mock API',
+        //     		  }
+        //     },
+        // },
         methods: {
             ...authMethods,
             // Try to log the user in with the username
             // and password they provided.
 
 
-            // tryToLogIn() {
-            // 	this.tryingToLogIn = true
-            // 	// Reset the authError if it existed.
-            // 	this.authError = null
-            // 	return this.logIn({
-            // 		username: this.username,
-            // 		password: this.password,
-            // 	})
-            // 		.then((token) => {
-            // 			this.tryingToLogIn = false
-            // 			this.isAuthError = false
-            // 			// Redirect to the originally requested page, or to the home page
-            // 			this.$router.push(
-            // 				this.$route.query.redirectFrom || { name: 'Dashboard' }
-            // 			)
-            // 		})
-            // 		.catch((error) => {
-            // 			this.tryingToLogIn = false
-            // 			this.authError = error.response ? error.response.data.message : ''
-            // 			this.isAuthError = true
-            // 		})
-            // },
             tryToLogIn() {
                 this.tryingToLogIn = true
+                // Reset the authError if it existed.
                 this.authError = null
-                const that = this
-                this.axios({
-                    method: "post",
-                    url: "http://localhost:8081/user/login",
-                    headers: {
-                        'Content-type': 'application/x-www-form-urlencoded'
-                    },
-                    data: querystring.stringify(
-                        {
-                            username: this.username,
-                            password: this.password,
-                        }
-                    )
-                }).then(function (response) {
-                    that.tryingToLogIn = false
-                    that.isAuthError = false
-                    console.log(response);
-                   //  that.$router.push({path: '/notice'})
-                    that.$router.push(
-                        that.$route.query.redirectFrom || {name: 'Dashboard'}
-                    )
+
+
+                return this.logIn({
+                    username: this.username,
+                    password: this.password,
+                }).then((token) => {
+                    console.log(token.responseCode);
+                    this.tryingToLogIn = false
+                    this.isAuthError = false
+                    if (token.responseCode != 500) {
+
+                        // Redirect to the originally requested page, or to the home page
+                        this.$router.push(
+                            this.$route.query.redirectFrom || {name: '公告'}
+                        )
+                    } else {
+
+                    }
+
+                }).catch((error) => {
+                    console.log(error);
+                    this.tryingToLogIn = false
+                    this.authError = error.response ? error.response.data.message : ''
+                    this.isAuthError = true
                 })
-
-
-            }
+            },
+            // tryToLogIn() {
+            //     this.tryingToLogIn = true
+            //     this.authError = null
+            //     const that = this
+            //     this.axios({
+            //         method: "post",
+            //         url: "http://localhost:8081/user/login",
+            //         headers: {
+            //             'Content-type': 'application/x-www-form-urlencoded'
+            //         },
+            //         data: querystring.stringify(
+            //             {
+            //                 username: this.username,
+            //                 password: this.password,
+            //             }
+            //         )
+            //     }).then(function (response) {
+            //         // 登录传参
+            //         // const Uname = that.username
+            //         that.tryingToLogIn = false
+            //         that.isAuthError = false
+            //         console.log(response);
+            //         // that.$router.replace('/notice')
+            //         // that.$router.push({path: `/notice/${Uname}`})
+            //          that.$router.push(
+            //              that.$route.query.redirectFrom || {name: 'Dashboard'}
+            //          )
+            //     }).catch((error) => {
+            //         that.tryingToLogIn = false
+            //         // that.authError = error.response ? error.response.data.message : ''
+            //         that.isAuthError = true
+            //         console.log(error)
+            //     })
+            //
+            //
+            // }
         }
 
     }

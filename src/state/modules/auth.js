@@ -51,10 +51,7 @@ export const actions = {
                 {username, password}
             )
         }).then((response) => {
-
-
                 const user = response.data
-
                 user["flag"] = true;
                 commit('SET_CURRENT_USER', user)
                 return user

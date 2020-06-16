@@ -2,7 +2,8 @@
     <Layout>
         <!-- end row -->
         <div class="account-pages my-5">
-            <div style="width: 890px;margin-left:100px ">
+            <div id="login-danger"
+                 style="position: absolute;z-index: 100;width: 500px;margin-left: 300px;display: none">
                 <b-alert variant="danger" show dismissible
                 >账号或者用户名错误
                 </b-alert>
@@ -191,7 +192,7 @@
                             this.$route.query.redirectFrom || {name: '公告'}
                         )
                     } else {
-
+                        document.getElementById('login-danger').style.display = 'inline';
                     }
 
                 }).catch((error) => {

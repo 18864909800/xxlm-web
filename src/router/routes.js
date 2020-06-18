@@ -102,7 +102,6 @@ const noticeAppsRoutes = [
     {
         path: '/notice',
         name: '公告',
-        header: '',
         icon: 'calendar',
         meta: {authRequired: true},
         component: {
@@ -117,12 +116,6 @@ const noticeAppsRoutes = [
                 path: 'notice',
                 meta: { authRequired: true },
                 component: () => lazyLoadView(import('@views/pages/apps/notice/index')),
-                // children: [
-                //     {
-                //         path:'details',
-                //         component: () => (import('@views/pages/apps/notice/noticeDetails'))
-                //     }
-                // ]
             },
             {
                 name: '发表公告',
@@ -134,26 +127,39 @@ const noticeAppsRoutes = [
     }
 ];
 
-// 公告详情
-// const routes = [
-//     {
-//         path: '/notice/notice/notice-details',
-//         header: '',
-//         component: () => lazyLoadView(import('@views/pages/apps/notice/noticeDetails')),
-//         meta: {authRequired: true},
-//         props: (route) => ({user: store.state.auth.currentUser || {}}),
-//     }
-// ];
-
 // 资料
 const dataAppsRoutes = [
     {
-        path: '/apps/data/allData',
+        path: '/data',
         name: '资料',
         icon: 'inbox',
-        component: () => lazyLoadView(import('@views/pages/apps/data/components/allData')),
         meta: {authRequired: true},
+        component: {
+            render(c) {
+                return c('router-view')
+            },
+        },
         props: (route) => ({user: store.state.auth.currentUser || {}}),
+        children: [
+            {
+                name: '资料',
+                path: 'data',
+                meta: { authRequired: true },
+                component: () => lazyLoadView(import('@views/pages/apps/data/index')),
+            },
+            {
+                name: '分享资料',
+                path: 'data-share',
+                meta: { authRequired: true },
+                component: () => lazyLoadView(import('@views/pages/apps/data/dataShare')),
+            },
+            {
+                name: '我的分享',
+                path: 'my-data',
+                meta: { authRequired: true },
+                component: () => lazyLoadView(import('@views/pages/apps/data/myData')),
+            }
+        ]
     }
 ];
 // 博客
@@ -163,7 +169,7 @@ const blogAppsRoutes = [
         name: '博客',
         icon: 'briefcase',
         meta: {authRequired: true},
-        component: () => lazyLoadView(import('@views/pages/apps/blog/components/allBlog')),
+        component: () => lazyLoadView(import('@views/pages/apps/blog/allBlog')),
         props: (route) => ({user: store.state.auth.currentUser || {}}),
     }
 ];

@@ -9,12 +9,12 @@
                         <div class="row align-items-center">
                             <div class="col">
                                 <label class="font-weight-bold d-inline mr-2" style="font-size: 18px">
-                                    公告发表
+                                    资料分享
                                 </label>
                             </div>
                             <div class="col text-right">
                                 <button id="btn-new-event" class="btn btn-primary" @click="noticePublish">
-                                    <i class="uil-share-alt mr-1"></i>发表
+                                    <i class="uil-share-alt mr-1"></i>分享
                                 </button>
                             </div>
                         </div>
@@ -55,9 +55,33 @@
                                         ></b-form-input>
                                     </b-form-group>
 
-                                    <div class="form-group">
-                                        <vue-editor v-model="text"></vue-editor>
-                                    </div>
+                                    <b-form-group
+                                            label-cols-sm="10"
+                                            label-cols-lg="1"
+                                            label="链接"
+                                            label-for="input-horizontal"
+                                    >
+                                        <b-form-input
+                                                id="input-horizontal"
+                                                v-model="link"
+                                        ></b-form-input>
+                                    </b-form-group>
+
+                                    <b-form-group
+                                            label-cols-sm="11"
+                                            label-cols-lg="1"
+                                            label="描述"
+                                            label-for="example-textarea"
+                                    >
+                                        <b-form-textarea
+                                                id="example-textarea"
+                                                size="lg"
+                                                rows="3"
+                                                v-model="text"
+                                        ></b-form-textarea>
+                                    </b-form-group>
+
+
                                 </div>
                             </div>
                         </b-form>
@@ -66,17 +90,17 @@
             </div>
         </div>
 
-        <!--公告发表确认模态框-->
-        <b-modal v-model="publishModel" title="公告发表" title-class="font-18">
+        <!--资料分享确认模态框-->
+        <b-modal v-model="publishModel" title="资料分享" title-class="font-18">
             <!--<h6>公告发表</h6>-->
-            <p>确认发表该公告吗？</p>
+            <p>确认分享该资料吗？</p>
             <!--<hr />-->
             <template v-slot:modal-footer>
                 <b-button variant="light" @click="publishModel = false">取消</b-button>
                 <b-button variant="primary" @click="publishConfirm">确认</b-button>
             </template>
         </b-modal>
-        <!--公告发表确认模态框-->
+        <!--资料分享确认模态框-->
 
     </Layout>
 </template>
@@ -85,42 +109,87 @@
     import appConfig from '@src/app.config'
     import Layout from '@layouts/main'
     import PageHeader from '@components/page-header'
-    import { VueEditor } from 'vue2-editor'
 
     export default {
         page: {
-            title: '发表公告',
-            meta: [{ name: 'description', content: appConfig.description }],
+            title: '分享资料',
+            meta: [{name: 'description', content: appConfig.description}],
         },
-        components: { Layout, PageHeader, VueEditor},
+        components: {Layout, PageHeader},
         data() {
             return {
 
                 // 模态框显示开关
-                publishModel:false,
+                publishModel: false,
 
-                // 公告类型
+                // 资料类型
+                // options: ['Python','Java','架构','数据库','区块链','云计算','前端','人工智能','大数据','移动开发'],
+
                 options: [
                     {
                         id:1,
-                        opt:'普通公告'
+                        opt:'Python'
                     },
                     {
                         id:2,
-                        opt:'作业公告'
-                    }
+                        opt:'Java'
+                    },
+                    {
+                        id:3,
+                        opt:'架构'
+                    },
+                    {
+                        id:4,
+                        opt:'数据库'
+                    },{
+                        id:5,
+                        opt:'区块链'
+                    },
+                    {
+                        id:6,
+                        opt:'云计算'
+                    },
+                    {
+                        id:7,
+                        opt:'前端'
+                    },
+                    {
+                        id:8,
+                        opt:'人工智能'
+                    },
+                    {
+                        id:9,
+                        opt:'大数据'
+                    },
+                    {
+                        id:10,
+                        opt:'5G'
+                    },
+                    {
+                        id:11,
+                        opt:'移动开发'
+                    },
                 ],
 
-                title:'',
-                type:'',
-                text:''
+                title: '',
+                type: '',
+                typeId: '',
+                link: '',
+                text: ''
             }
         },
-        computed: {
+        computed: {},
 
+        oncreated() {
+            // 获取资料类型
         },
 
         methods: {
+
+            typeSelect() {
+                console.log('111')
+            },
+
             noticePublish() {
 
                 if (this.type == null || this.type === '') {
@@ -139,10 +208,18 @@
                     });
                     return;
                 }
+                if (this.link == null || this.link === '') {
+                    this.$notify({
+                        title: '警告',
+                        message: '请填写资料链接',
+                        type: 'warning'
+                    });
+                    return;
+                }
                 if (this.text == null || this.text === '') {
                     this.$notify({
                         title: '警告',
-                        message: '请填写内容',
+                        message: '请填写描述',
                         type: 'warning'
                     });
                     return;
@@ -155,6 +232,7 @@
             publishConfirm() {
                 console.log(this.title);
                 console.log(this.type);
+                console.log(this.link);
                 console.log(this.text);
 
                 this.publishModel = false;
@@ -163,3 +241,14 @@
     }
 </script>
 
+<style lang="scss">
+    .select{
+        .el-select .el-input.is-focus .el-input__inner {
+            border-color: #5369f8;;
+        }
+        .el-select .el-input__inner:focus {
+            border-color: #5369f8;;
+        }
+
+    }
+</style>

@@ -88,8 +88,9 @@ export const actions = {
     // Validates the current user's token and refreshes it
     // with new data from the API.
     validate({commit, state}) {
+        console.log(state)
         if(state.currentUser.flag != undefined) {
-            return true;
+            return state;
         }
 
         // TODO: 以下为拦截逻辑

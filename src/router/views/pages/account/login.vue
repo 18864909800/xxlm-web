@@ -4,7 +4,7 @@
         <div class="account-pages my-5">
             <div id="login-danger"
                  style="position: absolute;z-index: 100;width: 500px;margin-left: 300px;display: none">
-                <b-alert variant="danger" show dismissible
+                <b-alert id="b-alert" variant="danger" show dismissible
                 >账号或者用户名错误
                 </b-alert>
             </div>
@@ -132,10 +132,12 @@
     </Layout>
 </template>
 <script>
+
+
     import Layout from '@layouts/default'
     import {authMethods} from '@state/helpers'
     import appConfig from '@src/app.config'
-    // import querystring from 'querystring'
+
 
     /**
      * Login component
@@ -166,6 +168,7 @@
         //     		  }
         //     },
         // },
+
         methods: {
             ...authMethods,
             // Try to log the user in with the username
@@ -187,11 +190,13 @@
                     this.isAuthError = false
                     if (token.responseCode != 500) {
 
-                        // Redirect to the originally requested page, or to the home page
-                        this.$router.push(
-                            this.$route.query.redirectFrom || {name: '公告'}
-                        )
+
+                            // Redirect to the originally requested page, or to the home page
+                            this.$router.push(
+                                this.$route.query.redirectFrom || {name: '公告'}
+                            )
                     } else {
+                        document.getElementById('b-alert').innerText = '账号或者用户名错误';
                         document.getElementById('login-danger').style.display = 'inline';
                     }
 
@@ -200,44 +205,11 @@
                     this.tryingToLogIn = false
                     this.authError = error.response ? error.response.data.message : ''
                     this.isAuthError = true
+                    document.getElementById('b-alert').innerHTML = '服务器错误';
+                    document.getElementById('login-danger').style.display = 'inline';
                 })
             },
-            // tryToLogIn() {
-            //     this.tryingToLogIn = true
-            //     this.authError = null
-            //     const that = this
-            //     this.axios({
-            //         method: "post",
-            //         url: "http://localhost:8081/user/login",
-            //         headers: {
-            //             'Content-type': 'application/x-www-form-urlencoded'
-            //         },
-            //         data: querystring.stringify(
-            //             {
-            //                 username: this.username,
-            //                 password: this.password,
-            //             }
-            //         )
-            //     }).then(function (response) {
-            //         // 登录传参
-            //         // const Uname = that.username
-            //         that.tryingToLogIn = false
-            //         that.isAuthError = false
-            //         console.log(response);
-            //         // that.$router.replace('/notice')
-            //         // that.$router.push({path: `/notice/${Uname}`})
-            //          that.$router.push(
-            //              that.$route.query.redirectFrom || {name: 'Dashboard'}
-            //          )
-            //     }).catch((error) => {
-            //         that.tryingToLogIn = false
-            //         // that.authError = error.response ? error.response.data.message : ''
-            //         that.isAuthError = true
-            //         console.log(error)
-            //     })
-            //
-            //
-            // }
+
         }
 
     }

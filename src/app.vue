@@ -9,6 +9,7 @@ export default {
       return title ? `${title} | ${appConfig.title}` : appConfig.title
     },
   },
+
 }
 </script>
 

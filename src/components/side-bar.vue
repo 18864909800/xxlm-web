@@ -1,8 +1,10 @@
 <script>
+
     import VuePerfectScrollbar from 'vue-perfect-scrollbar'
     import {authComputed} from '@state/helpers'
     import Appmenu from './app-menu'
     import {settingRoutes} from '../router/routes'
+    import axios from '../utils/http.js'
 
     /**
      * Left sidebar component - contains mainly the application menu
@@ -38,7 +40,11 @@
                     minScrollbarLength: 60,
                 },
                 // 用户身份
-                userIdentity: ''
+                userIdentity: '',
+                // 用户姓名
+                userName:null,
+                // 用户头像
+                umHeadUrl:null
             }
         },
         computed: {
@@ -89,6 +95,13 @@
                 }
             },
         },
+        // beforeMount () {
+        //     Vue.prototype.$cookieStore = {
+        //         setCookie,
+        //         getCookie,
+        //         delCookie
+        //     }
+        // },
         created() {
             // console.log("222")
             // console.log(this.user.data.identify)
@@ -99,12 +112,20 @@
             }
 
 
-        },
-        mounted(){
-            this.axios.get('http://localhost:8081/user/select-admin-message').then(res=>{
-                console.log(res)
+
+            // this.$cookieStore.getCookie(JSESSIONID)
+            //  侧边栏获取信息
+            axios.get('http://localhost:8081/user/select-admin-message').then(res=>{
+                // console.log("侧边栏数据接口")
+                // console.log(this.user.data.sessionId)
+                // console.log(res)
+                this.userName=res.data.data.umName
+                this.umHeadUrl=res.data.data.umHeadUrl
             })
-        }
+
+        },
+
+
     }
 </script>
 
@@ -113,18 +134,12 @@
     <div class="left-side-menu">
         <div class="media user-profile mt-2 mb-2">
             <img
-                    src="@assets/images/users/avatar-7.jpg"
+                    :src=this.umHeadUrl
                     class="avatar-sm rounded-circle mr-2"
-                    alt="Shreyu"
+                    alt="用户头像"
             />
-            <img
-                    src="@assets/images/users/avatar-7.jpg"
-                    class="avatar-xs rounded-circle mr-2"
-                    alt="Shreyu"
-            />
-
             <div class="media-body">
-                <h6 class="pro-user-name mt-0 mb-0">'此处用户名'</h6>
+                <h6 class="pro-user-name mt-0 mb-0">{{userName}}</h6>
                 <span class="pro-user-desc">{{ userIdentity }}</span>
             </div>
             <b-dropdown variant="black" class="align-self-center" toggle-class="p-0">

@@ -72,27 +72,81 @@ const passwordAppsRoutes = [
     }
 ];
 
+// 首页
+const AppsRoutes = [
+    {
+        path: '/index',
+        name: '首页',
+        header: '',
+        icon: 'calendar',
+        component: () => lazyLoadView(import('@views/pages/apps/notice/index')),
+        meta: {authRequired: true},
+        props: (route) => ({user: store.state.auth.currentUser || {}}),
+    }
+];
+
 // 公告/作业
 const noticeAppsRoutes = [
     {
         path: '/notice',
         name: '公告',
-        header: '',
         icon: 'calendar',
-        component: () => lazyLoadView(import('@views/pages/apps/notice')),
         meta: {authRequired: true},
+        component: {
+            render(c) {
+                return c('router-view')
+            },
+        },
         props: (route) => ({user: store.state.auth.currentUser || {}}),
+        children: [
+            {
+                name: '公告',
+                path: 'notice',
+                meta: { authRequired: true },
+                component: () => lazyLoadView(import('@views/pages/apps/notice/index')),
+            },
+            {
+                name: '发表公告',
+                path: 'notice-publish',
+                meta: { authRequired: true },
+                component: () => lazyLoadView(import('@views/pages/apps/notice/noticePublish')),
+            }
+        ]
     }
 ];
 // 资料
 const dataAppsRoutes = [
     {
-        path: '/apps/data/allData',
+        path: '/data',
         name: '资料',
         icon: 'inbox',
-        component: () => lazyLoadView(import('@views/pages/apps/data/allData')),
         meta: {authRequired: true},
+        component: {
+            render(c) {
+                return c('router-view')
+            },
+        },
         props: (route) => ({user: store.state.auth.currentUser || {}}),
+        children: [
+            {
+                name: '资料',
+                path: 'data',
+                meta: { authRequired: true },
+                component: () => lazyLoadView(import('@views/pages/apps/data/index')),
+            },
+            {
+                name: '分享资料',
+                path: 'data-share',
+                meta: { authRequired: true },
+                component: () => lazyLoadView(import('@views/pages/apps/data/dataShare')),
+            },
+            {
+                name: '我的分享',
+                path: 'my-data',
+                meta: { authRequired: true },
+                component: () => lazyLoadView(import('@views/pages/apps/data/myData')),
+            }
+        ]
     }
 ];
 
@@ -146,12 +200,12 @@ const myTeamRoutes = [
 
 
 const appsRoutes = [
+    ...AppsRoutes,
     ...noticeAppsRoutes,
     ...dataAppsRoutes,
     ...blogAppsRoutes,
-    ...aSigninAppsRoutes,
-    ...uSigninAppsRoutes,
-    ...myTeamRoutes,
+    ...signinAppsRoutes,
+    ...myTeamRoutes
 ]
 
 const authProtectedRoutes = [

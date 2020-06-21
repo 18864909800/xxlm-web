@@ -12,16 +12,11 @@ import vco from 'v-click-outside'
 import VueRouter from 'vue-router'
 import VueFeather from 'vue-feather'
 import flatPickr from 'vue-flatpickr-component'
-// import axios from './utils/http.js'
-// import ElementUI from 'element-ui'
-// import 'element-ui/lib/theme-chalk/index.css'
-// import Axios from 'axios'
+import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css';
 
 
-
-// Vue.use(ElementUI);
-
-
+Vue.use(ElementUI)
 Vue.use(VueFeather)
 Vue.use(flatPickr)
 
@@ -60,6 +55,3 @@ if (process.env.VUE_APP_TEST === 'e2e') {
     // such as `cy.logIn()`.
     window.__app__ = app
 }
-
-
-

@@ -157,19 +157,31 @@ const blogAppsRoutes = [
     }
 ];
 
-// 签到记录
-const signinAppsRoutes = [
+// 管理员签到记录
+const aSigninAppsRoutes = [
     {
-        path: '/apps/signin',
-        name: '签到记录',
+        path: '/apps/aRecords',
+        name: '管理员签到记录',
         icon: 'file-text',
-        component: () => lazyLoadView(import('@views/pages/apps/signin')),
+        component: () => lazyLoadView(import('@views/pages/apps/signin/a_records')),
         meta: {authRequired: true},
         props: (route) => ({user: store.state.auth.currentUser || {}}),
     }
 ];
 
-// 签到记录
+// 普通用户签到记录
+const uSigninAppsRoutes = [
+    {
+        path: '/apps/uRecords',
+        name: '个人签到记录',
+        icon: 'file-text',
+        component: () => lazyLoadView(import('@views/pages/apps/signin/u_records')),
+        meta: {authRequired: true},
+        props: (route) => ({user: store.state.auth.currentUser || {}}),
+    }
+];
+
+// 我的团队
 const myTeamRoutes = [
     {
         path: '/apps/myTeam/myTeam',
@@ -182,12 +194,15 @@ const myTeamRoutes = [
 ];
 
 
+
+
 const appsRoutes = [
     ...noticeAppsRoutes,
     ...dataAppsRoutes,
     ...blogAppsRoutes,
-    ...signinAppsRoutes,
-    ...myTeamRoutes
+    ...aSigninAppsRoutes,
+    ...uSigninAppsRoutes,
+    ...myTeamRoutes,
 ]
 
 const authProtectedRoutes = [

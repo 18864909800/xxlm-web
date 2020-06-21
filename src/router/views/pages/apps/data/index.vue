@@ -26,75 +26,71 @@
 
         <div style="display: flex; justify-content: space-between; margin:0;">
 
-            <div class="row" style="width: 78%;height: 450px;overflow-x: hidden;overflow-y: scroll">
-                <div class="col-12">
-                    <div class="board">
-                        <!-- todo tasks -->
-                        <div class="tasks border" style="width: 100%;margin-bottom: 0">
-                            <div id="task-list-two" class="task-list-items">
-                                <transition-group type="transition" :name="'flip-list'">
-                                    <div v-for="(data,index) in dataList" :key="data.id"
-                                         @click="noticeDetail(index)">
-                                        <div class="card border mb-0">
-                                            <div class="card-body p-3">
+            <el-scrollbar style="width: 78%;height: 450px;">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="board">
+                            <!-- todo tasks -->
+                            <div class="tasks border" style="width: 100%;margin-bottom: 0">
+                                <div id="task-list-two" class="task-list-items">
+                                    <transition-group type="transition" :name="'flip-list'">
+                                        <div v-for="(data,index) in dataList" :key="data.id"
+                                             @click="noticeDetail(index)">
+                                            <div class="card border mb-0">
+                                                <div class="card-body p-3">
 
-                                                <h6 class="mt-0 mb-2 font-size-15">
-                                                    <a href="javascript: void(0);"
-                                                       class="text-body">{{ data.title }}
-                                                    </a>
-                                                </h6>
+                                                    <h6 class="mt-0 mb-2 font-size-15">
+                                                        <a href="javascript: void(0);"
+                                                           class="text-body">{{ data.title }}
+                                                        </a>
+                                                    </h6>
 
-                                                <div>{{data.text}}</div>
+                                                    <div>{{data.text}}</div>
 
-                                                <a :href="data.address">{{data.address}}</a>
+                                                    <a :href="data.address">{{data.address}}</a>
 
-                                                <p class="mb-0 mt-2">
-                                                    <small class=" text-muted mr-2">
-                                                        {{data.name}}
-                                                    </small>
+                                                    <p class="mb-0 mt-2">
+                                                        <small class=" text-muted mr-2">
+                                                            {{data.name}}
+                                                        </small>
 
-                                                    <small class=" text-muted">
-                                                        {{ data.date }}
-                                                    </small>
+                                                        <small class=" text-muted">
+                                                            {{ data.date }}
+                                                        </small>
 
-                                                    <span class="text-nowrap align-middle font-size-13 mr-2 float-right">
+                                                        <span class="text-nowrap align-middle font-size-13 mr-2 float-right">
                                                             <i class="uil uil-eye text-muted mr-1"></i>
                                                             {{ data.hits }}
                                                           </span>
-                                                    <!--<span class="text-nowrap align-middle font-size-13 mr-2 float-right">-->
-                                                    <!--<i class="uil uil-trash-alt text-muted mr-1"></i>-->
-                                                    <!--</span>-->
-                                                </p>
+                                                        <!--<span class="text-nowrap align-middle font-size-13 mr-2 float-right">-->
+                                                        <!--<i class="uil uil-trash-alt text-muted mr-1"></i>-->
+                                                        <!--</span>-->
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </transition-group>
+                                    </transition-group>
+                                </div>
                             </div>
+                            <!-- end - todo tasks -->
                         </div>
-                        <!-- end - todo tasks -->
                     </div>
                 </div>
-            </div>
+            </el-scrollbar>
 
-            <el-col :span="5" style="height: 450px;overflow-x: hidden;overflow-y: scroll">
-                <el-menu
-                        default-active="2"
-                        class="el-menu-vertical-demo"
-                        @open="handleOpen"
-                        @close="handleClose"
-                        v-for="item in tabOptions"
-                        :key="item.id">
-                    <el-menu-item :index="item.id">
+            <el-scrollbar class="card" style="width: 20%;height: 450px;">
+                <el-menu v-for="item in tabOptions" :key="item.id" :default-active="tabOptions[0].id">
+                    <el-menu-item @click="menuSelect(item.id)">
                         <span slot="title">{{item.tab}}</span>
                     </el-menu-item>
                 </el-menu>
-            </el-col>
+            </el-scrollbar>
+
         </div>
 
         <!--添加分类模态框-->
         <b-modal
                 v-model="scrollModal"
-                scrollable
                 title="添加资料分类"
                 title-class="font-18"
         >
@@ -239,6 +235,40 @@
             addType() {
                 this.scrollModal = false;
             },
+            menuSelect(index) {
+                console.log(index);
+            }
         }
     }
 </script>
+
+<style>
+    .el-scrollbar__wrap {
+        overflow-x: hidden;
+    }
+
+
+    .is-horizontal {
+        display: none;
+    }
+
+</style>
+
+<!--<style>-->
+    <!--/* 设置滚动条的样式 */-->
+    <!--::-webkit-scrollbar {-->
+        <!--width:12px;-->
+        <!--background-color: aqua;-->
+    <!--}-->
+
+    <!--/* 滚动槽 */-->
+    <!--::-webkit-scrollbar-track {-->
+        <!--border-radius:10px;-->
+    <!--}-->
+
+    <!--/* 滚动条滑块 */-->
+    <!--::-webkit-scrollbar-thumb {-->
+        <!--border-radius:10px;-->
+        <!--background:black;-->
+    <!--}-->
+<!--</style>-->

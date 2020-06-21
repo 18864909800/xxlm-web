@@ -18,62 +18,70 @@
       </div>
     </div>
 
-    <div class="card">
-      <el-tabs tab-position="right" style="height: 380px">
-        <el-tab-pane v-for="tab in tabOptions" :key="tab.id" :label='tab.tab'
-                     style="height: 380px;overflow-x: hidden; overflow-y: auto;">
-          <div class="row">
-            <div class="col-12">
-              <div class="board">
-                <!-- todo tasks -->
-                <div class="tasks border" style="width: 100%;margin-bottom: 0">
-                  <div id="task-list-two" class="task-list-items">
-                    <transition-group type="transition" :name="'flip-list'">
-                      <div v-for="(data,index) in dataList" :key="data.id"
-                           @click="noticeDetail(index)">
-                        <div class="card border mb-0">
-                          <div class="card-body p-3">
+    <div style="display: flex; justify-content: space-between; margin:0;">
 
-                            <h6 class="mt-0 mb-2 font-size-15">
-                              <a href="javascript: void(0);"
-                                 class="text-body">{{ data.title }}
-                              </a>
-                            </h6>
+      <el-scrollbar style="width: 78%;height: 450px;">
+        <div class="row">
+          <div class="col-12">
+            <div class="board">
+              <!-- todo tasks -->
+              <div class="tasks border" style="width: 100%;margin-bottom: 0">
+                <div id="task-list-two" class="task-list-items">
+                  <transition-group type="transition" :name="'flip-list'">
+                    <div v-for="(data,index) in dataList" :key="data.id"
+                         @click="noticeDetail(index)">
+                      <div class="card border mb-0">
+                        <div class="card-body p-3">
 
-                            <div>{{data.text}}</div>
+                          <h6 class="mt-0 mb-2 font-size-15">
+                            <a href="javascript: void(0);"
+                               class="text-body">{{ data.title }}
+                            </a>
+                          </h6>
 
-                            <a :href="data.address">{{data.address}}</a>
+                          <div>{{data.text}}</div>
 
-                            <p class="mb-0 mt-2">
-                              <small class=" text-muted mr-2">
-                                {{data.name}}
-                              </small>
+                          <a :href="data.address">{{data.address}}</a>
 
-                              <small class=" text-muted">
-                                {{ data.date }}
-                              </small>
+                          <p class="mb-0 mt-2">
+                            <small class=" text-muted mr-2">
+                              {{data.name}}
+                            </small>
 
-                              <span class="text-nowrap align-middle font-size-13 mr-2 float-right">
-                                                                <i class="uil uil-eye text-muted mr-1"></i>
-                                                                {{ data.hits }}
-                                                              </span>
-                              <span class="text-nowrap align-middle font-size-13 mr-2 float-right">
-                                <i class="uil uil-trash-alt text-muted mr-1"></i>
-                              </span>
-                            </p>
-                          </div>
+                            <small class=" text-muted">
+                              {{ data.date }}
+                            </small>
+
+                            <span class="text-nowrap align-middle font-size-13 mr-2 float-right">
+                                                            <i class="uil uil-eye text-muted mr-1"></i>
+                                                            {{ data.hits }}
+                                                          </span>
+                            <!--<span class="text-nowrap align-middle font-size-13 mr-2 float-right">-->
+                            <!--<i class="uil uil-trash-alt text-muted mr-1"></i>-->
+                            <!--</span>-->
+                          </p>
                         </div>
                       </div>
-                    </transition-group>
-                  </div>
+                    </div>
+                  </transition-group>
                 </div>
-                <!-- end - todo tasks -->
               </div>
+              <!-- end - todo tasks -->
             </div>
           </div>
-        </el-tab-pane>
-      </el-tabs>
+        </div>
+      </el-scrollbar>
+
+      <el-scrollbar class="card" style="width: 20%;height: 450px;">
+        <el-menu v-for="item in tabOptions" :key="item.id" :default-active="tabOptions[0].id">
+          <el-menu-item @click="menuSelect(item.id)">
+            <span slot="title">{{item.tab}}</span>
+          </el-menu-item>
+        </el-menu>
+      </el-scrollbar>
+
     </div>
+
 
   </Layout>
 </template>

@@ -51,7 +51,6 @@ const errorPagesRoutes = [
         redirect: '404',
     },
 ];
-
 // 修改头像
 const headPortraitAppsRoutes = [
     {
@@ -62,7 +61,6 @@ const headPortraitAppsRoutes = [
         props: (route) => ({user: store.state.auth.currentUser || {}}),
     }
 ];
-
 // 修改密码
 const passwordAppsRoutes = [
     {
@@ -86,7 +84,6 @@ const noticeAppsRoutes = [
         props: (route) => ({user: store.state.auth.currentUser || {}}),
     }
 ];
-
 // 资料
 const dataAppsRoutes = [
     {
@@ -111,13 +108,25 @@ const blogAppsRoutes = [
     }
 ];
 
-// 签到记录
-const signinAppsRoutes = [
+// 管理员签到记录
+const aSigninAppsRoutes = [
     {
-        path: '/apps/signin',
-        name: '签到记录',
+        path: '/apps/aRecords',
+        name: '管理员签到记录',
         icon: 'file-text',
-        component: () => lazyLoadView(import('@views/pages/apps/signin')),
+        component: () => lazyLoadView(import('@views/pages/apps/signin/a_records')),
+        meta: {authRequired: true},
+        props: (route) => ({user: store.state.auth.currentUser || {}}),
+    }
+];
+
+// 普通用户签到记录
+const uSigninAppsRoutes = [
+    {
+        path: '/apps/uRecords',
+        name: '个人签到记录',
+        icon: 'file-text',
+        component: () => lazyLoadView(import('@views/pages/apps/signin/u_records')),
         meta: {authRequired: true},
         props: (route) => ({user: store.state.auth.currentUser || {}}),
     }
@@ -140,8 +149,9 @@ const appsRoutes = [
     ...noticeAppsRoutes,
     ...dataAppsRoutes,
     ...blogAppsRoutes,
-    ...signinAppsRoutes,
-    ...myTeamRoutes
+    ...aSigninAppsRoutes,
+    ...uSigninAppsRoutes,
+    ...myTeamRoutes,
 ]
 
 const authProtectedRoutes = [

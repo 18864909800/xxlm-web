@@ -72,18 +72,7 @@ const passwordAppsRoutes = [
     }
 ];
 
-// 首页
-const AppsRoutes = [
-    {
-        path: '/index',
-        name: '首页',
-        header: '',
-        icon: 'calendar',
-        component: () => lazyLoadView(import('@views/pages/apps/notice/index')),
-        meta: {authRequired: true},
-        props: (route) => ({user: store.state.auth.currentUser || {}}),
-    }
-];
+
 
 // 公告/作业
 const noticeAppsRoutes = [
@@ -200,11 +189,11 @@ const myTeamRoutes = [
 
 
 const appsRoutes = [
-    ...AppsRoutes,
     ...noticeAppsRoutes,
     ...dataAppsRoutes,
     ...blogAppsRoutes,
-    ...signinAppsRoutes,
+    ...aSigninAppsRoutes,
+    ...uSigninAppsRoutes,
     ...myTeamRoutes
 ]
 

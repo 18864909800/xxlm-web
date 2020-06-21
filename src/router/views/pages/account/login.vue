@@ -193,7 +193,7 @@
 
                             // Redirect to the originally requested page, or to the home page
                             this.$router.push(
-                                this.$route.query.redirectFrom || {name: '公告'}
+                                this.$route.query.redirectFrom || {name: '查看公告'}
                             )
                     } else {
                         document.getElementById('b-alert').innerText = '账号或者用户名错误';

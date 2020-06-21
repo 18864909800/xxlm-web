@@ -89,8 +89,8 @@ const noticeAppsRoutes = [
         props: (route) => ({user: store.state.auth.currentUser || {}}),
         children: [
             {
-                name: '公告',
-                path: 'notice',
+                name: '查看公告',
+                path: 'notice-index',
                 meta: { authRequired: true },
                 component: () => lazyLoadView(import('@views/pages/apps/notice/index')),
             },
@@ -107,7 +107,7 @@ const noticeAppsRoutes = [
 const dataAppsRoutes = [
     {
         path: '/data',
-        name: '资料',
+        name: '资料 ',
         icon: 'inbox',
         meta: {authRequired: true},
         component: {
@@ -118,8 +118,8 @@ const dataAppsRoutes = [
         props: (route) => ({user: store.state.auth.currentUser || {}}),
         children: [
             {
-                name: '资料',
-                path: 'data',
+                name: '查看资料',
+                path: 'data-index',
                 meta: { authRequired: true },
                 component: () => lazyLoadView(import('@views/pages/apps/data/index')),
             },

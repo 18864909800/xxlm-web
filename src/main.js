@@ -12,6 +12,10 @@ import vco from 'v-click-outside'
 import VueRouter from 'vue-router'
 import VueFeather from 'vue-feather'
 import flatPickr from 'vue-flatpickr-component'
+import Element from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css'
+
+Vue.use(Element);
 
 Vue.use(VueFeather)
 Vue.use(flatPickr)

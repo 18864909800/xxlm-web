@@ -23,7 +23,7 @@ Vue.use(flatPickr)
 Vue.use(VueRouter)
 Vue.use(vco)
 
-// Don't warn about using the dev version of Vue in development.
+//  Don't warn about using the dev version of Vue in development.
 Vue.config.productionTip = process.env.NODE_ENV === 'production'
 
 // If running inside Cypress...

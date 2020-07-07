@@ -1,16 +1,17 @@
 <template>
-  <!-- Footer Start -->
-  <footer class="footer">
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-3">
-          ©2020 tyust-信息联盟工作室
+    <!-- Footer Start -->
+    <footer class="footer">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-3">
+                    ©2020 tyust-信息联盟工作室
+                </div>
+                <div class="col-2">
+                    京ICP证030173号
+                </div>
+
+            </div>
         </div>
-        <div class="col-2">
-          京ICP证030173号
-        </div>
-      </div>
-    </div>
-  </footer>
-  <!-- end Footer -->
+    </footer>
+    <!-- end Footer -->
 </template>

@@ -122,7 +122,6 @@
                                 <div class="col-2">
                                     京ICP证030173号
                                 </div>
-
                             </div>
                         </div>
                         <!-- end row -->

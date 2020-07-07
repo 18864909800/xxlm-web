@@ -43,15 +43,15 @@ Vue.component('apexchart', VueApexCharts)
 // Vue.prototype.$http.defaults.baseURL  = 'http://mock-api.coderthemes.com/'
 
 const app = new Vue({
-    router,
-    store,
-    render: (h) => h(App),
+  router,
+  store,
+  render: (h) => h(App),
 }).$mount('#app')
 
 // If running e2e tests...
 if (process.env.VUE_APP_TEST === 'e2e') {
-    // Attach the app to the window, which can be useful
-    // for manually setting state in Cypress commands
-    // such as `cy.logIn()`.
-    window.__app__ = app
+  // Attach the app to the window, which can be useful
+  // for manually setting state in Cypress commands
+  // such as `cy.logIn()`.
+  window.__app__ = app
 }

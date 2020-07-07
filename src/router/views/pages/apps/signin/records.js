@@ -183,51 +183,77 @@
   }
   
   // Admin 今日缺勤人数与打卡人数占比图
-  const aAtendencePie = {
+  const aAttendancePie = {
+    series: [89, 11],
     chartOptions: {
-      plotOptions: {
-        pie: {
-          donut: {
-            size: '70%',
-          },
-          expandOnClick: false,
+      chart: {
+        dropShadow: {
+          enabled: true,
+          color: '#111',
+          top: -1,
+          left: 3,
+          blur: 3,
+          opacity: 0.2,
         },
       },
-      colors: [ '#43d39e', '#ffbe0b'],
+      stroke: {
+        show: true,
+        width: 2,
+      },
+      colors: ['#43d39e', '#f77e53'],
+      labels: ['打卡', '缺勤'],
+      dataLabels: {
+        dropShadow: {
+          blur: 3,
+          opacity: 0.8,
+        },
+        enabled: false,
+      },
+      fill: {
+        type: 'pattern',
+        opacity: 1,
+        pattern: {
+          enabled: true,
+          style: [
+            'squares',
+            'horizontalLines',
+          ],
+        },
+      },
+      states: {
+        hover: {
+          enabled: false,
+        },
+      },
       legend: {
         show: true,
-        position: 'right',
-        horizontalAlign: 'left',
-        itemMargin: {
-          horizontal: 6,
-          vertical: 3,
-        },
+        position: 'bottom',
+        horizontalAlign: 'center',
+        verticalAlign: 'middle',
+        floating: false,
+        fontSize: '14px',
+        offsetX: 0,
+        offsetY: -10,
       },
-      labels: [ '打卡', '缺勤'],
       responsive: [
         {
-          breakpoint: 480,
+          breakpoint: 600,
           options: {
+            chart: {
+              height: 240,
+            },
             legend: {
-              position: 'bottom',
+              show: false,
             },
           },
         },
       ],
-      tooltip: {
-        y: {
-          formatter: (value) => {
-            return value + 'k'
-          },
-        },
-      },
     },
-    series: [88, 12],
   }
   
 
-  // User 周博客资料贡献趋势
-  const uPublishTends = {
+  // User 本月学习时长趋势图
+  const uDurationTends = {
     chartOptions: {
       chart: {
         shadow: {
@@ -280,7 +306,7 @@
         },
       },
       title: {
-        text: 'Social Media',
+        text: '',
         align: 'left',
         style: {
           fontSize: '14px',
@@ -341,52 +367,43 @@
     ],
   }
 
-  // User 本月学习时长趋势图
-  const uDurationTends = {
-    series: [
-      {
-        name: 'Team A',
-        type: 'area',
-        data: [44, 55, 31, 47, 31, 43, 26, 41, 31, 47, 33],
-      },
-      {
-        name: 'Team B',
-        type: 'line',
-        data: [55, 69, 45, 61, 43, 54, 37, 52, 44, 61, 43],
-      },
-    ],
+
+  // User 周博客资料贡献趋势
+  
+  const uPublishTends = {
     chartOptions: {
       chart: {
+        zoom: {
+          enabled: false,
+        },
         toolbar: {
           show: false,
         },
       },
       colors: ['#5369f8', '#43d39e'],
+      dataLabels: {
+        enabled: true,
+      },
       stroke: {
-        width: 3,
+        width: [3, 3],
         curve: 'smooth',
       },
-      fill: {
-        type: 'solid',
-        opacity: [0.35, 1],
+      grid: {
+        row: {
+          colors: ['transparent', 'transparent'], // takes an array which will be repeated on columns
+          opacity: 0.2,
+        },
+        borderColor: '#f1f3fa',
       },
-      labels: [
-        '01',
-        '02',
-        '03',
-        '04',
-        '05',
-        '06',
-        '07',
-        '08',
-        '09 ',
-        '10',
-        '11',
-      ],
       markers: {
-        size: 0,
+        style: 'inverted',
+        size: 6,
       },
       xaxis: {
+        categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        title: {
+          text: 'week',
+        },
         axisBorder: {
           color: '#d6ddea',
         },
@@ -394,34 +411,50 @@
           color: '#d6ddea',
         },
       },
-      yaxis: [
-        {
-          title: {
-            text: 'Series A',
-          },
+      yaxis: {
+        title: {
+          text: '条数',
         },
-        {
-          opposite: true,
-          title: {
-            text: 'Series B',
-          },
-        },
-      ],
+        min: 5,
+        max: 40,
+      },
+      legend: {
+        position: 'top',
+        horizontalAlign: 'right',
+        floating: true,
+        offsetY: -25,
+        offsetX: -5,
+      },
       tooltip: {
-        shared: true,
-        intersect: false,
-        y: {
-          formatter: (y) => {
-            if (typeof y !== 'undefined') {
-              return y.toFixed(0) + ' points'
-            }
-            return y
-          },
-        },
         theme: 'dark',
         x: { show: false },
       },
+      responsive: [
+        {
+          breakpoint: 600,
+          options: {
+            chart: {
+              toolbar: {
+                show: false,
+              },
+            },
+            legend: {
+              show: false,
+            },
+          },
+        },
+      ],
     },
+    series: [
+      {
+        name: '资料 - 2020',
+        data: [28, 29, 12, 36, 32, 32, 33],
+      },
+      {
+        name: '博客 - 2020',
+        data: [12, 11, 14, 18, 17, 13, 13],
+      },
+    ],
   }
 
   // User 发布不同的资料占比
@@ -461,45 +494,71 @@
 
   // User 本周缺勤天数与打卡天数
   const uAttendancePie = {
+    series: [89, 11],
     chartOptions: {
-      plotOptions: {
-        pie: {
-          donut: {
-            size: '70%',
-          },
-          expandOnClick: false,
+      chart: {
+        dropShadow: {
+          enabled: true,
+          color: '#111',
+          top: -1,
+          left: 3,
+          blur: 3,
+          opacity: 0.2,
         },
       },
-      colors: [ '#43d39e', '#ffbe0b'],
+      stroke: {
+        show: true,
+        width: 2,
+      },
+      colors: ['#43d39e', '#f77e53'],
+      labels: ['打卡', '缺勤'],
+      dataLabels: {
+        dropShadow: {
+          blur: 3,
+          opacity: 0.8,
+        },
+        enabled: false,
+      },
+      fill: {
+        type: 'pattern',
+        opacity: 1,
+        pattern: {
+          enabled: true,
+          style: [
+            'squares',
+            'horizontalLines',
+          ],
+        },
+      },
+      states: {
+        hover: {
+          enabled: false,
+        },
+      },
       legend: {
         show: true,
-        position: 'right',
-        horizontalAlign: 'left',
-        itemMargin: {
-          horizontal: 6,
-          vertical: 3,
-        },
+        position: 'bottom',
+        horizontalAlign: 'center',
+        verticalAlign: 'middle',
+        floating: false,
+        fontSize: '14px',
+        offsetX: 0,
+        offsetY: -10,
       },
-      labels: [ '打卡', '缺勤'],
       responsive: [
         {
-          breakpoint: 480,
+          breakpoint: 600,
           options: {
+            chart: {
+              height: 240,
+            },
             legend: {
-              position: 'bottom',
+              show: false,
             },
           },
         },
       ],
-      tooltip: {
-        y: {
-          formatter: (value) => {
-            return value + 'k'
-          },
-        },
-      },
     },
-    series: [88, 12],
   }
 
   // 导出图表
@@ -507,7 +566,7 @@
     aPublishTends,
     aDurationTop10,
     aDurationPie,
-    aAtendencePie,
+    aAttendancePie,
     uPublishTends,
     uDurationTends,
     uPublishPie,

@@ -1,18 +1,18 @@
 const activities = [
   {
     time: '02 hours ago',
-    title: 'Designing Shreyu Admin',
-    text: 'Shreyu Admin - A responsive admin and dashboard template',
+    title: '签到',
+    text: '苗苗2小时前签了到',
   },
   {
     time: '21 hours ago',
-    title: 'UX and UI for Shreyu Admin',
-    text: 'Shreyu Admin - A responsive admin and dashboard template',
+    title: '上传资料',
+    text: '苗苗21小时前上传了资料',
   },
   {
     time: '22 hours ago',
-    title: 'UX and UI for Hyper Admin',
-    text: 'Hyper Admin - A responsive admin and dashboard template',
+    title: '签到',
+    text: '苗苗2小时前签了到',
   },
 ]
 

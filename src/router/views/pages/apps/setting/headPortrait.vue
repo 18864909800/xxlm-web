@@ -55,13 +55,12 @@
 								<!-- 上传头像 -->
 								 <el-upload
 									class="avatar-uploader image-item"
-									action="https://jsonplaceholder.typicode.com/posts/"
+									action="http://localhost:8081/user/upload-user-head/"
 									:show-file-list="false"
 									:on-success="handleAvatarSuccess"
 									:on-remove="handleRemove"
 									:before-upload="beforeAvatarUpload">
 									
-										<img v-if="dialogImageUrl" :src="dialogImageUrl"/>
 									<span v-if="dialogImageUrl" class="el-upload-action" @click.stop="handleRemove()">
 										<i class="el-icon-delete"></i>
 									</span>
@@ -73,7 +72,7 @@
 							<!-- 提交 -->
 							<div class="save col-2">
 								<!-- 保存 -->
-								<b-button type="button" variant="btn btn-primary col-10  save" @click="show = true">更新</b-button>
+								<b-button type="button" variant="btn btn-primary col-10  save" @click="beforeUpload">更新</b-button>
 								<!-- 弹框 -->
 								<b-modal v-model="show" title="确认" title-class="font-18">
 									
@@ -81,7 +80,7 @@
 									
 									<template v-slot:modal-footer>
 										<b-button variant="light" @click="cancel">关闭</b-button>
-										<b-button variant="primary" @click="success">保存</b-button>
+										<b-button variant="primary" @click="upload">保存</b-button>
 									</template>
 								</b-modal>
 								<!-- /弹框 -->
@@ -108,6 +107,8 @@
 <script>
 	import Layout from '@layouts/main'
 	import PageHeader from '@components/page-header'
+    import axios from './../../../../../utils/http'
+	import querystring from 'querystring'
 
 	/**
 	 * Starter component
@@ -137,7 +138,7 @@
 				console.log(this.dialogImageUrl)
 				if(this.dialogImageUrl){
 					// document.getElementById('save').removeAttribute('disabled');
-					console.log('cg')
+					console.log(this.dialogImageUrl)
 				}
 			},
 			// 上传前格式和图片大小限制
@@ -152,7 +153,7 @@
 				}
 				return type && isLt2M
 			},
-			// 成功提示
+			// 成功提示 
 			success(){
 				console.log('成功！')
 				this.show = false;
@@ -163,29 +164,50 @@
 			},
 			// 取消提示
 			cancel(){
-				console.log('失败！')
+				console.log('取消！')
 				this.show = false;
 				this.$message({
 						type: 'info',
 						message: '已取消'
 				});  
 			},
-			  open() {
-				this.$confirm('确认上传吗', '提示', {
-					confirmButtonText: '确定',
-					cancelButtonText: '取消',
-					type: 'warning'
-				}).then(() => {
+			// 更新前判断
+			beforeUpload(){
+				if (this.dialogImageUrl) {
+					this.show = true
+				}else{
 					this.$message({
-						type: 'success',
-						message: '上传成功!'
+						type: 'error',
+						message: '请先上传'
+					}); 
+				}
+				
+			},
+			// 上传方法
+			  upload() {
+				  const that = this;
+					axios({
+						method: 'post',
+						url: 'http://localhost:8081/user/change-user-head/',
+						data: querystring.stringify({
+							"userHeadUrl": this.dialogImageUrl
+						})
+					})
+					.then(function (response) {
+						if (response.data.data) {	
+							// 上传成功
+							that.success();
+							that.dialogImageUrl = '';
+						}else{
+							console.log("失败")
+						}
+
+						console.log(response);
+					})
+					.catch(function (error) {
+						console.log(error);
 					});
-				}).catch(() => {
-					this.$message({
-						type: 'info',
-						message: '已取消'
-					});          
-				});
+				
 			}
 		}
 	}

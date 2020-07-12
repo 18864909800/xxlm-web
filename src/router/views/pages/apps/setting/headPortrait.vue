@@ -13,11 +13,11 @@
 						<div class="row align-items-center">
 							<!--beigin col  -->
 							<div class="col">
-								<!--签到记录  -->
+								<!--修改头像  -->
 								<label class="font-weight-bold d-inline mr-2" style="font-size: 18px">
 									{{title}}
 								</label>
-								<!-- /签到记录 -->
+								<!-- /修改头像 -->
 							</div>
 							<!--/ end col  -->
 						</div>
@@ -61,18 +61,21 @@
 									:on-remove="handleRemove"
 									:before-upload="beforeAvatarUpload">
 									
-									<span v-if="dialogImageUrl" class="el-upload-action" @click.stop="handleRemove()">
+									<span v-if="dialogImageUrl" class="el-upload-action" @click.stop="handleRemove">
 										<i class="el-icon-delete"></i>
 									</span>
 									<i v-else class="el-icon-upload2 avatar-uploader-icon" stop></i>
 								</el-upload>
-								
+								<!-- /上传头像 -->
+
 							</div>
 							<!--/ end col  -->
 							<!-- 提交 -->
 							<div class="save col-2">
 								<!-- 保存 -->
-								<b-button type="button" variant="btn btn-primary col-10  save" @click="beforeUpload">更新</b-button>
+								<b-button type="button" variant="btn btn-primary col-10  save" @click="throttle(beforeUpload,3000)">更新</b-button>
+								<!-- /保存 -->
+
 								<!-- 弹框 -->
 								<b-modal v-model="show" title="确认" title-class="font-18">
 									
@@ -80,11 +83,10 @@
 									
 									<template v-slot:modal-footer>
 										<b-button variant="light" @click="cancel">关闭</b-button>
-										<b-button variant="primary" @click="upload">保存</b-button>
+										<b-button variant="primary" @click="update">保存</b-button>
 									</template>
 								</b-modal>
 								<!-- /弹框 -->
-								<!-- /保存 -->
 							</div>
 							<!-- 提交 -->
 							
@@ -111,36 +113,33 @@
 	import querystring from 'querystring'
 
 	/**
-	 * Starter component
+	 * 修改头像模块
 	 */
 	export default {
-
 		components: { Layout, PageHeader },
 		data() {
 			return {
 				title: '修改头像',
+
+				// 头像地址
 				dialogImageUrl: '',
-				// 弹出展示
+
+				// 弹出框展示
 				show: false,
 			}
 		},
-		mounted(){
-			// document.getElementById('save').disabled = true;
-		},
 		 methods: {
-			 // 移除图片
+
+			 // 移除图片方法
 			handleRemove() {
 				this.dialogImageUrl = ''
 			},
+
 			// 上传成功回调
 			handleAvatarSuccess(res, file) {
 				this.dialogImageUrl = URL.createObjectURL(file.raw);
-				console.log(this.dialogImageUrl)
-				if(this.dialogImageUrl){
-					// document.getElementById('save').removeAttribute('disabled');
-					console.log(this.dialogImageUrl)
-				}
 			},
+
 			// 上传前格式和图片大小限制
 			beforeAvatarUpload(file) {
 				const type = file.type === 'image/jpeg' || 'image/jpg' || 'image/webp' || 'image/png'
@@ -153,25 +152,26 @@
 				}
 				return type && isLt2M
 			},
+
 			// 成功提示 
 			success(){
-				console.log('成功！')
 				this.show = false;
 				this.$message({
 						type: 'success',
-						message: '修改成功!'
+						message: '上传头像成功!'
 				});
 			},
+
 			// 取消提示
 			cancel(){
-				console.log('取消！')
 				this.show = false;
 				this.$message({
 						type: 'info',
 						message: '已取消'
 				});  
 			},
-			// 更新前判断
+
+			// 点击更新前判断是否上传
 			beforeUpload(){
 				if (this.dialogImageUrl) {
 					this.show = true
@@ -183,32 +183,47 @@
 				}
 				
 			},
-			// 上传方法
-			  upload() {
-				  const that = this;
-					axios({
-						method: 'post',
-						url: 'http://localhost:8081/user/change-user-head/',
-						data: querystring.stringify({
-							"userHeadUrl": this.dialogImageUrl
-						})
-					})
-					.then(function (response) {
-						if (response.data.data) {	
-							// 上传成功
-							that.success();
-							that.dialogImageUrl = '';
-						}else{
-							console.log("失败")
-						}
 
-						console.log(response);
+			// 更新方法
+			update() {
+				const that = this;
+				// 调用接口
+				axios({
+					method: 'post',
+					url: 'http://localhost:8081/user/change-user-head/',
+					data: querystring.stringify({
+						"userHeadUrl": this.dialogImageUrl
 					})
-					.catch(function (error) {
-						console.log(error);
-					});
-				
-			}
+				})
+				.then(function (response) {
+					if (response.data.data) {	
+						// 更新成功提示
+						that.success();
+						that.dialogImageUrl = '';
+					}else{
+						console.log("失败")
+					}
+
+					console.log(response);
+				})
+				.catch(function (error) {
+					console.log(error);
+				});
+			
+			},
+			throttle(func, wait) {
+				let previous = 0;
+				return function() {
+					let now = Date.now();
+					let context = this;
+					let args = arguments;
+					if (now - previous > wait) {
+						func.apply(context, args);
+						previous = now;
+					}
+				}
+			},
+			 
 		}
 	}
 </script>

@@ -13,11 +13,11 @@
 						<div class="row align-items-center">
 							<!--beigin col  -->
 							<div class="col">
-								<!--签到记录  -->
+								<!--修改密码  -->
 								<label class="font-weight-bold d-inline mr-2" style="font-size: 18px">
 									{{title}}
 								</label>
-								<!-- /签到记录 -->
+								<!-- /修改密码 -->
 							</div>
 							<!--/ end col  -->
 						</div>
@@ -58,7 +58,8 @@
 										</b-col>
 										<b-col sm="3"></b-col>
 									</b-row>
-									<div class="errorBox"></div>
+									<div class="errorBox">
+									</div>
 								</div>
 								<!-- /输入旧密码 -->
 
@@ -86,7 +87,6 @@
 										<b-col sm="3" class="errorBox">
 											<!-- v-if="newP" -->
 											<span v-if="newP" class="errorText">{{passwordValidate.errorText}}</span>
-											<!-- <span v-else class="errorText">{{errorTest}}</span> -->
 										</b-col>
 									</b-row>
 								</div>
@@ -124,13 +124,15 @@
 							</div>
 							<!-- /填写表单 -->
 
-							<!-- 提交 -->
 							<b-row sm="col-4" class="col-5"></b-row>
+							<!-- 提交 -->
 							<b-row sm="col-4" class="col-4">
 								<!-- 保存 -->
 								<div class="button-list col-12 save">
-									<b-button type="button" variant="btn btn-primary col-12" @click="show = true">更新</b-button>
+									<b-button type="button" variant="btn btn-primary col-12" @click="test">更新</b-button>
 								</div>
+								<!-- /保存 -->
+
 								<!-- 弹框 -->
 								<b-modal v-model="show" title="确认" title-class="font-18">
 									
@@ -142,7 +144,6 @@
 									</template>
 								</b-modal>
 								<!-- /弹框 -->
-								<!-- /保存 -->
 							</b-row>
 							<!-- 提交 -->
 						</form>
@@ -205,7 +206,7 @@
 	import querystring from 'querystring'
 
 	/**
-	 * Starter component
+	 * 修改密码模块
 	 */
 	export default {
 
@@ -213,16 +214,26 @@
 		data() {
 			return {
 				title: '修改密码',
+
 				// 表单数据
 				old : '',
 				newP : '',
 				confirm : '',
+
 				// 弹出展示
 				show: false,
+
+				// 空
+				oldError: '',
+				newPError: '',
+				confirmError: '',
 			}
 		},
+
 		// 表单验证
 		computed : {
+
+			// 新密码验证
 			passwordValidate: function() {
 				let errorText;
 				if(!/^[0-9A-Za-z]{3,15}$/.test(this.newP)) {
@@ -230,12 +241,13 @@
 				} else {
 					errorText = '';
 				}
-				// this.errorText = errorText;
 
 				return {
 					errorText
 				}
 			},
+
+			// 检验密码验证
 			passwordCheckValidate: function() {
 				let errorText;
 
@@ -247,7 +259,6 @@
 				else {
 					errorText = '';
 				}
-				// this.errorText = errorText;
 				
 				return {
 					errorText
@@ -255,6 +266,18 @@
 			}
 		},
 		methods:{
+			// 表单是否为空校验
+			test(){
+				if (this.old === '' || this.newP === '' || this.confirm === '') {
+					this.$message({
+						type: 'error',
+						message: "请完善表单信息！"
+					});
+				}else{
+					this.show = true;
+				}
+				
+			},
 			// 重置表单
 			reset(){
 				this.old = '';
@@ -268,7 +291,7 @@
 				this.show = false;
 				this.$message({
 						type: 'success',
-						message: "修改成功！"
+						message: "密码修改成功！"
 				});
 			},
 			// 取消提示
@@ -299,6 +322,7 @@
 			},
 			// 提交密码
 			postPassword(){
+				console.log("hi")
 				const old = this.old;
 				const newP = this.newP;
 
@@ -334,7 +358,7 @@
 					});
 						
 				
-			}
+			},
 		}
 	}
 </script>

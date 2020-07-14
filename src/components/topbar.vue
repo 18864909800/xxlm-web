@@ -30,7 +30,7 @@
             },
             getUrl() {
                 var url;
-                url = window.location.href;
+                url = window.location.pathname;
                 console.log(url);
             }
         },

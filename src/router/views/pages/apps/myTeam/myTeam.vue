@@ -5,6 +5,7 @@
 	import Activities from './teamMates/activities'
 	import Projects from './teamMates/projects'
 	import { activities, messageData, projectData, tasks } from './teamMates/data-profile'
+	import axios from '../../../../../utils/http'
 	// 引入图表插件
 	import {
 		uPublishTends,
@@ -40,39 +41,10 @@
 
 				// 日历
 				value: new Date(),
+
 				// 成员数据
-				membersData: [
-					{
-						image: require('@assets/images/users/avatar-7.jpg'),
-						text: '信管2班',
-						name: 'Shreyu N',
-						gender: '男'
-					},
-					{
-						image: require('@assets/images/users/avatar-9.jpg'),
-						text: '软件工程1班',
-						name: 'Greeva Y',
-						gender: '男'
-					},
-					{
-						image: require('@assets/images/users/avatar-4.jpg'),
-						text: '电商2班',
-						name: 'Nik G',
-						gender: '男'
-					},
-					{
-						image: require('@assets/images/users/avatar-1.jpg'),
-						text: '信管1班',
-						name: 'Hardik G',
-						gender: '男'
-					},
-					{
-						image: require('@assets/images/users/avatar-2.jpg'),
-						text: 'Sales Persons',
-						name: 'Stive K',
-						gender: '男'
-					},
-				],
+				membersData: [],
+
 				// 博客，资料数据
 				 tabOptions: [
 						{
@@ -178,6 +150,57 @@
 				],
 			}
 		},
+		mounted(){
+			// 挂载时加载团队成员
+			this.getMembers();
+		},
+		methods:{
+
+			/** 获取团队成员，加载到memberData里 */
+			getMembers(){
+				axios.get('http://localhost:8081/user/select-all-normal-users').then((response) =>{
+					let data = response.data.data;
+					let arr = Object.values(data);
+					for (let i = 0; i < arr.length; i++) {
+						for (let j = 0; j < arr[i].length; j++) {
+							
+							this.membersData.push({
+								userId: arr[i][j].userId,
+								userHead: arr[i][j].userHead, 
+								name: arr[i][j].name,
+								userSex: arr[i][j].userSex === 1 ? "男" : "女",
+								selected: i === 0
+							})
+							
+						}
+					}
+				})
+			},
+			/** /获取团队成员 */
+
+			// TODO changeMember 点击团队成员事件
+			changeMember(){
+				// 改变背景颜色
+
+				// 加载该用户时间线
+
+			},
+
+			// TODO activity 时间线点击函数 
+			getActivity(id){},
+			
+			// TODO calendar 签到日历点击加载函数
+			getCalendar(id){},
+
+			// TODO blog 查看某个用户的博客
+			getBlog(id){},
+
+			// TODO asset 查看某个用户的资料
+			getAsset(id){},
+
+			// TODO charts 查看某个用户的签到统计
+			getCharts(id){},
+		},
 	}
 </script>
 
@@ -225,14 +248,22 @@
 					<div class="card members">
 						<div class="card-body pt-2 pb-2">
 							<h5 class="mb-4 header-title">团队成员</h5>
-							<div v-for="member of membersData" :key="member.name">
+							<!-- 循环member数组 -->
+							<div 
+								v-for="member of membersData" 
+								:key="member.name" 
+								:class="{ isSelected: member.selected }"
+								@click="changeMember"
+							>
+								<!-- member组件 -->
 								<Member
-									:image="member.image"
+									:image="member.userHead"
 									:name="member.name"
-									:text="member.text"
-									:gender="member.gender"
+									:gender="member.userSex"
 								/>
+								<!-- /member组件 -->
 							</div>
+							<!-- /循环member数组 -->
 						</div>
 					</div>
 				</el-scrollbar>
@@ -245,7 +276,7 @@
 				<div class="card">
 					<div class="card-body">
 						<b-tabs class="navtab-bg" pills justified>
-							<b-tab title="时间线" active>
+							<b-tab title="时间线" active @click="activity">
 								<el-scrollbar style="width: 100%;height: 600px;">
 									<Activities :activities="activities" />
 								</el-scrollbar>
@@ -259,7 +290,7 @@
 							<b-tab title="他的博客">
 								<div style="display: flex; justify-content: space-between; margin:0;">
 
-									<el-scrollbar style="width: 75%;height: 450px;">
+									<el-scrollbar style="width: 75%;height: 600px;">
 										<div class="row">
 										<div class="col-12">
 											<div class="board">
@@ -324,7 +355,7 @@
 							<b-tab title="他的资料">
 								<div style="display: flex; justify-content: space-between; margin:0;">
 
-									<el-scrollbar style="width: 78%;height: 450px;">
+									<el-scrollbar style="width: 78%;height: 600px;">
 										<div class="row">
 										<div class="col-12">
 											<div class="board">
@@ -401,11 +432,11 @@
 												<h4 class="header-title mt-0 mb-3">本月学习时长趋势图</h4>
 												<!-- 图表 -->
 												<apexchart
+												class="apex-charts"
 												height="380"
 												type="line"
-												class="apex-charts"
-												:series="uPublishTends.series"
-												:options="uPublishTends.chartOptions"
+												:series=" uDurationTends.series"
+												:options=" uDurationTends.chartOptions"
 												></apexchart>
 											</div>
 											<!-- /end card-body -->
@@ -424,12 +455,13 @@
 												<h4 class="header-title mt-0 mb-3">本周贡献趋势</h4>
 												<!-- 图表 -->
 												<apexchart
-												class="apex-charts"
 												height="380"
 												type="line"
-												:series=" uDurationTends.series"
-												:options=" uDurationTends.chartOptions"
+												class="apex-charts"
+												:series="uPublishTends.series"
+												:options="uPublishTends.chartOptions"
 												></apexchart>
+												
 											</div>
 											<!-- end card-body -->
 											</div>
@@ -515,6 +547,9 @@
 		}
 		 .is-selected {
 			color: #1989FA;
+		}
+		.isSelected{
+			background-color: rgba(137, 175, 175, 0.15);
 		}
 		
 </style>

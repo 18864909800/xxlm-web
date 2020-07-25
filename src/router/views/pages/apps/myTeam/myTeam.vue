@@ -1,12 +1,10 @@
 <script>
 	import Layout from '@layouts/main'
 	import PageHeader from '@components/page-header'
-	import Member from '@components/member'
-	import Activities from './teamMates/activities'
-	import Projects from './teamMates/projects'
-	import { activities, messageData, projectData, tasks } from './teamMates/data-profile'
+	import Member from './teamMates/member'
+	import Activities from './teamMates/activities/activities'
+	import { activities } from './teamMates/activities/data-profile'
 	import axios from '../../../../../utils/http'
-	// 引入图表插件
 	import {
 		uPublishTends,
 		uDurationTends,
@@ -26,13 +24,14 @@
 			PageHeader,
 			Member,
 			Activities,
-			Projects,
 		 },
 		data() {
 			return {
 				title: '我的团队',
+
 				// 时间线
 				activities: activities,
+
 				// 图表
 				uPublishTends: uPublishTends,
 				uDurationTends:  uDurationTends,
@@ -44,6 +43,7 @@
 
 				// 成员数据
 				membersData: [],
+				selectedMember: '',
 
 				// 博客，资料数据
 				 tabOptions: [
@@ -96,7 +96,7 @@
 							tab: '移动开发'
 						},
 				],
-				dataList: [
+				 dataList: [
 					{
 						id: 1,
 						title: '标题1',
@@ -169,21 +169,25 @@
 								userHead: arr[i][j].userHead, 
 								name: arr[i][j].name,
 								userSex: arr[i][j].userSex === 1 ? "男" : "女",
-								selected: i === 0
+								isSelected: i === 0
 							})
 							
 						}
 					}
+					this.selectedMember = this.membersData[0];
 				})
 			},
 			/** /获取团队成员 */
 
 			// TODO changeMember 点击团队成员事件
-			changeMember(){
+			changeMember(member){
 				// 改变背景颜色
-
+				// member.isSelected = true;
+				this.selectedMember.isSelected = false;
+				this.selectedMember = member;
+				this.selectedMember.isSelected = true;
 				// 加载该用户时间线
-
+				this.getActivity(member.userId);
 			},
 
 			// TODO activity 时间线点击函数 
@@ -251,15 +255,15 @@
 							<!-- 循环member数组 -->
 							<div 
 								v-for="member of membersData" 
-								:key="member.name" 
-								:class="{ isSelected: member.selected }"
-								@click="changeMember"
+								:key="member.userId"
+								@click="changeMember(member)"
 							>
 								<!-- member组件 -->
 								<Member
 									:image="member.userHead"
 									:name="member.name"
 									:gender="member.userSex"
+									:is-selected="member.isSelected"
 								/>
 								<!-- /member组件 -->
 							</div>
@@ -551,6 +555,7 @@
 		.isSelected{
 			background-color: rgba(137, 175, 175, 0.15);
 		}
+
 		
 </style>
 <style>
@@ -565,6 +570,14 @@
 	.el-scrollbar__view{
 		height: 100%;
 	}
+
+	/* 子组件样式 */
+	.title{
+		cursor: pointer;
+	}
+	.isSelected{
+		 background-color: rgba(137, 175, 175, 0.15);
+	 }
 </style>
 
 

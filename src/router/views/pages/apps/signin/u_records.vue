@@ -1,6 +1,7 @@
 <script>
   import Layout from '@layouts/main'
   import PageHeader from '@components/page-header'
+  import axios from '../../../../../utils/http'
 
   // 引入图表插件
   import {
@@ -23,6 +24,22 @@
         uPublishPie: uPublishPie,
         uAttendancePie: uAttendancePie,
       }
+    },
+     mounted(){
+      // 周博客资料发布趋势图 数据获取
+      // 资料
+      axios.get('http://localhost:8081/assets/select-everyday-everyone-assets').then((response) => {
+         uPublishTends.series[0].data = response.data.data;
+         console.log(response.data);
+      });
+      // 博客
+       axios.get('http://localhost:8081/blog/select-everyday-everyone-blog').then((response) => {
+        uPublishTends.series[1].data = response.data.data;
+        console.log(response.data);
+      });
+
+      // 
+
     },
   }
 </script>
@@ -72,7 +89,7 @@
           <!-- begin card-body -->
           <div class="card-body">
             <!-- 图表标题 -->
-            <h4 class="header-title mt-0 mb-3">本月学习时长趋势图</h4>
+            <h4 class="header-title mt-0 mb-3">本年学习时长趋势图</h4>
             <!-- 图表 -->
             <apexchart
               height="380"

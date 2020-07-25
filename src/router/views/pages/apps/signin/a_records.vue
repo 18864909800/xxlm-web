@@ -2,6 +2,7 @@
 <script>
   import Layout from '@layouts/main'
   import PageHeader from '@components/page-header'
+  import axios from '../../../../../utils/http'
 
   // 引入图表插件
   import {
@@ -24,6 +25,23 @@
         aDurationPie: aDurationPie,
         aAttendancePie: aAttendancePie,
       }
+    },
+
+    mounted(){
+      // 周博客资料发布趋势图 数据获取
+      // 资料
+      axios.get('http://localhost:8081/assets/select-everyday-assets').then((response) => {
+        aPublishTends.series[0].data = response.data.data;
+        console.log(response.data);
+      });
+      // 博客
+       axios.get('http://localhost:8081/blog/select-everyday-blog').then((response) => {
+        aPublishTends.series[1].data = response.data.data;
+        console.log(response.data);
+      });
+
+      // 
+
     },
   }
 </script>

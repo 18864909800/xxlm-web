@@ -4,12 +4,12 @@ import Layout from '@layouts/main'
 import PageHeader from '@components/page-header'
 
 import UserCard from './user-card'
-import Activities from './activities'
+import Activities from './activities/activities'
 import Messages from './messages'
 import Projects from './projects'
 import Tasks from './tasks'
 import Files from './files'
-import { activities, messageData, projectData, tasks } from './data-profile'
+import { activities, messageData, projectData, tasks } from './activities/data-profile'
 
 /**
  * Profile component

@@ -1,19 +1,23 @@
-const activities = [
+const signRecords = [
   {
     time: '02 hours ago',
     title: '签到',
     text: '苗苗2小时前签了到',
   },
+]
+const blogRecords = [
   {
-    time: '21 hours ago',
-    title: '上传资料',
-    text: '苗苗21小时前上传了资料',
+    time: '02 hours ago',
+    title: '博客',
+    text: '苗苗2小时前签了到',
   },
+]
+const assetRecords = [
   {
-    time: '22 hours ago',
+    time: '02 hours ago',
     title: '签到',
     text: '苗苗2小时前签了到',
   },
 ]
 
-export { activities }
+export { signRecords, blogRecords, assetRecords}

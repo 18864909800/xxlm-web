@@ -2,8 +2,8 @@
 	import Layout from '@layouts/main'
 	import PageHeader from '@components/page-header'
 	import Member from './teamMates/member'
-	import Activities from './teamMates/activities/activities'
-	import { activities } from './teamMates/activities/data-profile'
+	import Activity from './teamMates/activities/activities'
+	import { signRecords, blogRecords, assetRecords } from './teamMates/activities/data-profile'
 	import axios from '../../../../../utils/http'
 	import {
 		uPublishTends,
@@ -23,14 +23,16 @@
 			Layout,
 			PageHeader,
 			Member,
-			Activities,
+			Activity
 		 },
 		data() {
 			return {
 				title: '我的团队',
 
 				// 时间线
-				activities: activities,
+				signRecords: [],
+				blogRecords: [],
+				assetRecords: [],
 
 				// 图表
 				uPublishTends: uPublishTends,
@@ -44,6 +46,7 @@
 				// 成员数据
 				membersData: [],
 				selectedMember: '',
+				isActive: false,
 
 				// 博客，资料数据
 				 tabOptions: [
@@ -51,50 +54,7 @@
 							id: 0,
 							tab: '全部'
 						},
-						{
-							id: 1,
-							tab: 'Python'
-						},
-						{
-							id: 2,
-							tab: 'Java'
-						},
-						{
-							id: 3,
-							tab: '架构'
-						},
-						{
-							id: 4,
-							tab: '数据库'
-						},
-						{
-							id: 5,
-							tab: '区块链'
-						},
-						{
-							id: 6,
-							tab: '云计算'
-						},
-						{
-							id: 7,
-							tab: '前端'
-						},
-						{
-							id: 8,
-							tab: '人工智能'
-						},
-						{
-							id: 9,
-							tab: '大数据'
-						},
-						{
-							id: 10,
-							tab: '5G'
-						},
-						{
-							id: 11,
-							tab: '移动开发'
-						},
+
 				],
 				 dataList: [
 					{
@@ -107,94 +67,150 @@
 						hits: 7,
 						groupId: 1,
 					},
-					{
-						id: 2,
-						title: '标题',
-						name: '赵如冰',
-						date: 'Jan 16, 2019',
-						text: '描述',
-						address: 'http://www.baidu.com',
-						hits: 7,
-						groupId: 1,
-					},
-					{
-						id: 3,
-						title: '标题',
-						name: '赵如冰',
-						date: 'Jan 16, 2019',
-						text: '描述',
-						address: 'http://www.baidu.com',
-						hits: 7,
-						groupId: 1,
-					},
-					{
-						id: 4,
-						title: '标题',
-						name: '赵如冰',
-						date: 'Jan 16, 2019',
-						text: '描述',
-						address: 'http://www.baidu.com',
-						hits: 7,
-						groupId: 1,
-					},
-					{
-						id: 5,
-						title: '标题',
-						name: '赵如冰',
-						date: 'Jan 16, 2019',
-						text: '描述',
-						address: 'http://www.baidu.com',
-						hits: 7,
-						groupId: 1,
-					},
+
 				],
 			}
 		},
 		mounted(){
 			// 挂载时加载团队成员
 			this.getMembers();
+			this.getActivity();
 		},
 		methods:{
 
-			/** 获取团队成员，加载到memberData里 */
-			getMembers(){
+			/**
+			 * @method 获取成员
+			 * @description 获取团队成员，加载到memberData里
+			 **/
+ 			getMembers(){
 				axios.get('http://localhost:8081/user/select-all-normal-users').then((response) =>{
 					let data = response.data.data;
 					let arr = Object.values(data);
 					for (let i = 0; i < arr.length; i++) {
 						for (let j = 0; j < arr[i].length; j++) {
-							
+							// 加载到memberData里
 							this.membersData.push({
 								userId: arr[i][j].userId,
-								userHead: arr[i][j].userHead, 
+								userHead: arr[i][j].userHead,
 								name: arr[i][j].name,
 								userSex: arr[i][j].userSex === 1 ? "男" : "女",
 								isSelected: i === 0
 							})
-							
+
 						}
 					}
 					this.selectedMember = this.membersData[0];
 				})
 			},
-			/** /获取团队成员 */
 
-			// TODO changeMember 点击团队成员事件
+			/**
+			 * @method changeMember 点击团队成员事件
+			 * @description 切换选中成员触发的事件。包括改颜色，切换时间线
+ 			 */
 			changeMember(member){
 				// 改变背景颜色
-				// member.isSelected = true;
 				this.selectedMember.isSelected = false;
 				this.selectedMember = member;
 				this.selectedMember.isSelected = true;
-				// 加载该用户时间线
-				this.getActivity(member.userId);
+				// Tab键切换到时间线
+				this.getActivity();
 			},
 
-			// TODO activity 时间线点击函数 
-			getActivity(id){},
+			/**
+			 * @method 获取时间线
+			 * @description 获取实验室成员签到签退，发布博客，发布资料时间线
+			 **/
+			getActivity(){
+				// 获取签到签退时间线
+				axios.get('http://localhost:8081/sign-in/select-time-line')
+				.then(response => {
+					let data = response.data.data;
+					// 接口数据映射
+					data.map(item => {
+						this.getName(item.umId).then(res =>{
+							let title = item.simType === 0 ? ' 签到' : ' 签退';
+							this.signRecords.push({
+								time: item.simDateExact,
+								title: res +' '+ title,
+								text: res + '在 ' + item.simDateExact + title
+							})
+						});
+					})
+					console.log(this.signRecords);
+				}).catch(error => {
+					console.log(error);
+				});
+				// 获取博客发布时间线
+				axios.get('http://localhost:8081/blog/select-blog-line')
+				.then(response =>{
+					let data = response.data.data;
+					// 接口数据映射
+					data.map(item => {
+						this.getName(item.umId).then(res =>{
+							this.blogRecords.push({
+								time: item.bdDate,
+								title: res +' '+ '上传博客',
+								text: res + '在 ' + item.bdDate + ' 上传了博客'
+							})
+						});
+					})
+					console.log(response.data.data);
+				}).catch(error => {
+					console.log(error);
+				})
+				// 获取资料分享时间线
+				axios.get('http://localhost:8081/assets/select-assets-line')
+						.then(response =>{
+							let data = response.data.data;
+							// 接口数据映射
+							data.map(item => {
+								this.getName(item.umId).then(res =>{
+									this.assetRecords.push({
+										time: item.acDate,
+										title: res +' '+ '分享资料',
+										text: res + '在 ' + item.acDate + ' 分享了资料'
+									})
+								});
+							})
+						}).catch(error => {
+					console.log(error);
+				})
+			},
+			/**
+			 * @method 获取用户姓名方法
+			 * @param {number} id
+			 * @return {Promise} data
+			 * @description 根据id查询用户姓名，返回的是一个promise对象
+			 **/
+			async getName(id){
+				console.log(typeof id);
+				let data;
+				await axios.get('http://localhost:8081/user/get-name-by-Id',{
+					params:{userId: id}
+				}).then((response) => {
+					data = response.data.data;
+					console.log(response.data.data);
+				}).catch((error) => {
+					console.log(error);
+				});
+				return data;
+			},
 			
 			// TODO calendar 签到日历点击加载函数
-			getCalendar(id){},
+			getCalendar(id){
+				console.log("id:" + id)
+				axios.get('http://localhost:8081/sign-in/select-assign-user-calendar',{
+					params: {
+						userId: 6,
+						year: 2020,
+						month: 7
+					}
+				}).then((response) => {
+					console.log(response.data.data);
+				}).catch((error) => {
+					console.log(error);
+				});
+			},
 
 			// TODO blog 查看某个用户的博客
 			getBlog(id){},
@@ -280,18 +296,39 @@
 				<div class="card">
 					<div class="card-body">
 						<b-tabs class="navtab-bg" pills justified>
-							<b-tab title="时间线" active @click="activity">
+							<b-tab
+									title="时间线"
+								   active
+								   @click="getActivity(selectedMember.userId)"
+							>
 								<el-scrollbar style="width: 100%;height: 600px;">
-									<Activities :activities="activities" />
+									<Activity
+											:signRecords = "signRecords"
+											:assetRecords = "assetRecords"
+											:blogRecords = "blogRecords"
+									/>
 								</el-scrollbar>
 							</b-tab>
-							<b-tab title="签到日历">
+							<b-tab
+									title="签到日历"
+									@click="getCalendar(selectedMember.userId)"
+							>
 								<el-scrollbar style="width: 100%;height: 600px;">
 									<el-calendar v-model="value">
+										<template
+												slot="dateCell"
+												slot-scope="{date, data}">
+											<p :class="data.isSelected ? 'is-selected' : ''">
+												{{ data.day.split('-').slice(1).join('-') }} {{ data.isSelected ? '✔️' : ''}}
+											</p>
+										</template>
 									</el-calendar>
 								</el-scrollbar>
 							</b-tab>
-							<b-tab title="他的博客">
+							<b-tab
+									title="他的博客"
+									@click="getBlog(selectedMember.userId)"
+							>
 								<div style="display: flex; justify-content: space-between; margin:0;">
 
 									<el-scrollbar style="width: 75%;height: 600px;">
@@ -356,7 +393,10 @@
 
 								</div>
 							</b-tab>
-							<b-tab title="他的资料">
+							<b-tab
+									title="他的资料"
+									@click="getAsset(selectedMember.userId)"
+							>
 								<div style="display: flex; justify-content: space-between; margin:0;">
 
 									<el-scrollbar style="width: 78%;height: 600px;">
@@ -421,7 +461,10 @@
 
 								</div>
 							</b-tab>
-							<b-tab title="他的签到统计">
+							<b-tab
+									title="他的签到统计"
+									@click="getCalendar(selectedMember.userId)"
+							>
 								<el-scrollbar style="width: 100%;height: 600px;">
 									<!-- 第一行图表 -->
 									<div class="row">

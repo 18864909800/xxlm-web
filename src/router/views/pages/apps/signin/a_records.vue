@@ -20,7 +20,93 @@
     data() {
       return {
         title: '团队签到记录统计',
-        aPublishTends: aPublishTends,
+        year: new Date().getFullYear,
+        aPublishTends: {
+            chartOptions: {
+                chart: {
+                    zoom: {
+                        enabled: false,
+                    },
+                    toolbar: {
+                        show: false,
+                    },
+                },
+                colors: ['#5369f8', '#43d39e'],
+                dataLabels: {
+                    enabled: true,
+                },
+                stroke: {
+                    width: [3, 3],
+                    curve: 'smooth',
+                },
+                grid: {
+                    row: {
+                        colors: ['transparent', 'transparent'], // takes an array which will be repeated on columns
+                        opacity: 0.2,
+                    },
+                    borderColor: '#f1f3fa',
+                },
+                markers: {
+                    style: 'inverted',
+                    size: 6,
+                },
+                xaxis: {
+                    categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    title: {
+                        text: 'week',
+                    },
+                    axisBorder: {
+                        color: '#d6ddea',
+                    },
+                    axisTicks: {
+                        color: '#d6ddea',
+                    },
+                },
+                yaxis: {
+                    title: {
+                        text: '条数',
+                    },
+                    min: 0,
+                    max: 5,
+                },
+                legend: {
+                    position: 'top',
+                    horizontalAlign: 'right',
+                    floating: true,
+                    offsetY: -25,
+                    offsetX: -5,
+                },
+                tooltip: {
+                    theme: 'dark',
+                    x: { show: false },
+                },
+                responsive: [
+                    {
+                        breakpoint: 600,
+                        options: {
+                            chart: {
+                                toolbar: {
+                                    show: false,
+                                },
+                            },
+                            legend: {
+                                show: false,
+                            },
+                        },
+                    },
+                ],
+            },
+            series: [
+                {
+                    name: '资料 - ' + this.year,
+                    data: [],
+                },
+                {
+                    name: '博客 - ' + this.year,
+                    data: [],
+                },
+            ],
+        },
         aDurationTop10: aDurationTop10,
         aDurationPie: aDurationPie,
         aAttendancePie: aAttendancePie,
@@ -30,19 +116,57 @@
     mounted(){
       // 周博客资料发布趋势图 数据获取
       // 资料
-      axios.get('http://localhost:8081/assets/select-everyday-assets').then((response) => {
-        aPublishTends.series[0].data = response.data.data;
-        console.log(response.data);
-      });
+        console.log("1");
+        let data = function() {
+             axios.get('http://localhost:8081/assets/select-everyday-assets')
+                 .then((response) => {
+                     console.log(response.data.data);
+                     this.aPublishTends.series[0].data = response.data.data;
+                 }).catch((error) => {
+                 console.log(error);
+                 return [];
+             });
+         }();
+
+        console.log(this.aPublishTends.series[0].data)
       // 博客
-       axios.get('http://localhost:8081/blog/select-everyday-blog').then((response) => {
-        aPublishTends.series[1].data = response.data.data;
-        console.log(response.data);
-      });
+        this.aPublishTends.series[1].data = () => {
+            axios.get('http://localhost:8081/blog/select-everyday-blog')
+                .then((response) => {
+                    console.log(response.data);
+                    return response.data.data;
+                }).catch((error) => {
+                console.log(error);
+                return [];
+            });
+        }
+
 
       // 
 
     },
+      methods: {
+        getAssets(){
+            axios.get('http://localhost:8081/assets/select-everyday-assets')
+            .then((response) => {
+                console.log(response.data);
+                return response.data.data;
+            }).catch((error) => {
+                console.log(error);
+                return [];
+            });
+        },
+          getBlogs(){
+              axios.get('http://localhost:8081/blog/select-everyday-blog')
+              .then((response) => {
+                  console.log(response.data);
+                  return response.data.data;
+              }).catch((error) => {
+                  console.log(error);
+                  return [];
+              });
+          },
+      }
   }
 </script>
 <template>

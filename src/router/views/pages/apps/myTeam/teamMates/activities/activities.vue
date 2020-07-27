@@ -27,7 +27,7 @@ export default {
 			<ul class="list-unstyled events mb-0">
 				<li
 					v-for="activity in signRecords"
-					:key="activity.title"
+					:key="activity.id"
 					class="event-list"
 				>
 					<div class="pb-4">
@@ -52,7 +52,7 @@ export default {
 			<ul class="list-unstyled events mb-0">
 				<li
 						v-for="activity in blogRecords"
-						:key="activity.title"
+						:key="activity.id"
 						class="event-list"
 				>
 					<div class="pb-4">
@@ -77,7 +77,7 @@ export default {
 			<ul class="list-unstyled events mb-0">
 				<li
 						v-for="activity in assetRecords"
-						:key="activity.title"
+						:key="activity.id"
 						class="event-list"
 				>
 					<div class="pb-4">

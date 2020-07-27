@@ -3,7 +3,6 @@
 	import PageHeader from '@components/page-header'
 	import Member from './teamMates/member'
 	import Activity from './teamMates/activities/activities'
-	import { signRecords, blogRecords, assetRecords } from './teamMates/activities/data-profile'
 	import axios from '../../../../../utils/http'
 	import {
 		uPublishTends,
@@ -120,61 +119,64 @@
 			 * @method 获取时间线
 			 * @description 获取实验室成员签到签退，发布博客，发布资料时间线
 			 **/
-			getActivity(){
+			async getActivity(){
 				// 获取签到签退时间线
-				axios.get('http://localhost:8081/sign-in/select-time-line')
-				.then(response => {
+				await axios.get('http://localhost:8081/sign-in/select-time-line')
+				.then(async response => {
 					let data = response.data.data;
 					// 接口数据映射
-					data.map(item => {
-						this.getName(item.umId).then(res =>{
-							let title = item.simType === 0 ? ' 签到' : ' 签退';
+					for (let i = 0; i<data.length; i++){
+						await  this.getName(data[i].umId).then(res =>{
+							let title = data[i].simType === 0 ? ' 签到' : ' 签退';
 							this.signRecords.push({
-								time: item.simDateExact,
+								ID: i,
+								time: data[i].simDateExact,
 								title: res +' '+ title,
-								text: res + '在 ' + item.simDateExact + title
+								text: res + '在 ' + data[i].simDateExact + title
 							})
 						});
-					})
-					console.log(this.signRecords);
+					}
 				}).catch(error => {
 					console.log(error);
 				});
 				// 获取博客发布时间线
-				axios.get('http://localhost:8081/blog/select-blog-line')
-				.then(response =>{
+				await axios.get('http://localhost:8081/blog/select-blog-line')
+				.then(async response => {
 					let data = response.data.data;
 					// 接口数据映射
-					data.map(item => {
-						this.getName(item.umId).then(res =>{
+					for (let i = 0; i<data.length; i++){
+						await  this.getName(data[i].umId).then(res =>{
+							let title = ' 发布了博客';
 							this.blogRecords.push({
-								time: item.bdDate,
-								title: res +' '+ '上传博客',
-								text: res + '在 ' + item.bdDate + ' 上传了博客'
+								ID: i,
+								time: data[i].bdDate,
+								title: res +' '+ title,
+								text: res + '在 ' + data[i].bdDate + title
 							})
 						});
-					})
-					console.log(response.data.data);
+					}
 				}).catch(error => {
 					console.log(error);
-				})
+				});
 				// 获取资料分享时间线
-				axios.get('http://localhost:8081/assets/select-assets-line')
-						.then(response =>{
-							let data = response.data.data;
-							// 接口数据映射
-							data.map(item => {
-								this.getName(item.umId).then(res =>{
-									this.assetRecords.push({
-										time: item.acDate,
-										title: res +' '+ '分享资料',
-										text: res + '在 ' + item.acDate + ' 分享了资料'
-									})
-								});
+				await axios.get('http://localhost:8081/assets/select-assets-line')
+				.then(async response => {
+					let data = response.data.data;
+					// 接口数据映射
+					for (let i = 0; i<data.length; i++){
+						await  this.getName(data[i].umId).then(res =>{
+							let title = ' 分享了资料';
+							this.assetRecords.push({
+								ID: i,
+								time: data[i].acDate,
+								title: res +' '+ title,
+								text: res + '在 ' + data[i].acDate + title
 							})
-						}).catch(error => {
+						});
+					}
+				}).catch(error => {
 					console.log(error);
-				})
+				});
 			},
 			/**
 			 * @method 获取用户姓名方法
@@ -183,13 +185,13 @@
 			 * @description 根据id查询用户姓名，返回的是一个promise对象
 			 **/
 			async getName(id){
-				console.log(typeof id);
+				console.log("getName，查询id" + id);
 				let data;
 				await axios.get('http://localhost:8081/user/get-name-by-Id',{
 					params:{userId: id}
 				}).then((response) => {
 					data = response.data.data;
-					console.log(response.data.data);
+					// console.log(response.data.data);
 				}).catch((error) => {
 					console.log(error);
 				});

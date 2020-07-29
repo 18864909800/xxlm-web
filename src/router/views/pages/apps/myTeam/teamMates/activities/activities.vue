@@ -27,10 +27,11 @@ export default {
 			<ul class="list-unstyled events mb-0">
 				<li
 					v-for="activity in signRecords"
-					:key="activity.id"
+					:key="activity.ID"
+					v-if="activity.userId === activity.selectedId"
 					class="event-list"
 				>
-					<div class="pb-4">
+					<div class="pb-4" >
 						<div class="media">
 							<div class="event-date text-center mr-4">
 								<div

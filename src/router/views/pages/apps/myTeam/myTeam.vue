@@ -39,8 +39,9 @@
 				uPublishPie: uPublishPie,
 				uAttendancePie: uAttendancePie,
 
-				// 日历
+				// 当前日期
 				value: new Date(),
+				calendarData: [],
 
 				// 成员数据
 				membersData: [],
@@ -70,9 +71,13 @@
 				],
 			}
 		},
+		computed:{
+
+		},
 		mounted(){
 			// 挂载时加载团队成员
 			this.getMembers();
+			// 加载时间线
 			this.getActivity();
 		},
 		methods:{
@@ -82,7 +87,8 @@
 			 * @description 获取团队成员，加载到memberData里
 			 **/
  			getMembers(){
-				axios.get('http://localhost:8081/user/select-all-normal-users').then((response) =>{
+				axios.get('http://localhost:8081/user/select-all-normal-users').
+				then((response) =>{
 					let data = response.data.data;
 					let arr = Object.values(data);
 					for (let i = 0; i < arr.length; i++) {
@@ -100,6 +106,7 @@
 					}
 					this.selectedMember = this.membersData[0];
 				})
+				return this.selectedMember;
 			},
 
 			/**
@@ -130,6 +137,8 @@
 							let title = data[i].simType === 0 ? ' 签到' : ' 签退';
 							this.signRecords.push({
 								ID: i,
+								useId: data[i].umId,
+								selectedId: this.selectedMember.userId,
 								time: data[i].simDateExact,
 								title: res +' '+ title,
 								text: res + '在 ' + data[i].simDateExact + title
@@ -197,17 +206,24 @@
 				});
 				return data;
 			},
-			
-			// TODO calendar 签到日历点击加载函数
+
+			/**
+			 * @method 根据id获取指定用户的签到日历
+			 * @param id 指定用户id
+			 */
 			getCalendar(id){
-				console.log("id:" + id)
+				let ID = parseInt(id);
+				let year = new Date().getFullYear();
+				let month = new Date().getMonth() + 1;
+
 				axios.get('http://localhost:8081/sign-in/select-assign-user-calendar',{
 					params: {
-						userId: 6,
-						year: 2020,
-						month: 7
+						userId: ID,
+						year: year,
+						month: month
 					}
 				}).then((response) => {
+					this.calendarData = response.data.data;
 					console.log(response.data.data);
 				}).catch((error) => {
 					console.log(error);
@@ -319,9 +335,15 @@
 									<el-calendar v-model="value">
 										<template
 												slot="dateCell"
-												slot-scope="{date, data}">
+												slot-scope="{date, data}"
+										>
+											<div class="item" v-for="item in calendarData">
+												<div v-if="item.indexOf(data.day.split('-').slice(2)) !== -1">
+													✔️
+												</div>
+											</div>
 											<p :class="data.isSelected ? 'is-selected' : ''">
-												{{ data.day.split('-').slice(1).join('-') }} {{ data.isSelected ? '✔️' : ''}}
+												{{ data.day.split('-').slice(1).join('-') }}
 											</p>
 										</template>
 									</el-calendar>

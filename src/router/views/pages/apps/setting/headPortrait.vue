@@ -73,7 +73,7 @@
 							<!-- 提交 -->
 							<div class="save col-2">
 								<!-- 保存 -->
-								<b-button type="button" variant="btn btn-primary col-10  save" @click="throttle(beforeUpload,3000)">更新</b-button>
+								<b-button type="button" variant="btn btn-primary col-10  save" @click="beforeUpload">更新</b-button>
 								<!-- /保存 -->
 
 								<!-- 弹框 -->

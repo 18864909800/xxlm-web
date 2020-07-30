@@ -99,6 +99,7 @@
                     id="example-placeholder"
                     type="text"
                     placeholder="请输入分类名称"
+                    v-model="dataType"
             ></b-form-input>
 
             <template v-slot:modal-footer>
@@ -125,6 +126,7 @@
         data() {
             return {
                 scrollModal: false,
+                dataType:'',
 
                 tabOptions: [
                     {
@@ -234,6 +236,7 @@
         methods: {
             addType() {
                 this.scrollModal = false;
+                console.log(this.dataType)
             },
             menuSelect(index) {
                 console.log(index);

@@ -3,22 +3,10 @@ import store from '@state/store'
 // auth related routes
 const authRoutes = [
     {
-        path: '/login',
+        path: '/',
         name: 'login',
         component: () => lazyLoadView(import('@views/pages/account/login')),
-        // meta: {
-        //   beforeResolve(routeTo, routeFrom, next) {
-        //     // If the user is already logged in
-        //     if (store.getters['auth/loggedIn']) {
-        //       // Redirect to the home page instead
-        //       console.log("nnnn")
-        //
-        //     } else {
-        //       // Continue to the login page
-        //       next()
-        //     }
-        //   },
-        // },
+       // props: (route) => ({user: store.state.auth.currentUser || {}}),
     },
     {
         path: '/logout',
@@ -84,18 +72,7 @@ const passwordAppsRoutes = [
     }
 ];
 
-// 首页
-const AppsRoutes = [
-    {
-        path: '/',
-        name: '首页',
-        header: '',
-        icon: 'calendar',
-        component: () => lazyLoadView(import('@views/pages/apps/notice/index')),
-        meta: {authRequired: true},
-        props: (route) => ({user: store.state.auth.currentUser || {}}),
-    }
-];
+
 
 // 公告/作业
 const noticeAppsRoutes = [
@@ -112,8 +89,8 @@ const noticeAppsRoutes = [
         props: (route) => ({user: store.state.auth.currentUser || {}}),
         children: [
             {
-                name: '公告',
-                path: 'notice',
+                name: '查看公告',
+                path: 'notice-index',
                 meta: { authRequired: true },
                 component: () => lazyLoadView(import('@views/pages/apps/notice/index')),
             },
@@ -126,12 +103,11 @@ const noticeAppsRoutes = [
         ]
     }
 ];
-
 // 资料
 const dataAppsRoutes = [
     {
         path: '/data',
-        name: '资料',
+        name: '资料 ',
         icon: 'inbox',
         meta: {authRequired: true},
         component: {
@@ -142,8 +118,8 @@ const dataAppsRoutes = [
         props: (route) => ({user: store.state.auth.currentUser || {}}),
         children: [
             {
-                name: '资料',
-                path: 'data',
+                name: '查看资料',
+                path: 'data-index',
                 meta: { authRequired: true },
                 component: () => lazyLoadView(import('@views/pages/apps/data/index')),
             },
@@ -162,6 +138,7 @@ const dataAppsRoutes = [
         ]
     }
 ];
+
 // 博客
 const blogAppsRoutes = [
     {
@@ -174,13 +151,25 @@ const blogAppsRoutes = [
     }
 ];
 
-// 签到记录
-const signinAppsRoutes = [
+// 管理员签到记录
+const aSigninAppsRoutes = [
     {
-        path: '/apps/signin',
-        name: '签到记录',
+        path: '/apps/aRecords',
+        name: '管理员签到记录',
         icon: 'file-text',
-        component: () => lazyLoadView(import('@views/pages/apps/signin')),
+        component: () => lazyLoadView(import('@views/pages/apps/signin/a_records')),
+        meta: {authRequired: true},
+        props: (route) => ({user: store.state.auth.currentUser || {}}),
+    }
+];
+
+// 普通用户签到记录
+const uSigninAppsRoutes = [
+    {
+        path: '/apps/uRecords',
+        name: '个人签到记录',
+        icon: 'file-text',
+        component: () => lazyLoadView(import('@views/pages/apps/signin/u_records')),
         meta: {authRequired: true},
         props: (route) => ({user: store.state.auth.currentUser || {}}),
     }
@@ -200,11 +189,11 @@ const myTeamRoutes = [
 
 
 const appsRoutes = [
-    ...AppsRoutes,
     ...noticeAppsRoutes,
     ...dataAppsRoutes,
     ...blogAppsRoutes,
-    ...signinAppsRoutes,
+    ...aSigninAppsRoutes,
+    ...uSigninAppsRoutes,
     ...myTeamRoutes
 ]
 
@@ -216,9 +205,7 @@ const settingRoutes = [
     ...headPortraitAppsRoutes,
     ...passwordAppsRoutes
 ]
-
-
-const allRoutes = [...authRoutes, ...authProtectedRoutes, ...errorPagesRoutes, ...headPortraitAppsRoutes, ...passwordAppsRoutes]
+const allRoutes = [ ...authRoutes,...authProtectedRoutes, ...errorPagesRoutes, ...headPortraitAppsRoutes, ...passwordAppsRoutes]
 
 export {allRoutes, authProtectedRoutes, settingRoutes}
 

@@ -5,7 +5,7 @@ module.exports = {
     {
       id: 1,
       username: 'admin',
-      password: 'password',
+      password: 'admin',
       name: 'Nik Patel',
       email: 'support@coderthemes.com',
     },

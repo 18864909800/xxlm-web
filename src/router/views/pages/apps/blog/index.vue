@@ -10,7 +10,7 @@
                             <div class="row align-items-center">
                                 <div class="col">
                                     <label class="font-weight-bold d-inline mr-2" style="font-size: 18px">
-                                        资料
+                                        博客
                                     </label>
                                 </div>
                                 <div class="col text-right">
@@ -91,7 +91,7 @@
         <!--添加分类模态框-->
         <b-modal
                 v-model="scrollModal"
-                title="添加资料分类"
+                title="添加博客分类"
                 title-class="font-18"
         >
 
@@ -120,7 +120,7 @@
 
     export default {
         page: {
-            title: '资料',
+            title: '博客',
             meta: [{name: 'description', content: appConfig.description}],
         },
         components: {Layout, PageHeader},

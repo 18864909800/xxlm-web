@@ -56,9 +56,9 @@
                                                             <i class="uil uil-eye text-muted mr-1"></i>
                                                             {{ data.hits }}
                                                           </span>
-                            <!--<span class="text-nowrap align-middle font-size-13 mr-2 float-right">-->
-                            <!--<i class="uil uil-trash-alt text-muted mr-1"></i>-->
-                            <!--</span>-->
+                            <span class="text-nowrap align-middle font-size-13 mr-2 float-right">
+                            <i class="uil uil-trash-alt text-muted mr-1"></i>
+                            </span>
                           </p>
                         </div>
                       </div>

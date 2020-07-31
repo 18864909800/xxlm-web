@@ -18,7 +18,7 @@ const authRoutes = [
                 const authRequiredOnPreviousRoute = routeFrom.matched.some(
                     (route) => route.meta.authRequired
                 )
-                // Navigate back to previous page, or home as a fallback
+                
                 next(
                     authRequiredOnPreviousRoute ? {name: 'dashboard'} : {...routeFrom}
                 )
@@ -27,7 +27,7 @@ const authRoutes = [
     },
 ]
 
-// error pages
+// 错误页
 const errorPagesRoutes = [
     {
         path: '/404',
@@ -142,12 +142,36 @@ const dataAppsRoutes = [
 // 博客
 const blogAppsRoutes = [
     {
-        path: '/apps/blog/allBlog',
-        name: '博客',
-        icon: 'briefcase',
+        path: '/blog',
+        name: '博客 ',
+        icon: 'inbox',
         meta: {authRequired: true},
-        component: () => lazyLoadView(import('@views/pages/apps/blog/allBlog')),
+        component: {
+            render(c) {
+                return c('router-view')
+            },
+        },
         props: (route) => ({user: store.state.auth.currentUser || {}}),
+        children: [
+            {
+                name: '查看博客',
+                path: 'blog-index',
+                meta: { authRequired: true },
+                component: () => lazyLoadView(import('@views/pages/apps/blog/index')),
+            },
+            {
+                name: '分享博客',
+                path: 'blog-share',
+                meta: { authRequired: true },
+                component: () => lazyLoadView(import('@views/pages/apps/blog/blogShare')),
+            },
+            {
+                name: '我的博客',
+                path: 'my-blog',
+                meta: { authRequired: true },
+                component: () => lazyLoadView(import('@views/pages/apps/blog/myBlog')),
+            }
+        ]
     }
 ];
 

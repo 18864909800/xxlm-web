@@ -91,7 +91,7 @@
                                                     />
                                                 </div>
                                             </div>
-                                            <b-form-group id="button-group" class="mt-4 mb-1">
+                                            <b-form-group id="button-group" class="mt-4 mb-1" >
                                                 <b-button
                                                         type="submit"
                                                         variant="primary"
@@ -101,7 +101,7 @@
                                                 >
                                             </b-form-group>
                                         </b-form>
-                                        <div style="height: 30px"></div>
+                                        <div style="height: 30px;"></div>
                                     </div>
                                     <div class="col-lg-6 d-none d-md-inline-block">
                                         <div class="auth-page-sidebar">
@@ -183,6 +183,7 @@
                 // Reset the authError if it existed.
                 this.authError = null
 
+                document.getElementById("button-group").disabled=true
 
                 return this.logIn({
                     username: this.username,
@@ -194,10 +195,10 @@
                     if (token.responseCode != 500) {
 
 
-                            // Redirect to the originally requested page, or to the home page
-                            this.$router.push(
-                                this.$route.query.redirectFrom || {name: '查看公告'}
-                            )
+                        // Redirect to the originally requested page, or to the home page
+                        this.$router.push(
+                            this.$route.query.redirectFrom || {name: '查看公告'}
+                        )
                     } else {
                         document.getElementById('b-alert').innerText = '账号或者用户名错误';
                         document.getElementById('login-danger').style.display = 'inline';

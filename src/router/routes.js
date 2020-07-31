@@ -18,7 +18,7 @@ const authRoutes = [
                 const authRequiredOnPreviousRoute = routeFrom.matched.some(
                     (route) => route.meta.authRequired
                 )
-                // Navigate back to previous page, or home as a fallback
+                
                 next(
                     authRequiredOnPreviousRoute ? {name: 'dashboard'} : {...routeFrom}
                 )
@@ -27,7 +27,7 @@ const authRoutes = [
     },
 ]
 
-// error pages
+// 错误页
 const errorPagesRoutes = [
     {
         path: '/404',

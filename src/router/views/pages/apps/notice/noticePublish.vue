@@ -86,6 +86,8 @@
     import Layout from '@layouts/main'
     import PageHeader from '@components/page-header'
     import { VueEditor } from 'vue2-editor'
+    import axios from 'axios';
+    import qs from 'querystring';
 
     export default {
         page: {
@@ -102,11 +104,11 @@
                 // 公告类型
                 options: [
                     {
-                        id:1,
+                        id:0,
                         opt:'普通公告'
                     },
                     {
-                        id:2,
+                        id:1,
                         opt:'作业公告'
                     }
                 ],
@@ -148,6 +150,11 @@
                     return;
                 }
 
+
+                console.log(this.type);
+                console.log(this.title);
+                console.log(this.text);
+
                 this.publishModel = true;
 
             },
@@ -157,7 +164,41 @@
                 console.log(this.type);
                 console.log(this.text);
 
-                this.publishModel = false;
+                axios({
+                    url: 'http://localhost:8080/notice/push-notice',
+                    method: "POST",
+                    data: qs.encode({
+                        noticeTitle: this.title,
+                        noticeType: this.type,
+                        noticeContent: this.text
+                    }),
+                    headers: {
+                        "content-type": "application/x-www-form-urlencoded"
+                    },
+                }).then(res => {
+                    if(res.data.responseCode == '200') {
+                        if(res.data.data == true) {
+                            this.$notify({
+                                title: '成功',
+                                message: '公告发表成功',
+                                type: 'success'
+                            });
+                            this.publishModel = false;
+
+                            this.title = '';
+                            this.type = '';
+                            this.text = '';
+                        }
+                    }
+                }).catch(error => {
+                    this.$notify({
+                        title: '警告',
+                        message: '服务器正忙，请稍后再试',
+                        type: 'warning'
+                    });
+                })
+
+
             }
         }
     }

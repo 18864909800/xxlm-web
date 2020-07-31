@@ -1,4 +1,4 @@
-const Users = require('../resources/users')
+ const Users = require('../resources/users')
 
 module.exports = (app) => {
   // Log in a user with a username and password

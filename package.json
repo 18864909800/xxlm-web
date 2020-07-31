@@ -74,7 +74,6 @@
     "babel-eslint": "10.0.x",
     "babel-jest": "23.6.x",
     "cross-env": "5.2.x",
-    "eslint": "5.16.x",
     "eslint-plugin-vue": "vuejs/eslint-plugin-vue#edd5f14",
     "express": "4.16.x",
     "hygen": "2.1.2",

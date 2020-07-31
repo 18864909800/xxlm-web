@@ -62,9 +62,9 @@
                                                             <i class="uil uil-eye text-muted mr-1"></i>
                                                             {{ data.hits }}
                                                           </span>
-                                                        <!--<span class="text-nowrap align-middle font-size-13 mr-2 float-right">-->
-                                                        <!--<i class="uil uil-trash-alt text-muted mr-1"></i>-->
-                                                        <!--</span>-->
+                                                        <span class="text-nowrap align-middle font-size-13 mr-2 float-right">
+                                                        <i class="uil uil-trash-alt text-muted mr-1"></i>
+                                                        </span>
                                                     </p>
                                                 </div>
                                             </div>
@@ -232,6 +232,10 @@
             }
         },
         computed: {},
+        created() {
+            this.getAllDetails();
+            this.getAllCategory();
+        },
 
         methods: {
             addType() {
@@ -240,7 +244,23 @@
             },
             menuSelect(index) {
                 console.log(index);
-            }
+            },
+
+            // 查询所有分类
+            getAllCategory() {
+                this.axios.get("https://api.lightingsui.com/assets/get-all-category")
+                    .then(res => {
+                        if (res.data.status === 1) {
+
+                            console.log(res.data.data);
+
+                        }
+                    });
+            },
+            // 查询所有详细信息
+            getAllDetails() {
+
+            },
         }
     }
 </script>

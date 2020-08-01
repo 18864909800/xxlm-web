@@ -129,107 +129,109 @@
                 scrollModal: false,
                 dataType:'',
 
-                tabOptions: [
-                    {
-                        id: 0,
-                        tab: '全部'
-                    },
-                    {
-                        id: 1,
-                        tab: 'Python'
-                    },
-                    {
-                        id: 2,
-                        tab: 'Java'
-                    },
-                    {
-                        id: 3,
-                        tab: '架构'
-                    },
-                    {
-                        id: 4,
-                        tab: '数据库'
-                    }, {
-                        id: 5,
-                        tab: '区块链'
-                    },
-                    {
-                        id: 6,
-                        tab: '云计算'
-                    },
-                    {
-                        id: 7,
-                        tab: '前端'
-                    },
-                    {
-                        id: 8,
-                        tab: '人工智能'
-                    },
-                    {
-                        id: 9,
-                        tab: '大数据'
-                    },
-                    {
-                        id: 10,
-                        tab: '5G'
-                    },
-                    {
-                        id: 11,
-                        tab: '移动开发'
-                    },
-                ],
-                dataList: [
-                    {
-                        id: 1,
-                        title: '标题1',
-                        name: '赵如冰',
-                        date: 'Jan 16, 2019',
-                        text: '描述',
-                        address: 'http://www.baidu.com',
-                        hits: 7,
-                        groupId: 1,
-                    },
-                    {
-                        id: 2,
-                        title: '标题',
-                        name: '赵如冰',
-                        date: 'Jan 16, 2019',
-                        text: '描述',
-                        address: 'http://www.baidu.com',
-                        hits: 7,
-                        groupId: 1,
-                    },
-                    {
-                        id: 3,
-                        title: '标题',
-                        name: '赵如冰',
-                        date: 'Jan 16, 2019',
-                        text: '描述',
-                        address: 'http://www.baidu.com',
-                        hits: 7,
-                        groupId: 1,
-                    },
-                    {
-                        id: 4,
-                        title: '标题',
-                        name: '赵如冰',
-                        date: 'Jan 16, 2019',
-                        text: '描述',
-                        address: 'http://www.baidu.com',
-                        hits: 7,
-                        groupId: 1,
-                    },
-                    {
-                        id: 5,
-                        title: '标题',
-                        name: '赵如冰',
-                        date: 'Jan 16, 2019',
-                        text: '描述',
-                        address: 'http://www.baidu.com',
-                        hits: 7,
-                        groupId: 1,
-                    },
-                ],
+                tabOptions:[],
+                dataList:[],
+                // tabOptions: [
+                //     {
+                //         id: 0,
+                //         tab: '全部'
+                //     },
+                //     {
+                //         id: 1,
+                //         tab: 'Python'
+                //     },
+                //     {
+                //         id: 2,
+                //         tab: 'Java'
+                //     },
+                //     {
+                //         id: 3,
+                //         tab: '架构'
+                //     },
+                //     {
+                //         id: 4,
+                //         tab: '数据库'
+                //     }, {
+                //         id: 5,
+                //         tab: '区块链'
+                //     },
+                //     {
+                //         id: 6,
+                //         tab: '云计算'
+                //     },
+                //     {
+                //         id: 7,
+                //         tab: '前端'
+                //     },
+                //     {
+                //         id: 8,
+                //         tab: '人工智能'
+                //     },
+                //     {
+                //         id: 9,
+                //         tab: '大数据'
+                //     },
+                //     {
+                //         id: 10,
+                //         tab: '5G'
+                //     },
+                //     {
+                //         id: 11,
+                //         tab: '移动开发'
+                //     },
+                // ],
+                // dataList: [
+                //     {
+                //         id: 1,
+                //         title: '标题1',
+                //         name: '赵如冰',
+                //         date: 'Jan 16, 2019',
+                //         text: '描述',
+                //         address: 'http://www.baidu.com',
+                //         hits: 7,
+                //         groupId: 1,
+                //     },
+                //     {
+                //         id: 2,
+                //         title: '标题',
+                //         name: '赵如冰',
+                //         date: 'Jan 16, 2019',
+                //         text: '描述',
+                //         address: 'http://www.baidu.com',
+                //         hits: 7,
+                //         groupId: 1,
+                //     },
+                //     {
+                //         id: 3,
+                //         title: '标题',
+                //         name: '赵如冰',
+                //         date: 'Jan 16, 2019',
+                //         text: '描述',
+                //         address: 'http://www.baidu.com',
+                //         hits: 7,
+                //         groupId: 1,
+                //     },
+                //     {
+                //         id: 4,
+                //         title: '标题',
+                //         name: '赵如冰',
+                //         date: 'Jan 16, 2019',
+                //         text: '描述',
+                //         address: 'http://www.baidu.com',
+                //         hits: 7,
+                //         groupId: 1,
+                //     },
+                //     {
+                //         id: 5,
+                //         title: '标题',
+                //         name: '赵如冰',
+                //         date: 'Jan 16, 2019',
+                //         text: '描述',
+                //         address: 'http://www.baidu.com',
+                //         hits: 7,
+                //         groupId: 1,
+                //     },
+                // ],
             }
         },
         computed: {},
@@ -249,11 +251,50 @@
 
             // 查询所有分类
             getAllCategory() {
-                axios.get()
+                axios.get("/assets/get-all-category")
+                    .then(res => {
+
+                        if (res.data.data != null && res.data.data.length !== 0) {
+
+                            console.log(res.data.data);
+
+                            for (let i = 0; i < res.data.data.length; i++) {
+                                let obj = {};
+
+                                obj = {
+                                    id: res.data.data[i].assetsId,
+                                    tab: res.data.data[i].assetsName,
+                                }
+                                this.tabOptions.push(obj);
+                            }
+
+                        }
+                    });
             },
             // 查询所有详细信息
             getAllDetails() {
+                axios.get("/assets/select-assets-by-category-search",{
+                        params: {
+                            cId:'',
+                        }
+                    })
+                    .then(res => {
 
+                        if (res.data.data != null && res.data.data.length !== 0) {
+
+                            console.log(res.data.data);
+
+                            for (let i = 0; i < res.data.data.length; i++) {
+                                let obj = {};
+
+                                obj = {
+                                    id: res.data.data[i],
+                                }
+                                this.tabOptions.push(obj);
+                            }
+
+                        }
+                    });
             },
         }
     }

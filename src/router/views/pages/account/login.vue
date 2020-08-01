@@ -142,7 +142,7 @@
     import appConfig from '@src/app.config'
 
 
-    /**
+     /**
      * Login component
      */
     export default {

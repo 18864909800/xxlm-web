@@ -311,6 +311,11 @@
 
             // 查看普通公告详情
             noticeDetail(index) {
+                this.dId =  '';
+                this.dTitle =  '';
+                this.dDate =  '';
+                this.dText = '';
+                this.dHits =  '';
                 // 查看普通公告详情
                 axios.get("http://localhost:8080/notice/select-details-by-id/" + index).then(res => {
                     if(res.data.responseCode == '200') {

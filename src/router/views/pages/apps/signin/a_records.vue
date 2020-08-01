@@ -6,11 +6,11 @@
 
   // 引入图表插件
   import {
-    aPublishTends,
-    aDurationTop10,
-    aDurationPie,
-    aAttendancePie,
-  }from './records'
+      aPublishTends,
+      aDurationTop10,
+      aDurationPie,
+      aAttendancePie,
+  } from './records'
   /**
    * Starter component
    */
@@ -20,7 +20,6 @@
     data() {
       return {
         title: '团队签到记录统计',
-        year: new Date().getFullYear,
         aPublishTends: {
             chartOptions: {
                 chart: {
@@ -96,76 +95,235 @@
                     },
                 ],
             },
-            series: [
-                {
-                    name: '资料 - ' + this.year,
-                    data: [],
-                },
-                {
-                    name: '博客 - ' + this.year,
-                    data: [],
-                },
-            ],
+            series: [],
         },
-        aDurationTop10: aDurationTop10,
-        aDurationPie: aDurationPie,
-        aAttendancePie: aAttendancePie,
+        aDurationTop10:  {
+            series: [],
+            chartOptions: {},
+        },
+        aDurationPie: {
+            series: [],
+            chartOptions: {},
+        },
+        aAttendancePie: {
+            series: [],
+            chartOptions: {
+                chart: {
+                    dropShadow: {
+                        enabled: true,
+                        color: '#111',
+                        top: -1,
+                        left: 3,
+                        blur: 3,
+                        opacity: 0.2,
+                    },
+                },
+                stroke: {
+                    show: true,
+                    width: 2,
+                },
+                colors: ['#43d39e', '#f77e53'],
+                labels: ['打卡', '缺勤'],
+                dataLabels: {
+                    dropShadow: {
+                        blur: 3,
+                        opacity: 0.8,
+                    },
+                    enabled: false,
+                },
+                fill: {
+                    type: 'pattern',
+                    opacity: 1,
+                    pattern: {
+                        enabled: true,
+                        style: [
+                            'squares',
+                            'horizontalLines',
+                        ],
+                    },
+                },
+                states: {
+                    hover: {
+                        enabled: false,
+                    },
+                },
+                legend: {
+                    show: false,
+                    position: 'bottom',
+                    horizontalAlign: 'center',
+                    verticalAlign: 'middle',
+                    floating: false,
+                    fontSize: '14px',
+                    offsetX: 0,
+                    offsetY: -10,
+                },
+                responsive: [
+                    {
+                        breakpoint: 600,
+                        options: {
+                            chart: {
+                                height: 240,
+                            },
+                            legend: {
+                                show: false,
+                            },
+                        },
+                    },
+                ],
+            },
+        },
       }
     },
 
-    mounted(){
+   async mounted(){
       // 周博客资料发布趋势图 数据获取
-      // 资料
-        console.log("1");
-        let data = function() {
-             axios.get('http://localhost:8081/assets/select-everyday-assets')
-                 .then((response) => {
-                     console.log(response.data.data);
-                     this.aPublishTends.series[0].data = response.data.data;
-                 }).catch((error) => {
-                 console.log(error);
-                 return [];
-             });
-         }();
-
-        console.log(this.aPublishTends.series[0].data)
-      // 博客
-        this.aPublishTends.series[1].data = () => {
-            axios.get('http://localhost:8081/blog/select-everyday-blog')
-                .then((response) => {
-                    console.log(response.data);
-                    return response.data.data;
-                }).catch((error) => {
-                console.log(error);
-                return [];
-            });
-        }
-
-
-      // 
+        // 获取资料
+        this.getAssets();
+        // 获取博客
+        this.getBlogs();
+        // 获取学习时长相关图形
+       this.getDurationTop10();
+       // 缺勤与打卡人数占比图
+        this.getAttendance();
 
     },
       methods: {
-        getAssets(){
+          /**
+           * @method
+           * @desc 获取资料数据
+           */
+          getAssets(){
             axios.get('http://localhost:8081/assets/select-everyday-assets')
             .then((response) => {
                 console.log(response.data);
-                return response.data.data;
+                this.aPublishTends.series.push({
+                    name: '资料 - ' + new Date().getFullYear(),
+                    data: response.data.data,
+                })
             }).catch((error) => {
                 console.log(error);
-                return [];
             });
         },
+          /**
+           * @method
+           * @desc 获取博客数据
+           */
           getBlogs(){
               axios.get('http://localhost:8081/blog/select-everyday-blog')
               .then((response) => {
                   console.log(response.data);
-                  return response.data.data;
+                  this.aPublishTends.series.push({
+                      name: '博客 - ' + new Date().getFullYear(),
+                      data: response.data.data,
+                  })
               }).catch((error) => {
                   console.log(error);
-                  return [];
               });
           },
+          /**
+           * @method
+           * @desc 获取学习时长排行top10
+           */
+          getDurationTop10(){
+              axios.get('http://localhost:8081/sign-in/select-learn-time-total')
+              .then(res => {
+                  let result = res.data.data;
+                  let key = Object.keys(result);
+                  let value = Object.values(result);
+                  this.aDurationTop10.chartOptions = {
+                      chart: {
+                          toolbar: {
+                              show: false,
+                          },
+                      },
+                      plotOptions: {
+                          bar: {
+                              horizontal: true,
+                          },
+                      },
+                      dataLabels: {
+                          enabled: false,
+                      },
+
+                      colors: ['#5369f8'],
+                      xaxis: {
+                          // tslint:disable-next-line: max-line-length
+                          categories: key,
+                          axisBorder: {
+                              color: '#d6ddea',
+                          },
+                          axisTicks: {
+                              color: '#d6ddea',
+                          },
+                      },
+                      states: {
+                          hover: {
+                              filter: 'none',
+                          },
+                      },
+                      grid: {
+                          borderColor: '#f1f3fa',
+                      },
+                      tooltip: {
+                          theme: 'dark',
+                          x: { show: false },
+                      },
+                  };
+                  this.aDurationTop10.series = [{
+                      data : value
+                  }];
+
+                  this.aDurationPie.series = value;
+                  this.aDurationPie.chartOptions = {
+                      labels: key,
+                      colors: ['#5369f8', '#43d39e', '#f77e53', '#1ce1ac', '#25c2e3'],
+                      legend: {
+                          show: false,
+                          position: 'bottom',
+                          horizontalAlign: 'center',
+                          verticalAlign: 'middle',
+                          floating: false,
+                          fontSize: '14px',
+                          offsetX: 0,
+                          offsetY: -10,
+                      },
+                      dataLabels: {
+                          enabled: false,
+                      },
+                      responsive: [
+                          {
+                              breakpoint: 600,
+                              options: {
+                                  chart: {
+                                      height: 240,
+                                  },
+                                  legend: {
+                                      show: false,
+                                  },
+                              },
+                          },
+                      ],
+                  }
+
+                  console.log("TOP10");
+                  console.log(res.data.data);
+              }).catch(error => {
+                  console.log(error);
+              })
+          },
+          /**
+           * @method
+           * @desc 获取今日缺勤人数与打卡人数占比图
+           */
+          getAttendance(){
+              axios.get('http://localhost:8081/sign-in/select-compared')
+              .then(res => {
+                  this.aAttendancePie.series = res.data.data;
+                  console.log('alert')
+                  console.log(res.data.data);
+              })
+          }
+
       }
   }
 </script>

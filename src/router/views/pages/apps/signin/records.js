@@ -116,15 +116,15 @@
         // tslint:disable-next-line: max-line-length
         categories: [
           '隋亮亮',
-          '隋亮亮',
-          '隋亮亮',
-          '隋亮亮',
-          '隋亮亮',
-          '隋亮亮',
-          '隋亮亮',
-          '隋亮亮',
-          '隋亮亮',
-          '隋亮亮',
+          '赵如冰',
+          '陈达',
+          '王同威',
+          '任苗苗',
+          '袁国生',
+          '王子达',
+          '王小明',
+          '张三',
+          '徐四',
         ],
         axisBorder: {
           color: '#d6ddea',
@@ -153,7 +153,7 @@
   const aDurationPie = {
     series: [44, 55, 41, 17, 15],
     chartOptions: {
-      labels: ['隋亮亮', '隋亮亮','隋亮亮','隋亮亮','隋亮亮',],
+      labels: ['隋亮亮', '赵如冰','王同威','陈达','任苗苗',],
       colors: ['#5369f8', '#43d39e', '#f77e53', '#1ce1ac', '#25c2e3'],
       legend: {
         show: true,
@@ -444,11 +444,11 @@
     series: [
       {
         name: '资料 - ' + year,
-        data: '',
+        data: [0, 1, 2, 4, 5],
       },
       {
         name: '博客 - ' + year,
-        data: '',
+        data: [3, 3, 2, 5, 1],
       },
     ],
   }

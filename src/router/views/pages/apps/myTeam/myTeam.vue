@@ -49,42 +49,105 @@
 				isActive: false,
 
 				// 博客，资料数据
-				 tabOptions: [
-						{
-							id: 0,
-							tab: '全部'
-						},
-
-				],
-				 dataList: [
+				tabOptions: [
+					{
+						id: 0,
+						tab: '全部'
+					},
 					{
 						id: 1,
-						title: '标题1',
-						name: '赵如冰',
-						date: 'Jan 16, 2019',
-						text: '描述',
-						address: 'http://www.baidu.com',
-						hits: 7,
-						groupId: 1,
+						tab: 'Python'
 					},
-
+					{
+						id: 2,
+						tab: 'Java'
+					},
+					{
+						id: 3,
+						tab: '前端'
+					},
+					{
+						id: 4,
+						tab: '数据库'
+					}, {
+						id: 5,
+						tab: '区块链'
+					},
+					{
+						id: 6,
+						tab: '云计算'
+					},
+					{
+						id: 7,
+						tab: '架构'
+					},
+					{
+						id: 8,
+						tab: '人工智能'
+					},
+					{
+						id: 9,
+						tab: '大数据'
+					},
+					{
+						id: 10,
+						tab: '5G'
+					},
+					{
+						id: 11,
+						tab: '移动开发'
+					},
 				],
+				dataList: [],
 			}
 		},
-		computed:{
+		watch: {
+			// 选中成员变化后重新调用API
+			selectedMember(newVal,oldValue){
+				this.getCalendar(this.selectedMember.userId).then(res => {
+					this.calendarData = res;
+				});
+				this.getBlog(this.selectedMember.userId).then(res => {
 
+				});
+				this.getAsset(this.selectedMember.userId).then(res => {
+
+				});
+				this.getCharts(this.selectedMember.userId).then(res => {
+
+				});
+			}
 		},
-		mounted(){
+		computed: {
+			 signTimeLine: function () {
+			 	let result =  this.signRecords.filter((item) => {
+					return	this.selectedMember.userId === item.userId
+				})
+				 return result;
+			 },
+			blogTimeLine: function(){
+			 	return this.blogRecords.filter(item => {
+			 		return this.selectedMember.userId === item.userId;
+				})
+			},
+			assetTimeLine: function(){
+				return this.assetRecords.filter(item => {
+					return this.selectedMember.userId === item.userId;
+				})
+			}
+		},
+		async mounted(){
+
 			// 挂载时加载团队成员
-			this.getMembers();
+			await this.getMembers();
 			// 加载时间线
-			this.getActivity();
+			await this.getActivity();
 		},
 		methods:{
 
 			/**
-			 * @method 获取成员
-			 * @description 获取团队成员，加载到memberData里
+			 * @method
+			 * @desc 获取团队成员，加载到memberData里
 			 **/
  			getMembers(){
 				axios.get('http://localhost:8081/user/select-all-normal-users').
@@ -110,21 +173,19 @@
 			},
 
 			/**
-			 * @method changeMember 点击团队成员事件
-			 * @description 切换选中成员触发的事件。包括改颜色，切换时间线
+			 * @method
+			 * @desc changeMember 点击团队成员事件。切换选中成员触发的事件。包括改颜色，切换时间线
  			 */
 			changeMember(member){
 				// 改变背景颜色
 				this.selectedMember.isSelected = false;
 				this.selectedMember = member;
 				this.selectedMember.isSelected = true;
-				// Tab键切换到时间线
-				this.getActivity();
 			},
 
 			/**
-			 * @method 获取时间线
-			 * @description 获取实验室成员签到签退，发布博客，发布资料时间线
+			 * @method
+			 * @desc 获取实验室成员签到签退，发布博客，发布资料时间线
 			 **/
 			async getActivity(){
 				// 获取签到签退时间线
@@ -137,7 +198,7 @@
 							let title = data[i].simType === 0 ? ' 签到' : ' 签退';
 							this.signRecords.push({
 								ID: i,
-								useId: data[i].umId,
+								userId: data[i].umId,
 								selectedId: this.selectedMember.userId,
 								time: data[i].simDateExact,
 								title: res +' '+ title,
@@ -158,6 +219,8 @@
 							let title = ' 发布了博客';
 							this.blogRecords.push({
 								ID: i,
+								userId: data[i].umId,
+								selectedId: this.selectedMember.userId,
 								time: data[i].bdDate,
 								title: res +' '+ title,
 								text: res + '在 ' + data[i].bdDate + title
@@ -177,6 +240,8 @@
 							let title = ' 分享了资料';
 							this.assetRecords.push({
 								ID: i,
+								userId: data[i].umId,
+								selectedId: this.selectedMember.userId,
 								time: data[i].acDate,
 								title: res +' '+ title,
 								text: res + '在 ' + data[i].acDate + title
@@ -188,10 +253,10 @@
 				});
 			},
 			/**
-			 * @method 获取用户姓名方法
+			 * @method
 			 * @param {number} id
 			 * @return {Promise} data
-			 * @description 根据id查询用户姓名，返回的是一个promise对象
+			 * @desc 根据id查询用户姓名，返回的是一个promise对象
 			 **/
 			async getName(id){
 				console.log("getName，查询id" + id);
@@ -208,13 +273,15 @@
 			},
 
 			/**
-			 * @method 根据id获取指定用户的签到日历
-			 * @param id 指定用户id
+			 * @method
+			 * @param {number} id
+			 * @desc 根据id获取指定用户的签到日历，返回已签到日期的promise对象
 			 */
 			getCalendar(id){
 				let ID = parseInt(id);
 				let year = new Date().getFullYear();
 				let month = new Date().getMonth() + 1;
+				console.log(typeof month)
 
 				axios.get('http://localhost:8081/sign-in/select-assign-user-calendar',{
 					params: {
@@ -230,8 +297,39 @@
 				});
 			},
 
-			// TODO blog 查看某个用户的博客
-			getBlog(id){},
+			/**
+			 * TODO 将测试数据全部换成后台数据
+			 * @method
+			 * @param {number} id
+			 * @desc 根据id获取指定用户的博客
+			 */
+			getBlog(id){
+				axios.get('http://localhost:8081/blog/select-assign-user-blog',{
+					params:{
+						category: this.tabOptions[3].id,
+						userId: this.selectedMember.userId
+					}
+				}).then(res => {
+					this.dataList.push({
+							id: 1,
+						 	title: '标题1',
+							name: '赵如冰',
+							date: 'Jan 16, 2019',
+							text: '描述',
+							address: 'http://www.baidu.com',
+							hits: 7,
+							groupId: 1,
+					})
+					this.dataList[0].id = res.data.data[0].bdId;
+					this.dataList[0].title = res.data.data[0].bdTitle;
+					this.dataList[0].address = res.data.data[0].bdLink;
+					this.dataList[0].name = res.data.data[0].assetsName;
+					this.dataList[0].date = res.data.data[0].bdDate;
+					this.dataList[0].text = res.data.data[0].bdContent;
+
+				})
+				return this.dataList;
+			},
 
 			// TODO asset 查看某个用户的资料
 			getAsset(id){},
@@ -317,13 +415,12 @@
 							<b-tab
 									title="时间线"
 								   active
-								   @click="getActivity(selectedMember.userId)"
 							>
 								<el-scrollbar style="width: 100%;height: 600px;">
 									<Activity
-											:signRecords = "signRecords"
-											:assetRecords = "assetRecords"
-											:blogRecords = "blogRecords"
+											:signRecords = "signTimeLine"
+											:assetRecords = "assetTimeLine"
+											:blogRecords = "blogTimeLine"
 									/>
 								</el-scrollbar>
 							</b-tab>
@@ -338,10 +435,11 @@
 												slot-scope="{date, data}"
 										>
 											<div class="item" v-for="item in calendarData">
-												<div v-if="item.indexOf(data.day.split('-').slice(2)) !== -1">
+												<div class="is-selected" v-if="item.indexOf(data.day.split('-').slice(2)) !== -1">
 													✔️
 												</div>
 											</div>
+											{{parseInt(data.day.split('-')[1])}}
 											<p :class="data.isSelected ? 'is-selected' : ''">
 												{{ data.day.split('-').slice(1).join('-') }}
 											</p>

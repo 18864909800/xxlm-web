@@ -22,13 +22,25 @@ export default {
 
 <template>
 	<div>
-		<h5 class="mt-3">签到签退</h5>
+		<!--没有任何签到签退，博客发布，资料发布活动时展示-->
+		<!--用户太懒了，啥也不干-->
+		<p
+				class="do-nothing"
+				v-if="assetRecords.length === 0 &&
+				blogRecords.length === 0 &&
+				signRecords.length === 0"
+		>
+			该用户太懒了，啥也没干~
+		</p>
+		<!--/用户太懒了，啥也不干-->
+
+		<!--签到签退时间线-->
+		<h5 class="mt-3" v-if="signRecords.length !== 0">签到签退</h5>
 		<div class="left-timeline mt-3 mb-3 pl-4">
 			<ul class="list-unstyled events mb-0">
 				<li
 					v-for="activity in signRecords"
 					:key="activity.ID"
-					v-if="activity.userId === activity.selectedId"
 					class="event-list"
 				>
 					<div class="pb-4" >
@@ -48,7 +60,10 @@ export default {
 				</li>
 			</ul>
 		</div>
-		<h5 class="mt-3">博客发布</h5>
+		<!--/签到签退时间线-->
+
+		<!--博客发布时间线-->
+		<h5 class="mt-3" v-if="blogRecords.length !== 0">博客发布</h5>
 		<div class="left-timeline mt-3 mb-3 pl-4">
 			<ul class="list-unstyled events mb-0">
 				<li
@@ -73,7 +88,10 @@ export default {
 				</li>
 			</ul>
 		</div>
-		<h5 class="mt-3">资料分享</h5>
+		<!--/博客发布时间线-->
+
+		<!--资料分享时间线-->
+		<h5 class="mt-3" v-if="assetRecords.length !== 0">资料分享</h5>
 		<div class="left-timeline mt-3 mb-3 pl-4">
 			<ul class="list-unstyled events mb-0">
 				<li
@@ -98,5 +116,13 @@ export default {
 				</li>
 			</ul>
 		</div>
+		<!--/资料分享时间线-->
 	</div>
 </template>
+<style>
+	.do-nothing{
+		line-height: 3000%;
+		color: gray;
+		text-align: center;
+	}
+</style>

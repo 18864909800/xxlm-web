@@ -34,10 +34,175 @@
 				assetRecords: [],
 
 				// 图表
-				uPublishTends: uPublishTends,
-				uDurationTends:  uDurationTends,
-				uPublishPie: uPublishPie,
-				uAttendancePie: uAttendancePie,
+				uDurationTends:   {
+					series: [],
+					chartOptions: {
+						chart: {
+							type: 'line',
+							height: 350
+						},
+						stroke: {
+							curve: 'stepline',
+						},
+						dataLabels: {
+							enabled: false
+						},
+						markers: {
+							hover: {
+								sizeOffset: 4
+							}
+						}
+					},
+				},
+				uPublishTends: {
+					chartOptions: {
+						chart: {
+							zoom: {
+								enabled: false,
+							},
+							toolbar: {
+								show: false,
+							},
+						},
+						colors: ['#5369f8', '#43d39e'],
+						dataLabels: {
+							enabled: true,
+						},
+						stroke: {
+							width: [3, 3],
+							curve: 'smooth',
+						},
+						grid: {
+							row: {
+								colors: ['transparent', 'transparent'], // takes an array which will be repeated on columns
+								opacity: 0.2,
+							},
+							borderColor: '#f1f3fa',
+						},
+						markers: {
+							style: 'inverted',
+							size: 6,
+						},
+						xaxis: {
+							categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+							title: {
+								text: 'week',
+							},
+							axisBorder: {
+								color: '#d6ddea',
+							},
+							axisTicks: {
+								color: '#d6ddea',
+							},
+						},
+						yaxis: {
+							title: {
+								text: '条数',
+							},
+							min: 0,
+							max: 5,
+						},
+						legend: {
+							position: 'top',
+							horizontalAlign: 'right',
+							floating: true,
+							offsetY: -25,
+							offsetX: -5,
+						},
+						tooltip: {
+							theme: 'dark',
+							x: { show: false },
+						},
+						responsive: [
+							{
+								breakpoint: 600,
+								options: {
+									chart: {
+										toolbar: {
+											show: false,
+										},
+									},
+									legend: {
+										show: false,
+									},
+								},
+							},
+						],
+					},
+					series: [],
+				},
+
+				uPublishPie:  {
+					series: [],
+					chartOptions: {},
+				},
+				uAttendancePie: {
+					series: [],
+					chartOptions: {
+						chart: {
+							dropShadow: {
+								enabled: true,
+								color: '#111',
+								top: -1,
+								left: 3,
+								blur: 3,
+								opacity: 0.2,
+							},
+						},
+						stroke: {
+							show: true,
+							width: 2,
+						},
+						colors: ['#43d39e', '#f77e53'],
+						labels: ['打卡', '缺勤'],
+						dataLabels: {
+							dropShadow: {
+								blur: 3,
+								opacity: 0.8,
+							},
+							enabled: false,
+						},
+						fill: {
+							type: 'pattern',
+							opacity: 1,
+							pattern: {
+								enabled: true,
+								style: [
+									'squares',
+									'horizontalLines',
+								],
+							},
+						},
+						states: {
+							hover: {
+								enabled: false,
+							},
+						},
+						legend: {
+							show: false,
+							position: 'bottom',
+							horizontalAlign: 'center',
+							verticalAlign: 'middle',
+							floating: false,
+							fontSize: '14px',
+							offsetX: 0,
+							offsetY: -10,
+						},
+						responsive: [
+							{
+								breakpoint: 600,
+								options: {
+									chart: {
+										height: 240,
+									},
+									legend: {
+										show: false,
+									},
+								},
+							},
+						],
+					},
+				},
 
 				// 当前日期
 				value: new Date(),
@@ -104,21 +269,109 @@
 		watch: {
 			// 选中成员变化后重新调用API
 			selectedMember(newVal,oldValue){
-				this.getCalendar(this.selectedMember.userId).then(res => {
-					this.calendarData = res;
+				// this.getCalendar(newVal.userId).then(res => {
+				// 	this.calendarData = res;
+				// });
+				// this.getBlog(newVal.userId).then(res => {
+				//
+				// });
+				// this.getAsset(newVal.userId).then(res => {
+				//
+				// });
+				this.getDurationTends(newVal.userId).then(res => {
+					console.log("略略略1")
+					this.uDurationTends.series = [{
+						data : res.data.data
+					}]
 				});
-				this.getBlog(this.selectedMember.userId).then(res => {
+				this.getPublishPie(newVal.userId).then(async res => {
 
-				});
-				this.getAsset(this.selectedMember.userId).then(res => {
-
-				});
-				this.getCharts(this.selectedMember.userId).then(res => {
-
+					console.log("略略略")
+					if (res.data.data.name.length === 0){
+						this.uPublishPie.chartOptions = {
+							labels: ['啥也没有发~'],
+							colors: ['#f77e53'],
+							legend: {
+								show: false,
+								position: 'bottom',
+								horizontalAlign: 'center',
+								verticalAlign: 'middle',
+								floating: false,
+								fontSize: '14px',
+								offsetX: 0,
+								offsetY: -10,
+							},
+							dataLabels: {
+								enabled: false,
+							},
+							responsive: [
+								{
+									breakpoint: 600,
+									options: {
+										chart: {
+											height: 240,
+										},
+										legend: {
+											show: false,
+										},
+									},
+								},
+							],
+						}
+						this.uPublishPie.series = [100];
+					}else{
+						this.uPublishPie.chartOptions = {
+							labels: res.data.data.name,
+							colors: ['#5369f8', '#43d39e', '#f77e53', '#1ce1ac', '#25c2e3'],
+							legend: {
+								show: false,
+								position: 'bottom',
+								horizontalAlign: 'center',
+								verticalAlign: 'middle',
+								floating: false,
+								fontSize: '14px',
+								offsetX: 0,
+								offsetY: -10,
+							},
+							dataLabels: {
+								enabled: false,
+							},
+							responsive: [
+								{
+									breakpoint: 600,
+									options: {
+										chart: {
+											height: 240,
+										},
+										legend: {
+											show: false,
+										},
+									},
+								},
+							],
+						}
+						await axios.get('http://localhost:8081/assets/select-somebody-assets-counts',{
+							params: newVal.userId
+						}).then(res => {
+							this.uPublishPie.series = res.data.data.count;
+						})
+					}
+				})
+				this.getAttendance(newVal.userId).then(res => {
+					this.uAttendancePie.series = res.data.data;
+					console.log(res.data.data);
+				})
+				this.getCharts(newVal.userId).then(res => {
+					this.getDurationTends(id);
+					this.getAssets(id);
+					this.getBlogs(id);
+					this.getPublishPie(id);
+					this.getAttendance(id);
 				});
 			}
 		},
 		computed: {
+			 // 获取指定用户的时间线
 			 signTimeLine: function () {
 			 	let result =  this.signRecords.filter((item) => {
 					return	this.selectedMember.userId === item.userId
@@ -310,23 +563,17 @@
 						userId: this.selectedMember.userId
 					}
 				}).then(res => {
-					this.dataList.push({
-							id: 1,
-						 	title: '标题1',
-							name: '赵如冰',
-							date: 'Jan 16, 2019',
-							text: '描述',
-							address: 'http://www.baidu.com',
-							hits: 7,
+					res.map(item => {
+						this.dataList.push({
+							id: item.bdId,
+							title: item.bdTitle,
+							name: item.assetsName,
+							date: item.bdDate,
+							text: item.bdContent,
+							address: item.bdLink,
 							groupId: 1,
+						})
 					})
-					this.dataList[0].id = res.data.data[0].bdId;
-					this.dataList[0].title = res.data.data[0].bdTitle;
-					this.dataList[0].address = res.data.data[0].bdLink;
-					this.dataList[0].name = res.data.data[0].assetsName;
-					this.dataList[0].date = res.data.data[0].bdDate;
-					this.dataList[0].text = res.data.data[0].bdContent;
-
 				})
 				return this.dataList;
 			},
@@ -335,7 +582,167 @@
 			getAsset(id){},
 
 			// TODO charts 查看某个用户的签到统计
-			getCharts(id){},
+			/**
+			 *@method
+			 * @return {Promise} result
+			 * @desc 获取本周学习时长趋势图
+			 */
+			async getDurationTends(id){
+				let result;
+				await axios.get('http://localhost:8081/sign-in/select-learn-time-somebody',{
+					params: {
+						userId: id
+					}
+				}).then(res => {
+					result = res;
+					this.uDurationTends.series = [{
+						data : res.data.data
+					}]
+				})
+				return result;
+			},
+			/**
+			 * @method
+			 * @desc 获取资料数据
+			 */
+			async getAssets(id){
+				axios.get('http://localhost:8081/assets/select-everyday-everyone-assets')
+						.then((response) => {
+							console.log(response.data);
+							this.uPublishTends.series.push({
+								name: '资料 - ' + new Date().getFullYear(),
+								data: response.data.data,
+							})
+						}).catch((error) => {
+					console.log(error);
+				});
+			},
+			/**
+			 * @method
+			 * @desc 获取博客数据
+			 */
+			getBlogs(id){
+				axios.get('http://localhost:8081/blog/select-everyday-someone-blog',{
+					params: {
+						userId: id
+					}
+				}).then((response) => {
+					console.log(response.data);
+					this.uPublishTends.series.push({
+						name: '博客 - ' + new Date().getFullYear(),
+						data: response.data.data,
+					})
+				}).catch((error) => {
+					console.log(error);
+				});
+			},
+			/**
+			 *@method
+			 * @desc 获取本周不同资料占比
+			 */
+			async getPublishPie(id){
+				let result;
+				await axios.get('http://localhost:8081/assets/select-somebody-assets-names',{
+					params: {
+						userId: id
+					}
+				}).then(async res => {
+					result = res;
+					if (res.data.data.name.length === 0){
+						this.uPublishPie.chartOptions = {
+							labels: ['啥也没有发~'],
+							colors: ['#f77e53'],
+							legend: {
+								show: false,
+								position: 'bottom',
+								horizontalAlign: 'center',
+								verticalAlign: 'middle',
+								floating: false,
+								fontSize: '14px',
+								offsetX: 0,
+								offsetY: -10,
+							},
+							dataLabels: {
+								enabled: false,
+							},
+							responsive: [
+								{
+									breakpoint: 600,
+									options: {
+										chart: {
+											height: 240,
+										},
+										legend: {
+											show: false,
+										},
+									},
+								},
+							],
+						}
+						this.uPublishPie.series = [100];
+					}else{
+						this.uPublishPie.chartOptions = {
+							labels: res.data.data.name,
+							colors: ['#5369f8', '#43d39e', '#f77e53', '#1ce1ac', '#25c2e3'],
+							legend: {
+								show: false,
+								position: 'bottom',
+								horizontalAlign: 'center',
+								verticalAlign: 'middle',
+								floating: false,
+								fontSize: '14px',
+								offsetX: 0,
+								offsetY: -10,
+							},
+							dataLabels: {
+								enabled: false,
+							},
+							responsive: [
+								{
+									breakpoint: 600,
+									options: {
+										chart: {
+											height: 240,
+										},
+										legend: {
+											show: false,
+										},
+									},
+								},
+							],
+						}
+						await axios.get('http://localhost:8081/assets/select-somebody-assets-counts',{
+							params: id
+						}).then(res => {
+							this.uPublishPie.series = res.data.data.count;
+						})
+					}
+
+				})
+				return result;
+			},
+			/**
+			 * @method
+			 * @desc 获取某人本周缺勤人数与打卡天数占比图
+			 */
+			getAttendance(id){
+				axios.get('http://localhost:8081/sign-in/select-compared-self',{
+					params:{
+						userId: id
+					}
+				}).then(res => {
+					this.uAttendancePie.series = res.data.data;
+					console.log(res.data.data);
+				})
+			},
+
+			getCharts(id){
+				this.getDurationTends(id);
+				this.getAssets(id);
+				this.getBlogs(id);
+				this.getPublishPie(id);
+				this.getAttendance(id);
+			},
 		},
 	}
 </script>
@@ -585,7 +992,7 @@
 							</b-tab>
 							<b-tab
 									title="他的签到统计"
-									@click="getCalendar(selectedMember.userId)"
+									@click="getCharts(selectedMember.userId)"
 							>
 								<el-scrollbar style="width: 100%;height: 600px;">
 									<!-- 第一行图表 -->

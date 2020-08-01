@@ -31,15 +31,6 @@ export default {
         <h6 class="mt-1 mb-0 font-size-15 title">{{ name }}</h6>
         <h6 class="text-muted font-weight-normal mt-1 mb-3">{{ gender }}</h6>
       </div>
-      <b-dropdown
-        variant="black"
-        right
-        toggle-class="arrow-none text-muted pr-0"
-      >
-        <template v-slot:button-content>
-          <i class="uil uil-ellipsis-v"></i>
-        </template>
-      </b-dropdown>
     </div>
   </div>
 </template>

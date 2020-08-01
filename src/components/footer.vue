@@ -7,7 +7,7 @@
                     ©2020 tyust-信息联盟工作室
                 </div>
                 <div class="col-2">
-                    京ICP证030173号
+                    吉ICP备19006966号
                 </div>
 
             </div>

@@ -91,14 +91,14 @@
                     <div class="app-search">
                         <form>
                             <div class="input-group">
-                                <input
-                                        type="text"
-                                        class="form-control"
-                                        placeholder="Search..."
-                                        @focus="getUrl"
-                                        @blur="search"
-                                        v-model="filed"
-                                />
+<!--                                <input-->
+<!--                                        type="text"-->
+<!--                                        class="form-control"-->
+<!--                                        placeholder="Search..."-->
+<!--                                        @focus="getUrl"-->
+<!--                                        @blur="search"-->
+<!--                                        v-model="filed"-->
+<!--                                />-->
                                 <feather type="search" class="align-middle"></feather>
                             </div>
                         </form>

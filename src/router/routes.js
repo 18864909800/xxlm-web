@@ -89,6 +89,7 @@ const noticeAppsRoutes = [
         props: (route) => ({user: store.state.auth.currentUser || {}}),
         children: [
             {
+
                 name: '查看公告',
                 path: 'notice-index',
                 meta: { authRequired: true },

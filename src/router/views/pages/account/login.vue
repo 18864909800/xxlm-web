@@ -91,7 +91,7 @@
                                                     />
                                                 </div>
                                             </div>
-                                            <b-form-group id="button-group" class="mt-4 mb-1" >
+                                            <b-form-group id="button-group" class="mt-4 mb-1">
                                                 <b-button
                                                         type="submit"
                                                         variant="primary"
@@ -119,8 +119,8 @@
                                 <div class="col-3">
                                     ©2020 tyust-信息联盟工作室
                                 </div>
-                                <div class="col-2">
-                                    京ICP证030173号
+                                <div class="col-3">
+                                    吉ICP备19006966号
                                 </div>
                             </div>
                         </div>
@@ -177,13 +177,11 @@
             // Try to log the user in with the username
             // and password they provided.
 
-
             tryToLogIn() {
                 this.tryingToLogIn = true
                 // Reset the authError if it existed.
                 this.authError = null
-
-                document.getElementById("button-group").disabled=true
+                document.getElementById("button-group").disabled = true
 
                 return this.logIn({
                     username: this.username,
@@ -200,8 +198,13 @@
                             this.$route.query.redirectFrom || {name: '查看公告'}
                         )
                     } else {
-                        document.getElementById('b-alert').innerText = '账号或者用户名错误';
-                        document.getElementById('login-danger').style.display = 'inline';
+
+                        this.$notify.error({
+                            title: '错误',
+                            message: '账号或者用户名错误',
+                            type: 'success'
+                        });
+                        document.getElementById("button-group").disabled = false
                     }
 
                 }).catch((error) => {
@@ -209,8 +212,13 @@
                     this.tryingToLogIn = false
                     this.authError = error.response ? error.response.data.message : ''
                     this.isAuthError = true
-                    document.getElementById('b-alert').innerHTML = '服务器错误';
-                    document.getElementById('login-danger').style.display = 'inline';
+
+                    this.$notify.error({
+                        title: '错误',
+                        message: '服务器错误',
+                        type: 'success'
+                    });
+                    document.getElementById("button-group").disabled = false
                 })
             },
 

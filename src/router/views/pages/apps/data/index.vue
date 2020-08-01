@@ -14,7 +14,7 @@
                                     </label>
                                 </div>
                                 <div class="col text-right">
-                                    <button id="btn-new-event1" class="btn btn-primary" @click="scrollModal = true">
+                                    <button v-if="addTypePermission" id="btn-new-event1" class="btn btn-primary" @click="scrollModal = true">
                                         <i class="uil-plus mr-1"></i>添加分类
                                     </button>
                                 </div>
@@ -58,12 +58,8 @@
                                                             {{ data.date }}
                                                         </small>
 
-                                                        <span class="text-nowrap align-middle font-size-13 mr-2 float-right">
-                                                            <i class="uil uil-eye text-muted mr-1"></i>
-                                                            {{ data.hits }}
-                                                          </span>
-                                                        <span class="text-nowrap align-middle font-size-13 mr-2 float-right">
-                                                        <i class="uil uil-trash-alt text-muted mr-1"></i>
+                                                        <span class="text-nowrap align-middle font-size-13 mr-1 float-right">
+                                                        <i @click="deleteThisBlog(data.id)" v-if="data.deleteFlag" class="uil uil-trash-alt text-muted mr-1"></i>
                                                         </span>
                                                     </p>
                                                 </div>
@@ -109,6 +105,17 @@
         </b-modal>
         <!--/添加分类模态框-->
 
+        <!--删除确认模态框-->
+        <b-modal v-model="deleteModel" title="删除公告" title-class="font-18">
+            <!--<h6>公告发表</h6>-->
+            <p>确认删除该公告吗？</p>
+            <!--<hr />-->
+            <template v-slot:modal-footer>
+                <b-button variant="light" @click="deleteModel = false">取消</b-button>
+                <b-button variant="primary" @click="confirmDelete">确认</b-button>
+            </template>
+        </b-modal>
+        <!--删除确认模态框-->
     </Layout>
 </template>
 
@@ -128,56 +135,12 @@
             return {
                 scrollModal: false,
                 dataType:'',
+                addTypePermission: false,
+                typeId: 0,
+                deleteModel: false,
+                delId: null,
 
-                tabOptions: [
-                    {
-                        id: 0,
-                        tab: '全部'
-                    },
-                    {
-                        id: 1,
-                        tab: 'Python'
-                    },
-                    {
-                        id: 2,
-                        tab: 'Java'
-                    },
-                    {
-                        id: 3,
-                        tab: '架构'
-                    },
-                    {
-                        id: 4,
-                        tab: '数据库'
-                    }, {
-                        id: 5,
-                        tab: '区块链'
-                    },
-                    {
-                        id: 6,
-                        tab: '云计算'
-                    },
-                    {
-                        id: 7,
-                        tab: '前端'
-                    },
-                    {
-                        id: 8,
-                        tab: '人工智能'
-                    },
-                    {
-                        id: 9,
-                        tab: '大数据'
-                    },
-                    {
-                        id: 10,
-                        tab: '5G'
-                    },
-                    {
-                        id: 11,
-                        tab: '移动开发'
-                    },
-                ],
+                tabOptions: [],
                 dataList: [
                     {
                         id: 1,
@@ -234,27 +197,123 @@
         },
         computed: {},
         created() {
+            // 添加鉴权
+            this.addTypeLoad();
+
+
             this.getAllDetails();
             this.getAllCategory();
         },
 
         methods: {
+            addTypeLoad() {
+                axios.get('http://localhost:8080/user/select-admin-message').then(res => {
+                    // console.log("侧边栏数据接口")
+                    // console.log(this.user.data.sessionId)
+                    if (res.data.responseCode == '200') {
+                        if (res.data.data != null) {
+                            console.log(res.data.data);
+                            if (res.data.data.umIdentify == 1) {
+                                this.addTypePermission = true;
+                            }
+                        }
+                    }
+                })
+            },
             addType() {
                 this.scrollModal = false;
                 console.log(this.dataType)
             },
-            menuSelect(index) {
-                console.log(index);
-            },
 
             // 查询所有分类
             getAllCategory() {
-                axios.get()
+                axios.get("http://localhost:8080/assets/get-all-category").then(res => {
+                    if (res.data.responseCode == '200') {
+                        if (res.data.data != null) {
+                            this.tabOptions = [];
+
+                            // 添加全部条目
+                            this.tabOptions.push({
+                                id: 0,
+                                tab: '全部'
+                            })
+
+                            for (let i = 0; i < res.data.data.length; i++) {
+                                let obj = res.data.data[i];
+
+                                this.tabOptions.push({
+                                    id: obj.assetsId,
+                                    tab: obj.assetsName
+                                })
+                            }
+                        }
+                    }
+                })
             },
             // 查询所有详细信息
             getAllDetails() {
+                axios.get("http://localhost:8080/assets/select-assets-by-category-search?cId=" + this.typeId).then(res => {
+                    if (res.data.responseCode == '200') {
+                        if (res.data.data != null) {
+                            this.dataList = [];
+                            for (let i = 0; i < res.data.data.length; i++) {
+                                let obj = res.data.data[i];
 
+                                this.dataList.push({
+                                    id: obj.acId,
+                                    title: obj.acTitle,
+                                    name: obj.assetsName,
+                                    date: obj.acDate,
+                                    text: obj.acContent,
+                                    address: obj.acLink,
+                                    deleteFlag: obj.deleteShow
+                                })
+                            }
+                        }
+                    }
+                })
             },
+
+            // 分类选择
+            menuSelect(index) {
+                this.typeId = index;
+
+                this.getAllDetails();
+            },
+
+            // 删除博客
+            deleteThisBlog(id){
+                this.delId = id;
+                this.deleteModel = true;
+            },
+
+            confirmDelete() {
+                axios.get("http://localhost:8080/assets/delete-by-id", {
+                    params: {
+                        delId: this.delId
+                    }
+                }).then(res => {
+                    if(res.data.responseCode == '200') {
+                        if(res.data.data) {
+                            this.getAllDetails();
+
+                            this.$notify({
+                                title: '成功',
+                                message: '删除成功',
+                                type: 'success'
+                            });
+                        }
+                    }
+                }).catch(error => {
+                    this.$notify({
+                        title: '失败',
+                        message: '服务器正忙，请稍后再试',
+                        type: 'warning'
+                    });
+                })
+
+                this.deleteModel = false;
+            }
         }
     }
 </script>

@@ -192,7 +192,7 @@ const aSigninAppsRoutes = [
 const uSigninAppsRoutes = [
     {
         path: '/apps/uRecords',
-        name: '个人签到记录',
+        name: '签到记录',
         icon: 'file-text',
         component: () => lazyLoadView(import('@views/pages/apps/signin/u_records')),
         meta: {authRequired: true},
@@ -218,8 +218,8 @@ const appsRoutes = [
     ...dataAppsRoutes,
     ...blogAppsRoutes,
     ...aSigninAppsRoutes,
+    ...myTeamRoutes,
     ...uSigninAppsRoutes,
-    ...myTeamRoutes
 ]
 
 const authProtectedRoutes = [

@@ -29,7 +29,7 @@ export default {
       <img :src="`${image}`" class="avatar rounded mr-3" alt="shreyu" />
       <div class="media-body">
         <h6 class="mt-1 mb-0 font-size-15">{{ name }}</h6>
-        <h6 class="text-muted font-weight-normal mt-1 mb-3">{{ text }}  ,  {{ gender }}</h6>
+        <h6 class="text-muted font-weight-normal mt-1 mb-3">{{ gender }}</h6>
       </div>
       <b-dropdown
         variant="black"

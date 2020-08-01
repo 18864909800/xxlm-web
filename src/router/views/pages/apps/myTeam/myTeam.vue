@@ -1,11 +1,9 @@
 <script>
 	import Layout from '@layouts/main'
 	import PageHeader from '@components/page-header'
-	import Member from '@components/member'
-	import Activities from './teamMates/activities'
-	import Projects from './teamMates/projects'
-	import { activities, messageData, projectData, tasks } from './teamMates/data-profile'
-	// 引入图表插件
+	import Member from './teamMates/member'
+	import Activity from './teamMates/activities/activities'
+	import axios from '../../../../../utils/http'
 	import {
 		uPublishTends,
 		uDurationTends,
@@ -24,159 +22,727 @@
 			Layout,
 			PageHeader,
 			Member,
-			Activities,
-			Projects,
+			Activity
 		 },
 		data() {
 			return {
 				title: '我的团队',
-				// 时间线
-				activities: activities,
-				// 图表
-				uPublishTends: uPublishTends,
-				uDurationTends:  uDurationTends,
-				uPublishPie: uPublishPie,
-				uAttendancePie: uAttendancePie,
 
-				// 日历
+				// 时间线
+				signRecords: [],
+				blogRecords: [],
+				assetRecords: [],
+
+				// 图表
+				uDurationTends:   {
+					series: [],
+					chartOptions: {
+						chart: {
+							type: 'line',
+							height: 350
+						},
+						stroke: {
+							curve: 'stepline',
+						},
+						dataLabels: {
+							enabled: false
+						},
+						markers: {
+							hover: {
+								sizeOffset: 4
+							}
+						}
+					},
+				},
+				uPublishTends: {
+					chartOptions: {
+						chart: {
+							zoom: {
+								enabled: false,
+							},
+							toolbar: {
+								show: false,
+							},
+						},
+						colors: ['#5369f8', '#43d39e'],
+						dataLabels: {
+							enabled: true,
+						},
+						stroke: {
+							width: [3, 3],
+							curve: 'smooth',
+						},
+						grid: {
+							row: {
+								colors: ['transparent', 'transparent'], // takes an array which will be repeated on columns
+								opacity: 0.2,
+							},
+							borderColor: '#f1f3fa',
+						},
+						markers: {
+							style: 'inverted',
+							size: 6,
+						},
+						xaxis: {
+							categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+							title: {
+								text: 'week',
+							},
+							axisBorder: {
+								color: '#d6ddea',
+							},
+							axisTicks: {
+								color: '#d6ddea',
+							},
+						},
+						yaxis: {
+							title: {
+								text: '条数',
+							},
+							min: 0,
+							max: 5,
+						},
+						legend: {
+							position: 'top',
+							horizontalAlign: 'right',
+							floating: true,
+							offsetY: -25,
+							offsetX: -5,
+						},
+						tooltip: {
+							theme: 'dark',
+							x: { show: false },
+						},
+						responsive: [
+							{
+								breakpoint: 600,
+								options: {
+									chart: {
+										toolbar: {
+											show: false,
+										},
+									},
+									legend: {
+										show: false,
+									},
+								},
+							},
+						],
+					},
+					series: [],
+				},
+
+				uPublishPie:  {
+					series: [],
+					chartOptions: {},
+				},
+				uAttendancePie: {
+					series: [],
+					chartOptions: {
+						chart: {
+							dropShadow: {
+								enabled: true,
+								color: '#111',
+								top: -1,
+								left: 3,
+								blur: 3,
+								opacity: 0.2,
+							},
+						},
+						stroke: {
+							show: true,
+							width: 2,
+						},
+						colors: ['#43d39e', '#f77e53'],
+						labels: ['打卡', '缺勤'],
+						dataLabels: {
+							dropShadow: {
+								blur: 3,
+								opacity: 0.8,
+							},
+							enabled: false,
+						},
+						fill: {
+							type: 'pattern',
+							opacity: 1,
+							pattern: {
+								enabled: true,
+								style: [
+									'squares',
+									'horizontalLines',
+								],
+							},
+						},
+						states: {
+							hover: {
+								enabled: false,
+							},
+						},
+						legend: {
+							show: false,
+							position: 'bottom',
+							horizontalAlign: 'center',
+							verticalAlign: 'middle',
+							floating: false,
+							fontSize: '14px',
+							offsetX: 0,
+							offsetY: -10,
+						},
+						responsive: [
+							{
+								breakpoint: 600,
+								options: {
+									chart: {
+										height: 240,
+									},
+									legend: {
+										show: false,
+									},
+								},
+							},
+						],
+					},
+				},
+
+				// 当前日期
 				value: new Date(),
+				calendarData: [],
+
 				// 成员数据
-				membersData: [
-					{
-						image: require('@assets/images/users/avatar-7.jpg'),
-						text: '信管2班',
-						name: 'Shreyu N',
-						gender: '男'
-					},
-					{
-						image: require('@assets/images/users/avatar-9.jpg'),
-						text: '软件工程1班',
-						name: 'Greeva Y',
-						gender: '男'
-					},
-					{
-						image: require('@assets/images/users/avatar-4.jpg'),
-						text: '电商2班',
-						name: 'Nik G',
-						gender: '男'
-					},
-					{
-						image: require('@assets/images/users/avatar-1.jpg'),
-						text: '信管1班',
-						name: 'Hardik G',
-						gender: '男'
-					},
-					{
-						image: require('@assets/images/users/avatar-2.jpg'),
-						text: 'Sales Persons',
-						name: 'Stive K',
-						gender: '男'
-					},
-				],
+				membersData: [],
+				selectedMember: '',
+				isActive: false,
+
 				// 博客，资料数据
-				 tabOptions: [
-						{
-							id: 0,
-							tab: '全部'
-						},
-						{
-							id: 1,
-							tab: 'Python'
-						},
-						{
-							id: 2,
-							tab: 'Java'
-						},
-						{
-							id: 3,
-							tab: '架构'
-						},
-						{
-							id: 4,
-							tab: '数据库'
-						},
-						{
-							id: 5,
-							tab: '区块链'
-						},
-						{
-							id: 6,
-							tab: '云计算'
-						},
-						{
-							id: 7,
-							tab: '前端'
-						},
-						{
-							id: 8,
-							tab: '人工智能'
-						},
-						{
-							id: 9,
-							tab: '大数据'
-						},
-						{
-							id: 10,
-							tab: '5G'
-						},
-						{
-							id: 11,
-							tab: '移动开发'
-						},
-				],
-				dataList: [
+				tabOptions: [
+					{
+						id: 0,
+						tab: '全部'
+					},
 					{
 						id: 1,
-						title: '标题1',
-						name: '赵如冰',
-						date: 'Jan 16, 2019',
-						text: '描述',
-						address: 'http://www.baidu.com',
-						hits: 7,
-						groupId: 1,
+						tab: 'Python'
 					},
 					{
 						id: 2,
-						title: '标题',
-						name: '赵如冰',
-						date: 'Jan 16, 2019',
-						text: '描述',
-						address: 'http://www.baidu.com',
-						hits: 7,
-						groupId: 1,
+						tab: 'Java'
 					},
 					{
 						id: 3,
-						title: '标题',
-						name: '赵如冰',
-						date: 'Jan 16, 2019',
-						text: '描述',
-						address: 'http://www.baidu.com',
-						hits: 7,
-						groupId: 1,
+						tab: '前端'
 					},
 					{
 						id: 4,
-						title: '标题',
-						name: '赵如冰',
-						date: 'Jan 16, 2019',
-						text: '描述',
-						address: 'http://www.baidu.com',
-						hits: 7,
-						groupId: 1,
+						tab: '数据库'
+					}, {
+						id: 5,
+						tab: '区块链'
 					},
 					{
-						id: 5,
-						title: '标题',
-						name: '赵如冰',
-						date: 'Jan 16, 2019',
-						text: '描述',
-						address: 'http://www.baidu.com',
-						hits: 7,
-						groupId: 1,
+						id: 6,
+						tab: '云计算'
+					},
+					{
+						id: 7,
+						tab: '架构'
+					},
+					{
+						id: 8,
+						tab: '人工智能'
+					},
+					{
+						id: 9,
+						tab: '大数据'
+					},
+					{
+						id: 10,
+						tab: '5G'
+					},
+					{
+						id: 11,
+						tab: '移动开发'
 					},
 				],
+				dataList: [],
 			}
+		},
+		watch: {
+			// 选中成员变化后重新调用API
+			selectedMember(newVal,oldValue){
+				// this.getCalendar(newVal.userId).then(res => {
+				// 	this.calendarData = res;
+				// });
+				// this.getBlog(newVal.userId).then(res => {
+				//
+				// });
+				// this.getAsset(newVal.userId).then(res => {
+				//
+				// });
+				this.getDurationTends(newVal.userId).then(res => {
+					console.log("略略略1")
+					this.uDurationTends.series = [{
+						data : res.data.data
+					}]
+				});
+				this.getPublishPie(newVal.userId).then(async res => {
+
+					console.log("略略略")
+					if (res.data.data.name.length === 0){
+						this.uPublishPie.chartOptions = {
+							labels: ['啥也没有发~'],
+							colors: ['#f77e53'],
+							legend: {
+								show: false,
+								position: 'bottom',
+								horizontalAlign: 'center',
+								verticalAlign: 'middle',
+								floating: false,
+								fontSize: '14px',
+								offsetX: 0,
+								offsetY: -10,
+							},
+							dataLabels: {
+								enabled: false,
+							},
+							responsive: [
+								{
+									breakpoint: 600,
+									options: {
+										chart: {
+											height: 240,
+										},
+										legend: {
+											show: false,
+										},
+									},
+								},
+							],
+						}
+						this.uPublishPie.series = [100];
+					}else{
+						this.uPublishPie.chartOptions = {
+							labels: res.data.data.name,
+							colors: ['#5369f8', '#43d39e', '#f77e53', '#1ce1ac', '#25c2e3'],
+							legend: {
+								show: false,
+								position: 'bottom',
+								horizontalAlign: 'center',
+								verticalAlign: 'middle',
+								floating: false,
+								fontSize: '14px',
+								offsetX: 0,
+								offsetY: -10,
+							},
+							dataLabels: {
+								enabled: false,
+							},
+							responsive: [
+								{
+									breakpoint: 600,
+									options: {
+										chart: {
+											height: 240,
+										},
+										legend: {
+											show: false,
+										},
+									},
+								},
+							],
+						}
+						await axios.get('http://localhost:8081/assets/select-somebody-assets-counts',{
+							params: newVal.userId
+						}).then(res => {
+							this.uPublishPie.series = res.data.data.count;
+						})
+					}
+				})
+				this.getAttendance(newVal.userId).then(res => {
+					this.uAttendancePie.series = res.data.data;
+					console.log(res.data.data);
+				})
+				this.getCharts(newVal.userId).then(res => {
+					this.getDurationTends(id);
+					this.getAssets(id);
+					this.getBlogs(id);
+					this.getPublishPie(id);
+					this.getAttendance(id);
+				});
+			}
+		},
+		computed: {
+			 // 获取指定用户的时间线
+			 signTimeLine: function () {
+			 	let result =  this.signRecords.filter((item) => {
+					return	this.selectedMember.userId === item.userId
+				})
+				 return result;
+			 },
+			blogTimeLine: function(){
+			 	return this.blogRecords.filter(item => {
+			 		return this.selectedMember.userId === item.userId;
+				})
+			},
+			assetTimeLine: function(){
+				return this.assetRecords.filter(item => {
+					return this.selectedMember.userId === item.userId;
+				})
+			}
+		},
+		async mounted(){
+
+			// 挂载时加载团队成员
+			await this.getMembers();
+			// 加载时间线
+			await this.getActivity();
+		},
+		methods:{
+
+			/**
+			 * @method
+			 * @desc 获取团队成员，加载到memberData里
+			 **/
+ 			getMembers(){
+				axios.get('http://localhost:8081/user/select-all-normal-users').
+				then((response) =>{
+					let data = response.data.data;
+					let arr = Object.values(data);
+					for (let i = 0; i < arr.length; i++) {
+						for (let j = 0; j < arr[i].length; j++) {
+							// 加载到memberData里
+							this.membersData.push({
+								userId: arr[i][j].userId,
+								userHead: arr[i][j].userHead,
+								name: arr[i][j].name,
+								userSex: arr[i][j].userSex === 1 ? "男" : "女",
+								isSelected: i === 0
+							})
+
+						}
+					}
+					this.selectedMember = this.membersData[0];
+				})
+				return this.selectedMember;
+			},
+
+			/**
+			 * @method
+			 * @desc changeMember 点击团队成员事件。切换选中成员触发的事件。包括改颜色，切换时间线
+ 			 */
+			changeMember(member){
+				// 改变背景颜色
+				this.selectedMember.isSelected = false;
+				this.selectedMember = member;
+				this.selectedMember.isSelected = true;
+			},
+
+			/**
+			 * @method
+			 * @desc 获取实验室成员签到签退，发布博客，发布资料时间线
+			 **/
+			async getActivity(){
+				// 获取签到签退时间线
+				await axios.get('http://localhost:8081/sign-in/select-time-line')
+				.then(async response => {
+					let data = response.data.data;
+					// 接口数据映射
+					for (let i = 0; i<data.length; i++){
+						await  this.getName(data[i].umId).then(res =>{
+							let title = data[i].simType === 0 ? ' 签到' : ' 签退';
+							this.signRecords.push({
+								ID: i,
+								userId: data[i].umId,
+								selectedId: this.selectedMember.userId,
+								time: data[i].simDateExact,
+								title: res +' '+ title,
+								text: res + '在 ' + data[i].simDateExact + title
+							})
+						});
+					}
+				}).catch(error => {
+					console.log(error);
+				});
+				// 获取博客发布时间线
+				await axios.get('http://localhost:8081/blog/select-blog-line')
+				.then(async response => {
+					let data = response.data.data;
+					// 接口数据映射
+					for (let i = 0; i<data.length; i++){
+						await  this.getName(data[i].umId).then(res =>{
+							let title = ' 发布了博客';
+							this.blogRecords.push({
+								ID: i,
+								userId: data[i].umId,
+								selectedId: this.selectedMember.userId,
+								time: data[i].bdDate,
+								title: res +' '+ title,
+								text: res + '在 ' + data[i].bdDate + title
+							})
+						});
+					}
+				}).catch(error => {
+					console.log(error);
+				});
+				// 获取资料分享时间线
+				await axios.get('http://localhost:8081/assets/select-assets-line')
+				.then(async response => {
+					let data = response.data.data;
+					// 接口数据映射
+					for (let i = 0; i<data.length; i++){
+						await  this.getName(data[i].umId).then(res =>{
+							let title = ' 分享了资料';
+							this.assetRecords.push({
+								ID: i,
+								userId: data[i].umId,
+								selectedId: this.selectedMember.userId,
+								time: data[i].acDate,
+								title: res +' '+ title,
+								text: res + '在 ' + data[i].acDate + title
+							})
+						});
+					}
+				}).catch(error => {
+					console.log(error);
+				});
+			},
+			/**
+			 * @method
+			 * @param {number} id
+			 * @return {Promise} data
+			 * @desc 根据id查询用户姓名，返回的是一个promise对象
+			 **/
+			async getName(id){
+				console.log("getName，查询id" + id);
+				let data;
+				await axios.get('http://localhost:8081/user/get-name-by-Id',{
+					params:{userId: id}
+				}).then((response) => {
+					data = response.data.data;
+					// console.log(response.data.data);
+				}).catch((error) => {
+					console.log(error);
+				});
+				return data;
+			},
+
+			/**
+			 * @method
+			 * @param {number} id
+			 * @desc 根据id获取指定用户的签到日历，返回已签到日期的promise对象
+			 */
+			getCalendar(id){
+				let ID = parseInt(id);
+				let year = new Date().getFullYear();
+				let month = new Date().getMonth() + 1;
+				console.log(typeof month)
+
+				axios.get('http://localhost:8081/sign-in/select-assign-user-calendar',{
+					params: {
+						userId: ID,
+						year: year,
+						month: month
+					}
+				}).then((response) => {
+					this.calendarData = response.data.data;
+					console.log(response.data.data);
+				}).catch((error) => {
+					console.log(error);
+				});
+			},
+
+			/**
+			 * TODO 将测试数据全部换成后台数据
+			 * @method
+			 * @param {number} id
+			 * @desc 根据id获取指定用户的博客
+			 */
+			getBlog(id){
+				axios.get('http://localhost:8081/blog/select-assign-user-blog',{
+					params:{
+						category: this.tabOptions[3].id,
+						userId: this.selectedMember.userId
+					}
+				}).then(res => {
+					res.map(item => {
+						this.dataList.push({
+							id: item.bdId,
+							title: item.bdTitle,
+							name: item.assetsName,
+							date: item.bdDate,
+							text: item.bdContent,
+							address: item.bdLink,
+							groupId: 1,
+						})
+					})
+				})
+				return this.dataList;
+			},
+
+			// TODO asset 查看某个用户的资料
+			getAsset(id){},
+
+			// TODO charts 查看某个用户的签到统计
+			/**
+			 *@method
+			 * @return {Promise} result
+			 * @desc 获取本周学习时长趋势图
+			 */
+			async getDurationTends(id){
+				let result;
+				await axios.get('http://localhost:8081/sign-in/select-learn-time-somebody',{
+					params: {
+						userId: id
+					}
+				}).then(res => {
+					result = res;
+					this.uDurationTends.series = [{
+						data : res.data.data
+					}]
+				})
+				return result;
+			},
+			/**
+			 * @method
+			 * @desc 获取资料数据
+			 */
+			async getAssets(id){
+				axios.get('http://localhost:8081/assets/select-everyday-everyone-assets')
+						.then((response) => {
+							console.log(response.data);
+							this.uPublishTends.series.push({
+								name: '资料 - ' + new Date().getFullYear(),
+								data: response.data.data,
+							})
+						}).catch((error) => {
+					console.log(error);
+				});
+			},
+			/**
+			 * @method
+			 * @desc 获取博客数据
+			 */
+			getBlogs(id){
+				axios.get('http://localhost:8081/blog/select-everyday-someone-blog',{
+					params: {
+						userId: id
+					}
+				}).then((response) => {
+					console.log(response.data);
+					this.uPublishTends.series.push({
+						name: '博客 - ' + new Date().getFullYear(),
+						data: response.data.data,
+					})
+				}).catch((error) => {
+					console.log(error);
+				});
+			},
+			/**
+			 *@method
+			 * @desc 获取本周不同资料占比
+			 */
+			async getPublishPie(id){
+				let result;
+				await axios.get('http://localhost:8081/assets/select-somebody-assets-names',{
+					params: {
+						userId: id
+					}
+				}).then(async res => {
+					result = res;
+					if (res.data.data.name.length === 0){
+						this.uPublishPie.chartOptions = {
+							labels: ['啥也没有发~'],
+							colors: ['#f77e53'],
+							legend: {
+								show: false,
+								position: 'bottom',
+								horizontalAlign: 'center',
+								verticalAlign: 'middle',
+								floating: false,
+								fontSize: '14px',
+								offsetX: 0,
+								offsetY: -10,
+							},
+							dataLabels: {
+								enabled: false,
+							},
+							responsive: [
+								{
+									breakpoint: 600,
+									options: {
+										chart: {
+											height: 240,
+										},
+										legend: {
+											show: false,
+										},
+									},
+								},
+							],
+						}
+						this.uPublishPie.series = [100];
+					}else{
+						this.uPublishPie.chartOptions = {
+							labels: res.data.data.name,
+							colors: ['#5369f8', '#43d39e', '#f77e53', '#1ce1ac', '#25c2e3'],
+							legend: {
+								show: false,
+								position: 'bottom',
+								horizontalAlign: 'center',
+								verticalAlign: 'middle',
+								floating: false,
+								fontSize: '14px',
+								offsetX: 0,
+								offsetY: -10,
+							},
+							dataLabels: {
+								enabled: false,
+							},
+							responsive: [
+								{
+									breakpoint: 600,
+									options: {
+										chart: {
+											height: 240,
+										},
+										legend: {
+											show: false,
+										},
+									},
+								},
+							],
+						}
+						await axios.get('http://localhost:8081/assets/select-somebody-assets-counts',{
+							params: id
+						}).then(res => {
+							this.uPublishPie.series = res.data.data.count;
+						})
+					}
+
+				})
+				return result;
+			},
+			/**
+			 * @method
+			 * @desc 获取某人本周缺勤人数与打卡天数占比图
+			 */
+			getAttendance(id){
+				axios.get('http://localhost:8081/sign-in/select-compared-self',{
+					params:{
+						userId: id
+					}
+				}).then(res => {
+					this.uAttendancePie.series = res.data.data;
+					console.log(res.data.data);
+				})
+			},
+
+			getCharts(id){
+				this.getDurationTends(id);
+				this.getAssets(id);
+				this.getBlogs(id);
+				this.getPublishPie(id);
+				this.getAttendance(id);
+			},
 		},
 	}
 </script>
@@ -225,14 +791,22 @@
 					<div class="card members">
 						<div class="card-body pt-2 pb-2">
 							<h5 class="mb-4 header-title">团队成员</h5>
-							<div v-for="member of membersData" :key="member.name">
+							<!-- 循环member数组 -->
+							<div 
+								v-for="member of membersData" 
+								:key="member.userId"
+								@click="changeMember(member)"
+							>
+								<!-- member组件 -->
 								<Member
-									:image="member.image"
+									:image="member.userHead"
 									:name="member.name"
-									:text="member.text"
-									:gender="member.gender"
+									:gender="member.userSex"
+									:is-selected="member.isSelected"
 								/>
+								<!-- /member组件 -->
 							</div>
+							<!-- /循环member数组 -->
 						</div>
 					</div>
 				</el-scrollbar>
@@ -245,21 +819,48 @@
 				<div class="card">
 					<div class="card-body">
 						<b-tabs class="navtab-bg" pills justified>
-							<b-tab title="时间线" active>
+							<b-tab
+									title="时间线"
+								   active
+							>
 								<el-scrollbar style="width: 100%;height: 600px;">
-									<Activities :activities="activities" />
+									<Activity
+											:signRecords = "signTimeLine"
+											:assetRecords = "assetTimeLine"
+											:blogRecords = "blogTimeLine"
+									/>
 								</el-scrollbar>
 							</b-tab>
-							<b-tab title="签到日历">
+							<b-tab
+									title="签到日历"
+									@click="getCalendar(selectedMember.userId)"
+							>
 								<el-scrollbar style="width: 100%;height: 600px;">
 									<el-calendar v-model="value">
+										<template
+												slot="dateCell"
+												slot-scope="{date, data}"
+										>
+											<div class="item" v-for="item in calendarData">
+												<div class="is-selected" v-if="item.indexOf(data.day.split('-').slice(2)) !== -1">
+													✔️
+												</div>
+											</div>
+											{{parseInt(data.day.split('-')[1])}}
+											<p :class="data.isSelected ? 'is-selected' : ''">
+												{{ data.day.split('-').slice(1).join('-') }}
+											</p>
+										</template>
 									</el-calendar>
 								</el-scrollbar>
 							</b-tab>
-							<b-tab title="他的博客">
+							<b-tab
+									title="他的博客"
+									@click="getBlog(selectedMember.userId)"
+							>
 								<div style="display: flex; justify-content: space-between; margin:0;">
 
-									<el-scrollbar style="width: 75%;height: 450px;">
+									<el-scrollbar style="width: 75%;height: 600px;">
 										<div class="row">
 										<div class="col-12">
 											<div class="board">
@@ -321,10 +922,13 @@
 
 								</div>
 							</b-tab>
-							<b-tab title="他的资料">
+							<b-tab
+									title="他的资料"
+									@click="getAsset(selectedMember.userId)"
+							>
 								<div style="display: flex; justify-content: space-between; margin:0;">
 
-									<el-scrollbar style="width: 78%;height: 450px;">
+									<el-scrollbar style="width: 78%;height: 600px;">
 										<div class="row">
 										<div class="col-12">
 											<div class="board">
@@ -386,7 +990,10 @@
 
 								</div>
 							</b-tab>
-							<b-tab title="他的签到统计">
+							<b-tab
+									title="他的签到统计"
+									@click="getCharts(selectedMember.userId)"
+							>
 								<el-scrollbar style="width: 100%;height: 600px;">
 									<!-- 第一行图表 -->
 									<div class="row">
@@ -401,11 +1008,11 @@
 												<h4 class="header-title mt-0 mb-3">本月学习时长趋势图</h4>
 												<!-- 图表 -->
 												<apexchart
+												class="apex-charts"
 												height="380"
 												type="line"
-												class="apex-charts"
-												:series="uPublishTends.series"
-												:options="uPublishTends.chartOptions"
+												:series=" uDurationTends.series"
+												:options=" uDurationTends.chartOptions"
 												></apexchart>
 											</div>
 											<!-- /end card-body -->
@@ -424,12 +1031,13 @@
 												<h4 class="header-title mt-0 mb-3">本周贡献趋势</h4>
 												<!-- 图表 -->
 												<apexchart
-												class="apex-charts"
 												height="380"
 												type="line"
-												:series=" uDurationTends.series"
-												:options=" uDurationTends.chartOptions"
+												class="apex-charts"
+												:series="uPublishTends.series"
+												:options="uPublishTends.chartOptions"
 												></apexchart>
+												
 											</div>
 											<!-- end card-body -->
 											</div>
@@ -516,6 +1124,10 @@
 		 .is-selected {
 			color: #1989FA;
 		}
+		.isSelected{
+			background-color: rgba(137, 175, 175, 0.15);
+		}
+
 		
 </style>
 <style>
@@ -530,6 +1142,14 @@
 	.el-scrollbar__view{
 		height: 100%;
 	}
+
+	/* 子组件样式 */
+	.title{
+		cursor: pointer;
+	}
+	.isSelected{
+		 background-color: rgba(137, 175, 175, 0.15);
+	 }
 </style>
 
 

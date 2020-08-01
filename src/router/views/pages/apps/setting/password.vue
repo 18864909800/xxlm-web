@@ -286,7 +286,6 @@
 			},
 			// 成功提示
 			success(){
-				console.log('成功！')
 				this.reset();
 				this.show = false;
 				this.$message({
@@ -297,7 +296,6 @@
 			// 取消提示
 			cancel(){
 				this.reset();
-				console.log('失败！')
 				this.show = false;
 				this.$message({
 						type: 'info',

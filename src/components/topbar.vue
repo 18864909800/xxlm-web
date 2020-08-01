@@ -1,5 +1,6 @@
 <script>
     import {authComputed} from '@state/helpers'
+    import axios from 'axios'
 
 
     export default {
@@ -16,7 +17,10 @@
             },
         },
         data() {
-            return {}
+            return {
+                // 搜索内容
+                filed:''
+            }
         },
         computed: {
             ...authComputed,
@@ -32,6 +36,19 @@
                 var url;
                 url = window.location.pathname;
                 console.log(url);
+                return url;
+            },
+            search() {
+                if(this.getUrl() === '/data/data-index'){
+                    axios.get("https://api.lightingsui.com/assets/search-assets-by-filed?searchFiled=" + this.filed).then(res => {
+                        if (res.data.responseCode === '200') {
+                            if (res.data.data != null) {
+
+                            }
+                        }
+                    })
+                }
+
             }
         },
     }
@@ -79,6 +96,8 @@
                                         class="form-control"
                                         placeholder="Search..."
                                         @focus="getUrl"
+                                        @blur="search"
+                                        v-model="filed"
                                 />
                                 <feather type="search" class="align-middle"></feather>
                             </div>

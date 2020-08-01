@@ -110,6 +110,8 @@
     import appConfig from '@src/app.config'
     import Layout from '@layouts/main'
     import PageHeader from '@components/page-header'
+    import axios from 'axios'
+    import qs from 'querystring'
 
     export default {
         page: {
@@ -126,51 +128,7 @@
                 // 资料类型
                 // options: ['Python','Java','架构','数据库','区块链','云计算','前端','人工智能','大数据','移动开发'],
 
-                options: [
-                    {
-                        id:1,
-                        opt:'Python'
-                    },
-                    {
-                        id:2,
-                        opt:'Java'
-                    },
-                    {
-                        id:3,
-                        opt:'架构'
-                    },
-                    {
-                        id:4,
-                        opt:'数据库'
-                    },{
-                        id:5,
-                        opt:'区块链'
-                    },
-                    {
-                        id:6,
-                        opt:'云计算'
-                    },
-                    {
-                        id:7,
-                        opt:'前端'
-                    },
-                    {
-                        id:8,
-                        opt:'人工智能'
-                    },
-                    {
-                        id:9,
-                        opt:'大数据'
-                    },
-                    {
-                        id:10,
-                        opt:'5G'
-                    },
-                    {
-                        id:11,
-                        opt:'移动开发'
-                    },
-                ],
+                options: [],
 
                 title: '',
                 type: '',
@@ -181,11 +139,30 @@
         },
         computed: {},
 
-        oncreated() {
+        created() {
             // 获取资料类型
+            this.getAssertCategory();
         },
 
         methods: {
+            // 获取资料所有分类
+            getAssertCategory() {
+                axios.get("http://localhost:8081/assets/get-all-category").then(res => {
+                    if(res.data.responseCode == '200') {
+                        if(res.data.data != null) {
+
+                            for (let i = 0; i < res.data.data.length; i++) {
+                                let obj = res.data.data[i];
+
+                                this.options.push({
+                                    id: obj.assetsId,
+                                    opt: obj.assetsName
+                                })
+                            }
+                        }
+                    }
+                })
+            },
 
             typeSelect() {
                 console.log('111')
@@ -235,6 +212,44 @@
                 console.log(this.type);
                 console.log(this.link);
                 console.log(this.text);
+
+                axios({
+                    url: 'http://localhost:8081/assets/upload-assets',
+                    method: "POST",
+                    data: qs.encode({
+                        assetsId: this.type,
+                        acTitle: this.title,
+                        acLink: this.link,
+                        acContent: this.text
+                    }),
+                    headers: {
+                        "content-type": "application/x-www-form-urlencoded"
+                    },
+                }).then(res => {
+                    if (res.data.responseCode == '200') {
+                        if (res.data.data) {
+                            // 清除所有输入框的内容
+                            this.title = '';
+                            this.type = '';
+                            this.link = '';
+                            this.text = '';
+
+                            // 提示
+                            this.$notify({
+                                title: '成功',
+                                message: '发表成功',
+                                type: 'success'
+                            });
+                        }
+                    }
+                }).catch(error => {
+                    // 提示
+                    this.$notify({
+                        title: '失败',
+                        message: '服务器正忙，请稍后再试',
+                        type: 'warning'
+                    });
+                })
 
                 this.publishModel = false;
             }

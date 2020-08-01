@@ -1,209 +1,215 @@
 <template>
-  <Layout>
-    <PageHeader/>
+    <Layout>
+        <PageHeader/>
 
-    <div class="row">
-      <div class="col-12">
-        <div class="card">
-          <div class="card-body">
-            <div class="row align-items-center">
-              <div class="col">
-                <label class="font-weight-bold d-inline mr-2" style="font-size: 18px">
-                  我的博客分享
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div style="display: flex; justify-content: space-between; margin:0;">
-
-      <el-scrollbar style="width: 78%;height: 450px;">
         <div class="row">
-          <div class="col-12">
-            <div class="board">
-              <!-- todo tasks -->
-              <div class="tasks border" style="width: 100%;margin-bottom: 0">
-                <div id="task-list-two" class="task-list-items">
-                  <transition-group type="transition" :name="'flip-list'">
-                    <div v-for="(data,index) in dataList" :key="data.id"
-                         @click="noticeDetail(index)">
-                      <div class="card border mb-0">
-                        <div class="card-body p-3">
-
-                          <h6 class="mt-0 mb-2 font-size-15">
-                            <a href="javascript: void(0);"
-                               class="text-body">{{ data.title }}
-                            </a>
-                          </h6>
-
-                          <div>{{data.text}}</div>
-
-                          <a :href="data.address">{{data.address}}</a>
-
-                          <p class="mb-0 mt-2">
-                            <small class=" text-muted mr-2">
-                              {{data.name}}
-                            </small>
-
-                            <small class=" text-muted">
-                              {{ data.date }}
-                            </small>
-
-                            <span class="text-nowrap align-middle font-size-13 mr-2 float-right">
-                                                            <i class="uil uil-eye text-muted mr-1"></i>
-                                                            {{ data.hits }}
-                                                          </span>
-                            <span class="text-nowrap align-middle font-size-13 mr-2 float-right">
-                            <i class="uil uil-trash-alt text-muted mr-1"></i>
-                            </span>
-                          </p>
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <label class="font-weight-bold d-inline mr-2" style="font-size: 18px">
+                                    我的博客分享
+                                </label>
+                            </div>
                         </div>
-                      </div>
                     </div>
-                  </transition-group>
                 </div>
-              </div>
-              <!-- end - todo tasks -->
             </div>
-          </div>
         </div>
-      </el-scrollbar>
 
-      <el-scrollbar class="card" style="width: 20%;height: 450px;">
-        <el-menu v-for="item in tabOptions" :key="item.id" :default-active="tabOptions[0].id">
-          <el-menu-item @click="menuSelect(item.id)">
-            <span slot="title">{{item.tab}}</span>
-          </el-menu-item>
-        </el-menu>
-      </el-scrollbar>
+        <div style="display: flex; justify-content: space-between; margin:0;">
 
-    </div>
+            <el-scrollbar style="width: 78%;height: 450px;">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="board">
+                            <!-- todo tasks -->
+                            <div class="tasks border" style="width: 100%;margin-bottom: 0">
+                                <div id="task-list-two" class="task-list-items">
+                                    <transition-group type="transition" :name="'flip-list'">
+                                        <div v-for="(data,index) in dataList" :key="data.id"
+                                             @click="noticeDetail(index)">
+                                            <div class="card border mb-0">
+                                                <div class="card-body p-3">
 
+                                                    <h6 class="mt-0 mb-2 font-size-15">
+                                                        <a href="javascript: void(0);"
+                                                           class="text-body">{{ data.title }}
+                                                        </a>
+                                                    </h6>
 
-  </Layout>
+                                                    <div>{{ data.text }}</div>
+
+                                                    <a :href="data.address">{{ data.address }}</a>
+
+                                                    <p class="mb-0 mt-2">
+                                                        <small class=" text-muted mr-2">
+                                                            {{ data.name }}
+                                                        </small>
+
+                                                        <small class=" text-muted">
+                                                            {{ data.date }}
+                                                        </small>
+
+                                                        <span
+                                                            class="text-nowrap align-middle font-size-13 mr-1 float-right">
+                            <i @click="deleteThisBlog(data.id)" class="uil uil-trash-alt text-muted mr-1"></i>
+                            </span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </transition-group>
+                                </div>
+                            </div>
+                            <!-- end - todo tasks -->
+                        </div>
+                    </div>
+                </div>
+            </el-scrollbar>
+
+            <el-scrollbar class="card" style="width: 20%;height: 450px;">
+                <el-menu v-for="item in tabOptions" :key="item.id" :default-active="tabOptions[0].id">
+                    <el-menu-item @click="menuSelect(item.id)">
+                        <span slot="title">{{ item.tab }}</span>
+                    </el-menu-item>
+                </el-menu>
+            </el-scrollbar>
+
+        </div>
+
+        <!--删除确认模态框-->
+        <b-modal v-model="deleteModel" title="删除博客" title-class="font-18">
+            <!--<h6>公告发表</h6>-->
+            <p>确认删除该博客吗？</p>
+            <!--<hr />-->
+            <template v-slot:modal-footer>
+                <b-button variant="light" @click="publishModel = false">取消</b-button>
+                <b-button variant="primary" @click="confirmDelete">确认</b-button>
+            </template>
+        </b-modal>
+        <!--删除确认模态框-->
+
+    </Layout>
 </template>
 
 <script>
-  import appConfig from '@src/app.config'
-  import Layout from '@layouts/main'
-  import PageHeader from '@components/page-header'
+import appConfig from '@src/app.config'
+import Layout from '@layouts/main'
+import PageHeader from '@components/page-header'
+import axios from "axios";
 
-  export default {
+export default {
     page: {
-      title: '博客',
-      meta: [{name: 'description', content: appConfig.description}],
+        title: '博客',
+        meta: [{name: 'description', content: appConfig.description}],
     },
     components: {Layout, PageHeader},
     data() {
-      return {
-        tabOptions: [
-          {
-            id: 0,
-            tab: '全部'
-          },
-          {
-            id: 1,
-            tab: 'Python'
-          },
-          {
-            id: 2,
-            tab: 'Java'
-          },
-          {
-            id: 3,
-            tab: '架构'
-          },
-          {
-            id: 4,
-            tab: '数据库'
-          }, {
-            id: 5,
-            tab: '区块链'
-          },
-          {
-            id: 6,
-            tab: '云计算'
-          },
-          {
-            id: 7,
-            tab: '前端'
-          },
-          {
-            id: 8,
-            tab: '人工智能'
-          },
-          {
-            id: 9,
-            tab: '大数据'
-          },
-          {
-            id: 10,
-            tab: '5G'
-          },
-          {
-            id: 11,
-            tab: '移动开发'
-          },
-        ],
-        dataList: [
-          {
-            id: 1,
-            title: '标题1',
-            name: '赵如冰',
-            date: 'Jan 16, 2019',
-            text: '描述',
-            address: 'http://www.baidu.com',
-            hits: 7,
-            groupId: 1,
-          },
-          {
-            id: 2,
-            title: '标题',
-            name: '赵如冰',
-            date: 'Jan 16, 2019',
-            text: '描述',
-            address: 'http://www.baidu.com',
-            hits: 7,
-            groupId: 1,
-          },
-          {
-            id: 3,
-            title: '标题',
-            name: '赵如冰',
-            date: 'Jan 16, 2019',
-            text: '描述',
-            address: 'http://www.baidu.com',
-            hits: 7,
-            groupId: 1,
-          },
-          {
-            id: 4,
-            title: '标题',
-            name: '赵如冰',
-            date: 'Jan 16, 2019',
-            text: '描述',
-            address: 'http://www.baidu.com',
-            hits: 7,
-            groupId: 1,
-          },
-          {
-            id: 5,
-            title: '标题',
-            name: '赵如冰',
-            date: 'Jan 16, 2019',
-            text: '描述',
-            address: 'http://www.baidu.com',
-            hits: 7,
-            groupId: 1,
-          },
-        ],
-      }
+        return {
+            tabOptions: [],
+            typeId: 0,
+            dataList: [],
+            delId: null,
+            deleteModel: false,
+        }
     },
-    computed: {},
+    created() {
+        this.getAllCategory();
+        this.getAllDetails();
+    },
+    methods: {
+        // 查询所有分类
+        getAllCategory() {
+            axios.get("http://localhost:8081/blog/get-all-category").then(res => {
+                if (res.data.responseCode == '200') {
+                    if (res.data.data != null) {
+                        this.tabOptions = [];
 
-    methods: {}
-  }
+                        // 添加全部条目
+                        this.tabOptions.push({
+                            id: 0,
+                            tab: '全部'
+                        })
+
+                        for (let i = 0; i < res.data.data.length; i++) {
+                            let obj = res.data.data[i];
+
+                            this.tabOptions.push({
+                                id: obj.blogCId,
+                                tab: obj.blogCName
+                            })
+                        }
+                    }
+                }
+            })
+        },
+
+        // 查询所有详细信息
+        getAllDetails() {
+            axios.get("http://localhost:8081/blog/select-current-user-blog?category=" + this.typeId).then(res => {
+                if (res.data.responseCode == '200') {
+                    if (res.data.data != null) {
+                        this.dataList = [];
+                        for (let i = 0; i < res.data.data.length; i++) {
+                            let obj = res.data.data[i];
+
+                            this.dataList.push({
+                                id: obj.bdId,
+                                title: obj.bdTitle,
+                                name: obj.assetsName,
+                                date: obj.bdDate,
+                                text: obj.bdContent,
+                                address: obj.bdLink,
+                                deleteFlag: obj.deleteShow
+                            })
+                        }
+                    }
+                }
+            })
+        },
+
+        // 改变分类id
+        menuSelect(id) {
+            this.typeId = id;
+
+            this.getAllDetails();
+        },
+
+        // 删除博客
+        deleteThisBlog(id){
+            this.delId = id;
+            this.deleteModel = true;
+        },
+
+        confirmDelete() {
+            axios.get("http://localhost:8081/blog/delete-by-id", {
+                params: {
+                    delId: this.delId
+                }
+            }).then(res => {
+                if(res.data.responseCode == '200') {
+                    if(res.data.data) {
+                        this.getAllDetails();
+
+                        this.$notify({
+                            title: '成功',
+                            message: '删除成功',
+                            type: 'success'
+                        });
+                    }
+                }
+            }).catch(error => {
+                this.$notify({
+                    title: '失败',
+                    message: '服务器正忙，请稍后再试',
+                    type: 'warning'
+                });
+            })
+
+            this.deleteModel = false;
+        }
+    }
+}
 </script>

@@ -32,53 +32,54 @@
                             <div class="row">
                                 <div class="col">
 
-                                    <div class="form-group mt-3 mt-sm-0 select" style="display: flex;justify-content: center">
+                                    <div class="form-group mt-3 mt-sm-0 select"
+                                         style="display: flex;justify-content: center">
                                         <label class="col-1" style="padding-left: 0;margin-top: 1%;">类型</label>
                                         <el-select v-model="type" placeholder="请选择" style="width: 100%">
                                             <el-option
-                                                    v-for="item in options"
-                                                    :key="item.id"
-                                                    :label="item.opt"
-                                                    :value="item.id">
+                                                v-for="item in options"
+                                                :key="item.id"
+                                                :label="item.opt"
+                                                :value="item.id">
                                             </el-option>
                                         </el-select>
                                     </div>
 
                                     <b-form-group
-                                            label-cols-sm="10"
-                                            label-cols-lg="1"
-                                            label="标题"
-                                            label-for="input-horizontal"
+                                        label-cols-sm="10"
+                                        label-cols-lg="1"
+                                        label="标题"
+                                        label-for="input-horizontal"
                                     >
                                         <b-form-input
-                                                id="input-horizontal"
-                                                v-model="title"
+                                            id="input-horizontal"
+                                            v-model="title"
                                         ></b-form-input>
                                     </b-form-group>
 
                                     <b-form-group
-                                            label-cols-sm="10"
-                                            label-cols-lg="1"
-                                            label="链接"
-                                            label-for="input-horizontal"
+                                        label-cols-sm="10"
+                                        label-cols-lg="1"
+                                        label="链接"
+                                        label-for="input-horizontal"
                                     >
                                         <b-form-input
-                                                id="input-horizontal"
-                                                v-model="link"
+                                            id="input-horizontal"
+                                            v-model="link"
                                         ></b-form-input>
                                     </b-form-group>
 
                                     <b-form-group
-                                            label-cols-sm="11"
-                                            label-cols-lg="1"
-                                            label="描述"
-                                            label-for="example-textarea"
+                                        label-cols-sm="11"
+                                        label-cols-lg="1"
+                                        label="描述"
+                                        label-for="example-textarea"
                                     >
                                         <b-form-textarea
-                                                id="example-textarea"
-                                                size="lg"
-                                                rows="3"
-                                                v-model="text"
+                                            id="example-textarea"
+                                            size="lg"
+                                            rows="3"
+                                            v-model="text"
                                         ></b-form-textarea>
                                     </b-form-group>
 
@@ -107,149 +108,162 @@
 </template>
 
 <script>
-    import appConfig from '@src/app.config'
-    import Layout from '@layouts/main'
-    import PageHeader from '@components/page-header'
+import appConfig from '@src/app.config'
+import Layout from '@layouts/main'
+import PageHeader from '@components/page-header'
+import axios from 'axios'
+import qs from "querystring";
 
-    export default {
-        page: {
-            title: '分享博客',
-            meta: [{name: 'description', content: appConfig.description}],
+export default {
+    page: {
+        title: '分享博客',
+        meta: [{name: 'description', content: appConfig.description}],
+    },
+    components: {Layout, PageHeader},
+    data() {
+        return {
+
+            // 模态框显示开关
+            publishModel: false,
+
+            // 博客类型
+            // options: ['Python','Java','架构','数据库','区块链','云计算','前端','人工智能','大数据','移动开发'],
+
+            options: [],
+
+            title: '',
+            type: '',
+            typeId: '',
+            link: '',
+            text: ''
+        }
+    },
+    computed: {},
+
+    created() {
+        // 获取博客类型
+        this.getAllCategory();
+    },
+
+    methods: {
+        // 获取所有博客分类
+        getAllCategory() {
+            axios.get("http://localhost:8081/blog/get-all-category").then(res => {
+                if (res.data.responseCode == '200') {
+                    if (res.data.data != null) {
+                        this.options = [];
+
+
+                        for (let i = 0; i < res.data.data.length; i++) {
+                            let obj = res.data.data[i];
+
+                            this.options.push({
+                                id: obj.blogCId,
+                                opt: obj.blogCName
+                            })
+                        }
+                    }
+                }
+            })
         },
-        components: {Layout, PageHeader},
-        data() {
-            return {
 
-                // 模态框显示开关
-                publishModel: false,
+        typeSelect() {
+            console.log('111')
+        },
 
-                // 博客类型
-                // options: ['Python','Java','架构','数据库','区块链','云计算','前端','人工智能','大数据','移动开发'],
+        noticePublish() {
 
-                options: [
-                    {
-                        id:1,
-                        opt:'Python'
-                    },
-                    {
-                        id:2,
-                        opt:'Java'
-                    },
-                    {
-                        id:3,
-                        opt:'架构'
-                    },
-                    {
-                        id:4,
-                        opt:'数据库'
-                    },{
-                        id:5,
-                        opt:'区块链'
-                    },
-                    {
-                        id:6,
-                        opt:'云计算'
-                    },
-                    {
-                        id:7,
-                        opt:'前端'
-                    },
-                    {
-                        id:8,
-                        opt:'人工智能'
-                    },
-                    {
-                        id:9,
-                        opt:'大数据'
-                    },
-                    {
-                        id:10,
-                        opt:'5G'
-                    },
-                    {
-                        id:11,
-                        opt:'移动开发'
-                    },
-                ],
-
-                title: '',
-                type: '',
-                typeId: '',
-                link: '',
-                text: ''
+            if (this.type == null || this.type === '') {
+                this.$notify({
+                    title: '警告',
+                    message: '请选择公告类型',
+                    type: 'warning'
+                });
+                return;
             }
-        },
-        computed: {},
-
-        oncreated() {
-            // 获取博客类型
-        },
-
-        methods: {
-
-            typeSelect() {
-                console.log('111')
-            },
-
-            noticePublish() {
-
-                if (this.type == null || this.type === '') {
-                    this.$notify({
-                        title: '警告',
-                        message: '请选择公告类型',
-                        type: 'warning'
-                    });
-                    return;
-                }
-                if (this.title == null || this.title === '') {
-                    this.$notify({
-                        title: '警告',
-                        message: '请填写标题',
-                        type: 'warning'
-                    });
-                    return;
-                }
-                if (this.link == null || this.link === '') {
-                    this.$notify({
-                        title: '警告',
-                        message: '请填写博客链接',
-                        type: 'warning'
-                    });
-                    return;
-                }
-                if (this.text == null || this.text === '') {
-                    this.$notify({
-                        title: '警告',
-                        message: '请填写描述',
-                        type: 'warning'
-                    });
-                    return;
-                }
-
-                this.publishModel = true;
-
-            },
-
-            publishConfirm() {
-                console.log(this.title);
-                console.log(this.type);
-                console.log(this.link);
-                console.log(this.text);
-
-                this.publishModel = false;
+            if (this.title == null || this.title === '') {
+                this.$notify({
+                    title: '警告',
+                    message: '请填写标题',
+                    type: 'warning'
+                });
+                return;
             }
+            if (this.link == null || this.link === '') {
+                this.$notify({
+                    title: '警告',
+                    message: '请填写博客链接',
+                    type: 'warning'
+                });
+                return;
+            }
+            if (this.text == null || this.text === '') {
+                this.$notify({
+                    title: '警告',
+                    message: '请填写描述',
+                    type: 'warning'
+                });
+                return;
+            }
+
+            this.publishModel = true;
+
+        },
+
+        publishConfirm() {
+            axios({
+                url: 'http://localhost:8081/blog/upload-blog',
+                method: "POST",
+                data: qs.encode({
+                    blogCId: this.type,
+                    bdTitle: this.title,
+                    bdLink: this.link,
+                    bdContent: this.text
+                }),
+                headers: {
+                    "content-type": "application/x-www-form-urlencoded"
+                },
+            }).then(res => {
+                if (res.data.responseCode == '200') {
+                    if (res.data.data) {
+                        // 清除所有输入框的内容
+                        this.title = '';
+                        this.type = '';
+                        this.link = '';
+                        this.text = '';
+
+                        // 提示
+                        this.$notify({
+                            title: '成功',
+                            message: '发表成功',
+                            type: 'success'
+                        });
+                    }
+                }
+            }).catch(error => {
+                // 提示
+                this.$notify({
+                    title: '失败',
+                    message: '服务器正忙，请稍后再试',
+                    type: 'warning'
+                });
+            })
+
+            this.publishModel = false;
         }
     }
+}
 </script>
 
 <style lang="scss">
-    .select{
-        .el-select .el-input.is-focus .el-input__inner {
-            border-color: #5369f8;;
-        }
-        .el-select .el-input__inner:focus {
-            border-color: #5369f8;;
-        }
-
+.select {
+    .el-select .el-input.is-focus .el-input__inner {
+        border-color: #5369f8;;
     }
+
+    .el-select .el-input__inner:focus {
+        border-color: #5369f8;;
+    }
+
+}
 </style>

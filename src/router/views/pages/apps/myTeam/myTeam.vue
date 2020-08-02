@@ -1156,7 +1156,7 @@
 											<!-- begin card-body -->
 											<div class="card-body">
 												<!-- 图表标题 -->
-												<h4 class="header-title mt-0 mb-3">本月学习时长趋势图</h4>
+												<h4 class="header-title mt-0 mb-3">本周学习时长趋势图</h4>
 												<!-- 图表 -->
 												<apexchart
 												class="apex-charts"

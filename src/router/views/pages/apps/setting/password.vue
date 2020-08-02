@@ -236,8 +236,8 @@
 			// 新密码验证
 			passwordValidate: function() {
 				let errorText;
-				if(!/^[0-9A-Za-z]{3,15}$/.test(this.newP)) {
-					errorText = '* 密码少于3位';
+				if(!/^[0-9A-Za-z]{6,15}$/.test(this.newP)) {
+					errorText = '* 密码少于6位';
 				} else {
 					errorText = '';
 				}
@@ -251,8 +251,8 @@
 			passwordCheckValidate: function() {
 				let errorText;
 
-				if(!/^[0-9A-Za-z]{3,15}$/.test(this.confirm)) {
-					errorText = '* 密码少于3位';
+				if(!/^[0-9A-Za-z]{6,15}$/.test(this.confirm)) {
+					errorText = '* 密码少于6位';
 				}else if(this.newP !==this.confirm ){
 					errorText = '* 两次密码不匹配';
 				}
@@ -303,11 +303,11 @@
 				});  
 			},
 			// 修改错误警告
-			postErro(){
+			postErro(error){
 				this.show = false;
 				this.$message({
 						type: 'error',
-						message: "修改失败！"
+						message: "error！"
 				});  
 			},
 			// 旧密码错误警告
@@ -350,7 +350,7 @@
 					})
 					.catch(function (error) {
 						// 修改失败提示
-						that.postErro();
+						that.postErro(error);
 
 						console.log(error);
 					});

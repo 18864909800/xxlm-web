@@ -207,70 +207,63 @@
 				selectedMember: '',
 
 				// 博客，资料数据
-				tabOptions: [
+				blogsSorts: [
 					{
 						id: 0,
 						tab: '全部'
 					},
+				],
+				assetsSorts: [
 					{
-						id: 1,
-						tab: 'Python'
-					},
-					{
-						id: 2,
-						tab: 'Java'
-					},
-					{
-						id: 3,
-						tab: '前端'
-					},
-					{
-						id: 4,
-						tab: '数据库'
-					}, {
-						id: 5,
-						tab: '区块链'
-					},
-					{
-						id: 6,
-						tab: '云计算'
-					},
-					{
-						id: 7,
-						tab: '架构'
-					},
-					{
-						id: 8,
-						tab: '人工智能'
-					},
-					{
-						id: 9,
-						tab: '大数据'
-					},
-					{
-						id: 10,
-						tab: '5G'
-					},
-					{
-						id: 11,
-						tab: '移动开发'
+						id: 0,
+						tab: '全部'
 					},
 				],
-				dataList: [],
+				blogsList: [],
+				assetsList: [],
 			}
 		},
 		watch: {
-			// 选中成员变化后重新调用API
+			/*
+			 选中成员变化后重新调用API。
+			 由於剛開始selectedMember是空值，挂載執行完getMember（）后會先執行一次watch的事件
+			 */
 			async selectedMember(newVal,oldValue){
 				// this.getCalendar(newVal.userId).then(res => {
 				// 	this.calendarData = res;
 				// });
-				// this.getBlog(newVal.userId).then(res => {
-				//
-				// });
-				// this.getAsset(newVal.userId).then(res => {
-				//
-				// });
+				await this.getBlog(newVal.userId).then(res => {
+					if (this.blogsList !== null){
+						this.blogsList = [];
+					}
+					res.map(item => {
+						this.blogsList.push({
+							id: item.bdId,
+							title: item.bdTitle,
+							name: item.assetsName,
+							date: item.bdDate,
+							text: item.bdContent,
+							address: item.bdLink,
+							groupId: 1,
+						})
+					});
+				});
+				await this.getAsset(newVal.userId).then(res => {
+					if (this.assetsList !== null){
+						this.assetsList = [];
+					}
+					res.map(item => {
+						this.assetsList.push({
+							id: item.acId,
+							title: item.acTitle,
+							name: item.assetsName,
+							date: item.acDate,
+							text: item.acContent,
+							address: item.acLink,
+							groupId: 1,
+						})
+					});
+				});
 				await this.getDurationTends(newVal.userId).then(res => {
 					this.uDurationTends.series = [{
 						data : res.data.data
@@ -391,10 +384,8 @@
 			// 挂载时加载页面所有所需信息
 			await this.getMembers();
 			await this.getActivity();
-			await this.getCalendar(this.selectedMember.userId);
-			await this.getBlog(this.selectedMember.userId);
-			await this.getAsset(this.selectedMember.userId);
-			await this.getCharts(this.selectedMember.userId);
+			this.getAssetsSorts();
+			this.getBlogsSorts();
 		},
 		methods:{
 
@@ -552,20 +543,58 @@
 			},
 
 			/**
-			 * TODO 将测试数据全部换成后台数据
 			 * @method
 			 * @param {number} id
 			 * @desc 根据id获取指定用户的博客
 			 */
-			getBlog(id){
+			async getBlog(id){
+				let result;
+				await axios.get('http://localhost:8081/blog/select-assign-user-blog',{
+					params:{
+						category: 0,
+						userId: id
+					}
+				}).then(res => {
+					result = res.data.data;
+				})
+				return result;
+			},
+
+			/**
+			 * @method
+			 * @desc 獲取博客所有分類
+			 */
+			getBlogsSorts(){
+				axios.get('http://localhost:8081/blog/get-all-category')
+						.then(res => {
+							let arr = res.data.data;
+							arr.map(item => {
+								this.blogsSorts.push({
+									id: item.blogCId,
+									tab: item.blogCName
+								})
+							})
+						}).catch(error => error);
+			},
+
+			/**
+			 * @method
+			 * @param {number} cId 分類id
+			 * @desc 博客分類點擊事件
+			 */
+			blogSortsSelect(cId){
 				axios.get('http://localhost:8081/blog/select-assign-user-blog',{
 					params:{
-						category: this.tabOptions[3].id,
+						category: cId,
 						userId: this.selectedMember.userId
 					}
 				}).then(res => {
-					res.map(item => {
-						this.dataList.push({
+					let result = res.data.data;
+					if (this.blogsList !== null){
+						this.blogsList = [];
+					}
+					result.map(item => {
+						this.blogsList.push({
 							id: item.bdId,
 							title: item.bdTitle,
 							name: item.assetsName,
@@ -574,13 +603,73 @@
 							address: item.bdLink,
 							groupId: 1,
 						})
-					})
+					});
 				})
-				return this.dataList;
 			},
 
-			// TODO asset 查看某个用户的资料
-			getAsset(id){},
+			/**
+			 * @method
+			 * @param {number} id
+			 * @desc 根据id获取指定用户的資料
+			 */
+			async getAsset(id){
+				let result;
+				await axios.get('http://localhost:8081/assets/select-assign-assets',{
+					params:{
+						category: 0,
+						userId: id
+					}
+				}).then(res => {
+					result = res.data.data;
+				})
+				return result;
+			},
+
+			/**
+			 * @method
+			 * @desc 獲取資料所有分類
+			 */
+			getAssetsSorts(){
+				axios.get('http://localhost:8081/assets/get-all-category')
+						.then(res => {
+							let arr = res.data.data;
+							arr.map(item => {
+								this.assetsSorts.push({
+									id: item.assetsId,
+									tab: item.assetsName
+								})
+							})
+						}).catch(error => error);
+			},
+			/**
+			 * @method
+			 * @param {number} aId 分類id
+			 * @desc 資料分類點擊事件
+			 */
+			assetsSortsSelect(aId){
+				axios.get('http://localhost:8081/assets/select-assign-assets',{
+					params:{
+						category: aId,
+						userId: this.selectedMember.userId
+					}
+				}).then(res => {
+					let result = res.data.data;
+					if (this.assetsList !== null){
+						this.assetsList = [];
+					}
+					result.map(item => {
+						this.assetsList.push({
+							id: item.acId,
+							title: item.acTitle,
+							name: item.assetsName,
+							date: item.acDate,
+							text: item.acContent,
+							address: item.acLink,
+							groupId: 1,
+						})
+					});
+				})
+			},
 
 			/**
 			 * @method
@@ -881,7 +970,7 @@
 											<div class="tasks border" style="width: 100%;margin-bottom: 0">
 												<div id="task-list-two" class="task-list-items">
 												<transition-group type="transition" :name="'flip-list'">
-													<div v-for="(data,index) in dataList" :key="data.id"
+													<div v-for="(data,index) in blogsList" :key="data.id"
 														@click="noticeDetail(index)">
 													<div class="card border mb-0">
 														<div class="card-body p-3">
@@ -905,10 +994,6 @@
 															{{ data.date }}
 															</small>
 
-															<span class="text-nowrap align-middle font-size-13 mr-2 float-right">
-																							<i class="uil uil-eye text-muted mr-1"></i>
-																							{{ data.hits }}
-																						</span>
 															<!--<span class="text-nowrap align-middle font-size-13 mr-2 float-right">-->
 															<!--<i class="uil uil-trash-alt text-muted mr-1"></i>-->
 															<!--</span>-->
@@ -926,8 +1011,8 @@
 									</el-scrollbar>
 
 									<el-scrollbar class="card" style="width: 20%;height: 450px;">
-										<el-menu v-for="item in tabOptions" :key="item.id" :default-active="tabOptions[0].id">
-										<el-menu-item @click="menuSelect(item.id)">
+										<el-menu v-for="item in blogsSorts" :key="item.id" :default-active="blogsSorts[0].id">
+										<el-menu-item @click="blogSortsSelect(item.id)">
 											<span slot="title">{{item.tab}}</span>
 										</el-menu-item>
 										</el-menu>
@@ -948,7 +1033,7 @@
 											<div class="tasks border" style="width: 100%;margin-bottom: 0">
 												<div id="task-list-two" class="task-list-items">
 												<transition-group type="transition" :name="'flip-list'">
-													<div v-for="(data,index) in dataList" :key="data.id"
+													<div v-for="(data,index) in assetsList" :key="data.id"
 														@click="noticeDetail(index)">
 													<div class="card border mb-0">
 														<div class="card-body p-3">
@@ -993,8 +1078,8 @@
 									</el-scrollbar>
 
 									<el-scrollbar class="card" style="width: 20%;height: 450px;">
-										<el-menu v-for="item in tabOptions" :key="item.id" :default-active="tabOptions[0].id">
-										<el-menu-item @click="menuSelect(item.id)">
+										<el-menu v-for="item in assetsSorts" :key="item.id" :default-active="assetsSorts[0].id">
+										<el-menu-item @click="assetsSortsSelect(item.id)">
 											<span slot="title">{{item.tab}}</span>
 										</el-menu-item>
 										</el-menu>

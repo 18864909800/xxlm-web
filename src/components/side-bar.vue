@@ -112,7 +112,7 @@
 
             // this.$cookieStore.getCookie(JSESSIONID)
             //  侧边栏获取信息
-            axios.get('http://localhost:8080/user/select-admin-message').then(res=>{
+            axios.get('http://localhost:8081/user/select-admin-message').then(res=>{
                 // console.log("侧边栏数据接口")
                 // console.log(this.user.data.sessionId)
                 // console.log(res)

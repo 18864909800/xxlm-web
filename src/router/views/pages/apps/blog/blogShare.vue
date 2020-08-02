@@ -148,7 +148,7 @@ export default {
     methods: {
         // 获取所有博客分类
         getAllCategory() {
-            axios.get("http://localhost:8080/blog/get-all-category").then(res => {
+            axios.get("http://localhost:8081/blog/get-all-category").then(res => {
                 if (res.data.responseCode == '200') {
                     if (res.data.data != null) {
                         this.options = [];
@@ -212,7 +212,7 @@ export default {
 
         publishConfirm() {
             axios({
-                url: 'http://localhost:8080/blog/upload-blog',
+                url: 'http://localhost:8081/blog/upload-blog',
                 method: "POST",
                 data: qs.encode({
                     blogCId: this.type,

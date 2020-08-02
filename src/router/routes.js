@@ -202,7 +202,7 @@ const blogAppsRoutes = [
 const aSigninAppsRoutes = [
     {
         path: '/apps/aRecords',
-        name: '管理员签到记录',
+        name: '团队签到统计',
         icon: 'file-text',
         manager: 0,
         component: () => lazyLoadView(import('@views/pages/apps/signin/a_records')),
@@ -215,7 +215,7 @@ const aSigninAppsRoutes = [
 const uSigninAppsRoutes = [
     {
         path: '/apps/uRecords',
-        name: '签到记录',
+        name: '签到统计',
         icon: 'file-text',
         manager: 1,
         component: () => lazyLoadView(import('@views/pages/apps/signin/u_records')),

@@ -228,8 +228,8 @@
               axios.get('http://localhost:8081/sign-in/select-learn-time-total')
               .then(res => {
                   let result = res.data.data;
-                  let key = Object.keys(result);
-                  let value = Object.values(result);
+                  let key = Object.keys(result).slice(0,10);
+                  let value = Object.values(result).slice(0,10);
                   this.aDurationTop10.chartOptions = {
                       chart: {
                           toolbar: {

@@ -3,13 +3,6 @@
   import PageHeader from '@components/page-header'
   import axios from '../../../../../utils/http'
 
-  // 引入图表插件
-  import {
-    uPublishTends,
-    uDurationTends,
-    uPublishPie,
-    uAttendancePie
-  }from './records'
   /**
    * Starter component
    */
@@ -24,7 +17,10 @@
               chartOptions: {
                   chart: {
                       type: 'line',
-                      height: 350
+                      height: 350,
+                      toolbar: {
+                          show: false,
+                      },
                   },
                   stroke: {
                       curve: 'stepline',

@@ -130,7 +130,13 @@
                         window.location.href = '/logout';
                     }
                 })
-            }
+            },
+            changePassword(){
+                window.location.href = '/setting/password';
+            },
+            changeHead(){
+                window.location.href = '/setting/headPortrait';
+            },
         },
 
 
@@ -156,7 +162,7 @@
                 </template>
 
 
-                <b-dropdown-item href="javascript:void(0);" class="notify-item">
+                <b-dropdown-item  @click="changeHead"  class="notify-item">
                     <feather
                             type="settings"
                             class="icon-dual icon-xs mr-2 align-middle"
@@ -167,7 +173,7 @@
                 </b-dropdown-item>
 
 
-                <b-dropdown-item href="javascript: void(0);" class="notify-item">
+                <b-dropdown-item @click="changePassword" class="notify-item">
                     <feather
                             type="lock"
                             class="icon-dual icon-xs mr-2 align-middle"

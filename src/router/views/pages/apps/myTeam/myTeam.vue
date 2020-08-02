@@ -37,7 +37,7 @@
 				// 日历相关数据
 				value: new Date(),
 				calendarData: [],
-				selectedMonth: new Date().getMonth + 1,
+				selectedMonth: '',
 
 				// start--博客，资料数据 //
 				// 博客，资料分类数据
@@ -238,7 +238,7 @@
 			 否则会重复向服务器发出请求，出bug
 			 */
 			async selectedMember(newVal,oldValue){
-				this.getCalendar(newVal.userId).then(res => {
+				this.getCalendar(newVal.userId,this.selectedMonth).then(res => {
 					this.calendarData = res;
 				});
 				await this.getBlog(newVal.userId).then(res => {
@@ -392,6 +392,7 @@
 		},
 		// 进行签到日历点击事件注册
 		created: function() {
+			this.selectedMonth = new Date().getMonth() + 1;
 			this.$nextTick(() => {
 				// 点击前一个月
 				let prevBtn = document.querySelector(
@@ -998,11 +999,14 @@
 												slot-scope="{date, data}"
 										>
 											<div class="item" v-for="item in calendarData">
-												<div class="is-selected" v-if="item.indexOf(data.day.split('-').slice(2)) !== -1">
+												<div
+														class="is-selected"
+														v-if="item.indexOf(data.day.split('-').slice(2)) !== -1
+														&& parseInt(data.day.split('-')[1]) === parseInt(selectedMonth) "
+												>
 													✔️
 												</div>
 											</div>
-											{{parseInt(data.day.split('-')[1])}}
 											<p :class="data.isSelected ? 'is-selected' : ''">
 												{{ data.day.split('-').slice(1).join('-') }}
 											</p>

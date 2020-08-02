@@ -22,12 +22,43 @@
 			return {
 				title: '我的团队',
 
-				// 未经过滤的时间线数据
+				// start--成员数据 //
+				membersData: [],
+				// 被选中成员
+				selectedMember: '',
+				// end--成员数据//
+
+				// start--未经过滤的时间线数据 //
 				signRecords: [],
 				blogRecords: [],
 				assetRecords: [],
+				// end--未经过滤的时间线数据 //
 
-				// start--图表数据
+				// 日历相关数据
+				value: new Date(),
+				calendarData: [],
+				selectedMonth: new Date().getMonth + 1,
+
+				// start--博客，资料数据 //
+				// 博客，资料分类数据
+				blogsSorts: [
+					{
+						id: 0,
+						tab: '全部'
+					},
+				],
+				assetsSorts: [
+					{
+						id: 0,
+						tab: '全部'
+					},
+				],
+				// 博客，资料列表
+				blogsList: [],
+				assetsList: [],
+				// end--博客，资料数据 //
+
+				// start--图表数据 //
 				uDurationTends:   {
 					series: [],
 					chartOptions: {
@@ -196,42 +227,20 @@
 						],
 					},
 				},
-				// end--图表数据
-
-				// 日历相关数据
-				value: new Date(),
-				calendarData: [],
-
-				// 成员数据
-				membersData: [],
-				selectedMember: '',
-
-				// 博客，资料数据
-				blogsSorts: [
-					{
-						id: 0,
-						tab: '全部'
-					},
-				],
-				assetsSorts: [
-					{
-						id: 0,
-						tab: '全部'
-					},
-				],
-				blogsList: [],
-				assetsList: [],
+				// end--图表数据 //
 			}
 		},
+		// 选中成员变化后重新调用API。
 		watch: {
 			/*
-			 选中成员变化后重新调用API。
-			 由於剛開始selectedMember是空值，挂載執行完getMember（）后會先執行一次watch的事件
+			 由于刚开始selectedMember是空值，挂载执行完getMember（）后才赋值，所以会先执行一次watch的事件
+			 对于需要通过成员id获取的值，不需要在mouted里执行，直接在watch里进行首次执行即可
+			 否则会重复向服务器发出请求，出bug
 			 */
 			async selectedMember(newVal,oldValue){
-				// this.getCalendar(newVal.userId).then(res => {
-				// 	this.calendarData = res;
-				// });
+				this.getCalendar(newVal.userId).then(res => {
+					this.calendarData = res;
+				});
 				await this.getBlog(newVal.userId).then(res => {
 					if (this.blogsList !== null){
 						this.blogsList = [];
@@ -361,6 +370,7 @@
 				})
 			}
 		},
+		// 过滤指定用户时间线
 		computed: {
 			 // 过滤出指定用户的时间线
 			 signTimeLine: function () {
@@ -380,473 +390,516 @@
 				})
 			}
 		},
+		// 进行签到日历点击事件注册
+		created: function() {
+			this.$nextTick(() => {
+				// 点击前一个月
+				let prevBtn = document.querySelector(
+						".el-calendar__button-group .el-button-group>button:nth-child(1)"
+				);
+				let that = this;
+
+				prevBtn.addEventListener("click", e => {
+					let month = this.value.getMonth()+1;
+					this.selectedMonth = month;
+					that.getCalendar(that.selectedMember.userId,month);
+				});
+
+				// 点击下一个月
+				let nextBtn = document.querySelector(
+						".el-calendar__button-group .el-button-group>button:nth-child(3)"
+				);
+				nextBtn.addEventListener("click", () => {
+					let month = this.value.getMonth()+1;
+					this.selectedMonth = month;
+					that.getCalendar(that.selectedMember.userId,month);
+				});
+
+				// 点击今天
+				let todayBtn = document.querySelector(
+						".el-calendar__button-group .el-button-group>button:nth-child(2)"
+				);
+				todayBtn.addEventListener("click", () => {
+					let month = this.value.getMonth()+1;
+					this.selectedMonth = month;
+					that.getCalendar(that.selectedMember.userId,month);
+				});
+			});
+		},
+		// 挂载时加载页面所有所需信息。加载的是不需要通过成员id获取的公共数据。
 		async mounted(){
-			// 挂载时加载页面所有所需信息
+			// 首先要获取成员信息，在这里将第一个成员设为被选中成员
 			await this.getMembers();
+			// 获取所有用户时间线，在computed里过滤指定成员的时间线
 			await this.getActivity();
+			// 获取资料，博客分类信息
 			this.getAssetsSorts();
 			this.getBlogsSorts();
 		},
 		methods:{
 
-			/**
-			 * @method
-			 * @desc 获取团队成员，加载到memberData里
-			 **/
- 			getMembers(){
-				axios.get('http://localhost:8081/user/select-all-normal-users').
-				then((response) =>{
-					let data = response.data.data;
-					let arr = Object.values(data);
-					for (let i = 0; i < arr.length; i++) {
-						for (let j = 0; j < arr[i].length; j++) {
-							// 加载到memberData里
-							this.membersData.push({
-								userId: arr[i][j].userId,
-								userHead: arr[i][j].userHead,
-								name: arr[i][j].name,
-								userSex: arr[i][j].userSex === 1 ? "男" : "女",
-								isSelected: i === 0
-							})
+			/* start--团队成员相关方法 */
+				/**
+				 * @method
+				 * @desc 获取团队成员，加载到memberData里。并将加载出的第一个团队成员设为被选中成员。
+				 **/
+				getMembers(){
+					axios.get('http://localhost:8081/user/select-all-normal-users').
+					then((response) =>{
+						let data = response.data.data;
+						let arr = Object.values(data);
+						for (let i = 0; i < arr.length; i++) {
+							for (let j = 0; j < arr[i].length; j++) {
+								// 加载到memberData里
+								this.membersData.push({
+									userId: arr[i][j].userId,
+									userHead: arr[i][j].userHead,
+									name: arr[i][j].name,
+									userSex: arr[i][j].userSex === 1 ? "男" : "女",
+									isSelected: i === 0
+								})
 
+							}
 						}
-					}
-					this.selectedMember = this.membersData[0];
-				})
-				return this.selectedMember;
-			},
+						this.selectedMember = this.membersData[0];
+					})
+				},
 
-			/**
-			 * @method
-			 * @desc changeMember 切换选中成员触发的事件。包含颜色变化，被选中成员变化。
- 			 */
-			changeMember(member){
-				// 改变背景颜色
-				this.selectedMember.isSelected = false;
-				this.selectedMember = member;
-				this.selectedMember.isSelected = true;
-			},
+				/**
+				 * @method
+				 * @param {member} member 每一个memberData数组里的元素都是一个member对象。
+				 * @desc changeMember 点击成员触发的事件。包含颜色变化，被选中成员变化。
+				 */
+				changeMember(member){
+					// 改变背景颜色
+					this.selectedMember.isSelected = false;
+					// 将被点中的成员赋值给selectedMember
+					this.selectedMember = member;
+					this.selectedMember.isSelected = true;
+				},
+			/* /end--团队成员相关方法 */
 
-			/**
-			 * @method
-			 * @desc 获取实验室成员签到签退，发布博客，发布资料时间线
-			 **/
-			async getActivity(){
-				// 获取签到签退时间线
-				await axios.get('http://localhost:8081/sign-in/select-time-line')
-				.then(async response => {
-					let data = response.data.data;
-					// 接口数据映射
-					for (let i = 0; i<data.length; i++){
-						// 首先获取姓名
-						await  this.getName(data[i].umId).then(res =>{
-							let title = data[i].simType === 0 ? ' 签到' : ' 签退';
-							this.signRecords.push({
-								ID: i,
-								userId: data[i].umId,
-								selectedId: this.selectedMember.userId,
-								time: data[i].simDateExact,
-								title: res +' '+ title,
-								text: res + '在 ' + data[i].simDateExact + title
-							})
-						});
-					}
-				}).catch(error => {
-					console.log(error);
-				});
-				// 获取博客发布时间线
-				await axios.get('http://localhost:8081/blog/select-blog-line')
-				.then(async response => {
-					let data = response.data.data;
-					// 接口数据映射
-					for (let i = 0; i<data.length; i++){
-						await  this.getName(data[i].umId).then(res =>{
-							let title = ' 发布了博客';
-							this.blogRecords.push({
-								ID: i,
-								userId: data[i].umId,
-								selectedId: this.selectedMember.userId,
-								time: data[i].bdDate,
-								title: res +' '+ title,
-								text: res + '在 ' + data[i].bdDate + title
-							})
-						});
-					}
-				}).catch(error => {
-					console.log(error);
-				});
-				// 获取资料分享时间线
-				await axios.get('http://localhost:8081/assets/select-assets-line')
-				.then(async response => {
-					let data = response.data.data;
-					// 接口数据映射
-					for (let i = 0; i<data.length; i++){
-						await  this.getName(data[i].umId).then(res =>{
-							let title = ' 分享了资料';
-							this.assetRecords.push({
-								ID: i,
-								userId: data[i].umId,
-								selectedId: this.selectedMember.userId,
-								time: data[i].acDate,
-								title: res +' '+ title,
-								text: res + '在 ' + data[i].acDate + title
-							})
-						});
-					}
-				}).catch(error => {
-					console.log(error);
-				});
-			},
-			/**
-			 * @method
-			 * @param {number} id
-			 * @return {Promise} data 姓名
-			 * @desc 根据id查询用户姓名，返回的是一个promise对象
-			 **/
-			async getName(id){
-				console.log("getName，查询id" + id);
-				let data;
-				await axios.get('http://localhost:8081/user/get-name-by-Id',{
-					params:{userId: id}
-				}).then((response) => {
-					data = response.data.data;
-					// console.log(response.data.data);
-				}).catch((error) => {
-					console.log(error);
-				});
-				return data;
-			},
-
-			/**
-			 * @method
-			 * @param {number} id
-			 * @desc 根据id获取指定用户的签到日历，返回已签到日期的promise对象
-			 */
-			getCalendar(id){
-				let ID = parseInt(id);
-				let year = new Date().getFullYear();
-				let month = new Date().getMonth() + 1;
-				console.log(typeof month)
-
-				axios.get('http://localhost:8081/sign-in/select-assign-user-calendar',{
-					params: {
-						userId: ID,
-						year: year,
-						month: month
-					}
-				}).then((response) => {
-					this.calendarData = response.data.data;
-					console.log(response.data.data);
-				}).catch((error) => {
-					console.log(error);
-				});
-			},
-
-			/**
-			 * @method
-			 * @param {number} id
-			 * @desc 根据id获取指定用户的博客
-			 */
-			async getBlog(id){
-				let result;
-				await axios.get('http://localhost:8081/blog/select-assign-user-blog',{
-					params:{
-						category: 0,
-						userId: id
-					}
-				}).then(res => {
-					result = res.data.data;
-				})
-				return result;
-			},
-
-			/**
-			 * @method
-			 * @desc 獲取博客所有分類
-			 */
-			getBlogsSorts(){
-				axios.get('http://localhost:8081/blog/get-all-category')
-						.then(res => {
-							let arr = res.data.data;
-							arr.map(item => {
-								this.blogsSorts.push({
-									id: item.blogCId,
-									tab: item.blogCName
+			/* start--时间线相关方法 */
+				/**
+				 * @method
+				 * @desc 获取实验室成员签到签退，发布博客，发布资料时间线
+				 **/
+				async getActivity(){
+					// 获取签到签退时间线
+					await axios.get('http://localhost:8081/sign-in/select-time-line')
+					.then(async response => {
+						let data = response.data.data;
+						// 接口数据映射
+						for (let i = 0; i<data.length; i++){
+							// 首先获取姓名
+							await  this.getName(data[i].umId).then(res =>{
+								let title = data[i].simType === 0 ? ' 签到' : ' 签退';
+								this.signRecords.push({
+									ID: i,
+									userId: data[i].umId,
+									selectedId: this.selectedMember.userId,
+									time: data[i].simDateExact,
+									title: res +' '+ title,
+									text: res + '在 ' + data[i].simDateExact + title
 								})
-							})
-						}).catch(error => error);
-			},
-
-			/**
-			 * @method
-			 * @param {number} cId 分類id
-			 * @desc 博客分類點擊事件
-			 */
-			blogSortsSelect(cId){
-				axios.get('http://localhost:8081/blog/select-assign-user-blog',{
-					params:{
-						category: cId,
-						userId: this.selectedMember.userId
-					}
-				}).then(res => {
-					let result = res.data.data;
-					if (this.blogsList !== null){
-						this.blogsList = [];
-					}
-					result.map(item => {
-						this.blogsList.push({
-							id: item.bdId,
-							title: item.bdTitle,
-							name: item.assetsName,
-							date: item.bdDate,
-							text: item.bdContent,
-							address: item.bdLink,
-							groupId: 1,
-						})
+							});
+						}
+					}).catch(error => {
+						console.log(error);
 					});
-				})
-			},
-
-			/**
-			 * @method
-			 * @param {number} id
-			 * @desc 根据id获取指定用户的資料
-			 */
-			async getAsset(id){
-				let result;
-				await axios.get('http://localhost:8081/assets/select-assign-assets',{
-					params:{
-						category: 0,
-						userId: id
-					}
-				}).then(res => {
-					result = res.data.data;
-				})
-				return result;
-			},
-
-			/**
-			 * @method
-			 * @desc 獲取資料所有分類
-			 */
-			getAssetsSorts(){
-				axios.get('http://localhost:8081/assets/get-all-category')
-						.then(res => {
-							let arr = res.data.data;
-							arr.map(item => {
-								this.assetsSorts.push({
-									id: item.assetsId,
-									tab: item.assetsName
+					// 获取博客发布时间线
+					await axios.get('http://localhost:8081/blog/select-blog-line')
+					.then(async response => {
+						let data = response.data.data;
+						// 接口数据映射
+						for (let i = 0; i<data.length; i++){
+							await  this.getName(data[i].umId).then(res =>{
+								let title = ' 发布了博客';
+								this.blogRecords.push({
+									ID: i,
+									userId: data[i].umId,
+									selectedId: this.selectedMember.userId,
+									time: data[i].bdDate,
+									title: res +' '+ title,
+									text: res + '在 ' + data[i].bdDate + title
 								})
-							})
-						}).catch(error => error);
-			},
-			/**
-			 * @method
-			 * @param {number} aId 分類id
-			 * @desc 資料分類點擊事件
-			 */
-			assetsSortsSelect(aId){
-				axios.get('http://localhost:8081/assets/select-assign-assets',{
-					params:{
-						category: aId,
-						userId: this.selectedMember.userId
-					}
-				}).then(res => {
-					let result = res.data.data;
-					if (this.assetsList !== null){
-						this.assetsList = [];
-					}
-					result.map(item => {
-						this.assetsList.push({
-							id: item.acId,
-							title: item.acTitle,
-							name: item.assetsName,
-							date: item.acDate,
-							text: item.acContent,
-							address: item.acLink,
-							groupId: 1,
-						})
+							});
+						}
+					}).catch(error => {
+						console.log(error);
 					});
-				})
-			},
+					// 获取资料分享时间线
+					await axios.get('http://localhost:8081/assets/select-assets-line')
+					.then(async response => {
+						let data = response.data.data;
+						// 接口数据映射
+						for (let i = 0; i<data.length; i++){
+							await  this.getName(data[i].umId).then(res =>{
+								let title = ' 分享了资料';
+								this.assetRecords.push({
+									ID: i,
+									userId: data[i].umId,
+									selectedId: this.selectedMember.userId,
+									time: data[i].acDate,
+									title: res +' '+ title,
+									text: res + '在 ' + data[i].acDate + title
+								})
+							});
+						}
+					}).catch(error => {
+						console.log(error);
+					});
+				},
+				/**
+				 * @method
+				 * @param {number} id
+				 * @return {Promise} data 姓名
+				 * @desc 根据id查询用户姓名，返回的是一个promise对象
+				 **/
+				async getName(id){
+					console.log("getName，查询id" + id);
+					let data;
+					await axios.get('http://localhost:8081/user/get-name-by-Id',{
+						params:{userId: id}
+					}).then((response) => {
+						data = response.data.data;
+						// console.log(response.data.data);
+					}).catch((error) => {
+						console.log(error);
+					});
+					return data;
+				},
+			/* /end--时间线相关方法 */
 
-			/**
-			 * @method
-			 * @return {Promise} result
-			 * @desc 获取本周学习时长趋势图
-			 */
-			async getDurationTends(id){
-				let result;
-				await axios.get('http://localhost:8081/sign-in/select-learn-time-somebody',{
-					params: {
-						userId: id
-					}
-				}).then(res => {
-					result = res;
-					this.uDurationTends.series = [{
-						data : res.data.data
-					}]
-				})
-				return result;
-			},
-			/**
-			 * @method
-			 * @return {Promise} assetsNum 资料数量
-			 * @desc 获取资料数据
-			 */
-			async getAssetsData(id){
-				let assetsNum;
-				await axios.get('http://localhost:8081/assets/select-everyday-someone-assets',{
-					params: {
-						userId: id
-					}
-				}).then((response) => {
-					console.log(response.data);
-					this.uPublishTends.series[0] = {
-						name: '资料 - ' + new Date().getFullYear(),
-						data: response.data.data,
-					};
-					assetsNum = response.data.data;
-				}).catch((error) => {
-					console.log(error);
-				});
-				return assetsNum;
-			},
-			/**
-			 * @method
-			 * @return {Promise} blogNum 博客数量
-			 * @desc 获取博客数据
-			 */
-			async getBlogsData(id){
-				let blogNum;
-				await axios.get('http://localhost:8081/blog/select-everyday-someone-blog',{
-					params: {
-						userId: id
-					}
-				}).then((response) => {
-					blogNum = response.data.data;
-				}).catch((error) => {
-					console.log(error);
-				});
-				return blogNum;
-			},
-			/**
-			 * @method
-			 * @param {number} id
-			 * @return {Promise} result 调用资料名接口返回值
-			 * @desc 获取指定用户本周不同资料占比
-			 */
-			async getPublishPie(id){
-				let result;
-				await axios.get('http://localhost:8081/assets/select-somebody-assets-names',{
-					params: {
-						userId: id
-					}
-				}).then(async res => {
-					result = res;
-					if (res.data.data.name.length === 0){
-						this.uPublishPie.chartOptions = {
-							labels: ['啥也没有发~'],
-							colors: ['#A9A9A9'],
-							legend: {
-								show: false,
-								position: 'bottom',
-								horizontalAlign: 'center',
-								verticalAlign: 'middle',
-								floating: false,
-								fontSize: '14px',
-								offsetX: 0,
-								offsetY: -10,
-							},
-							dataLabels: {
-								enabled: false,
-							},
-							responsive: [
-								{
-									breakpoint: 600,
-									options: {
-										chart: {
-											height: 240,
-										},
-										legend: {
-											show: false,
+			/* start--签到日历相关方法 */
+				/**
+				 * @method
+				 * @param {number} id
+				 * @desc 根据id获取指定用户的签到日历，返回已签到日期的promise对象
+				 */
+				async getCalendar(id , mon){
+					let ID = parseInt(id);
+					let year = new Date().getFullYear();
+					let month = mon || this.selectedMonth;
+					let result;
+
+					await axios.get('http://localhost:8081/sign-in/select-assign-user-calendar',{
+						params: {
+							userId: ID,
+							year: year,
+							month: month
+						}
+					}).then((response) => {
+						result = response;
+						this.calendarData = response.data.data;
+					}).catch((error) => {console.log(error);});
+					return result;
+				},
+			/* /end--签到日历相关方法 */
+
+			/* start--博客资料模块相关方法 */
+				/**
+				 * @method
+				 * @param {number} id 用户id
+				 * @return {Promise} result 博客对象数组
+				 * @desc 根据id获取指定用户的博客
+				 */
+				async getBlog(id){
+					let result;
+					await axios.get('http://localhost:8081/blog/select-assign-user-blog',{
+						params:{
+							category: 0,
+							userId: id
+						}
+					}).then(res => {
+						result = res.data.data;
+					})
+					return result;
+				},
+
+				/**
+				 * @method
+				 * @desc 獲取博客所有分類
+				 */
+				getBlogsSorts(){
+					axios.get('http://localhost:8081/blog/get-all-category')
+							.then(res => {
+								let arr = res.data.data;
+								arr.map(item => {
+									this.blogsSorts.push({
+										id: item.blogCId,
+										tab: item.blogCName
+									})
+								})
+							}).catch(error => error);
+				},
+
+				/**
+				 * @method
+				 * @param {number} cId 分類id
+				 * @desc 博客分類點擊事件
+				 */
+				blogSortsSelect(cId){
+					axios.get('http://localhost:8081/blog/select-assign-user-blog',{
+						params:{
+							category: cId,
+							userId: this.selectedMember.userId
+						}
+					}).then(res => {
+						let result = res.data.data;
+						if (this.blogsList !== null){
+							this.blogsList = [];
+						}
+						// start--映射结果 //
+						result.map(item => {
+							this.blogsList.push({
+								id: item.bdId,
+								title: item.bdTitle,
+								name: item.assetsName,
+								date: item.bdDate,
+								text: item.bdContent,
+								address: item.bdLink,
+								groupId: 1,
+							})
+						});
+						// end--映射结果 //
+					}).catch(error => error);
+				},
+
+				/**
+				 * @method
+				 * @param {number} id 用户id
+				 * @return {Promise} result 资料对象数组
+				 * @desc 根据id获取指定用户的資料
+				 */
+				async getAsset(id){
+					let result;
+					await axios.get('http://localhost:8081/assets/select-assign-assets',{
+						params:{
+							category: 0,
+							userId: id
+						}
+					}).then(res => {
+						result = res.data.data;
+					})
+					return result;
+				},
+
+				/**
+				 * @method
+				 * @desc 獲取資料所有分類
+				 */
+				getAssetsSorts(){
+					axios.get('http://localhost:8081/assets/get-all-category')
+							.then(res => {
+								let arr = res.data.data;
+								arr.map(item => {
+									this.assetsSorts.push({
+										id: item.assetsId,
+										tab: item.assetsName
+									})
+								})
+							}).catch(error => error);
+				},
+				/**
+				 * @method
+				 * @param {number} aId 分類id
+				 * @desc 資料分類點擊事件
+				 */
+				assetsSortsSelect(aId){
+					axios.get('http://localhost:8081/assets/select-assign-assets',{
+						params:{
+							category: aId,
+							userId: this.selectedMember.userId
+						}
+					}).then(res => {
+						let result = res.data.data;
+						if (this.assetsList !== null){
+							this.assetsList = [];
+						}
+						result.map(item => {
+							this.assetsList.push({
+								id: item.acId,
+								title: item.acTitle,
+								name: item.assetsName,
+								date: item.acDate,
+								text: item.acContent,
+								address: item.acLink,
+								groupId: 1,
+							})
+						});
+					})
+				},
+			/* /end--博客资料模块相关方法 */
+
+			/* start--他的签到统计相关方法 */
+				/**
+				 * @method
+				 * @return {Promise} result
+				 * @desc 获取本周学习时长趋势图
+				 */
+				async getDurationTends(id){
+					let result;
+					await axios.get('http://localhost:8081/sign-in/select-learn-time-somebody',{
+						params: {
+							userId: id
+						}
+					}).then(res => {
+						result = res;
+						this.uDurationTends.series = [{
+							data : res.data.data
+						}]
+					})
+					return result;
+				},
+				/**
+				 * @method
+				 * @return {Promise} assetsNum 资料数量
+				 * @desc 获取资料数据
+				 */
+				async getAssetsData(id){
+					let assetsNum;
+					await axios.get('http://localhost:8081/assets/select-everyday-someone-assets',{
+						params: {
+							userId: id
+						}
+					}).then((response) => {
+						console.log(response.data);
+						this.uPublishTends.series[0] = {
+							name: '资料 - ' + new Date().getFullYear(),
+							data: response.data.data,
+						};
+						assetsNum = response.data.data;
+					}).catch((error) => {
+						console.log(error);
+					});
+					return assetsNum;
+				},
+				/**
+				 * @method
+				 * @return {Promise} blogNum 博客数量
+				 * @desc 获取博客数据
+				 */
+				async getBlogsData(id){
+					let blogNum;
+					await axios.get('http://localhost:8081/blog/select-everyday-someone-blog',{
+						params: {
+							userId: id
+						}
+					}).then((response) => {
+						blogNum = response.data.data;
+					}).catch((error) => {
+						console.log(error);
+					});
+					return blogNum;
+				},
+				/**
+				 * @method
+				 * @param {number} id
+				 * @return {Promise} result 调用资料名接口返回值
+				 * @desc 获取指定用户本周不同资料占比
+				 */
+				async getPublishPie(id){
+					let result;
+					await axios.get('http://localhost:8081/assets/select-somebody-assets-names',{
+						params: {
+							userId: id
+						}
+					}).then(async res => {
+						result = res;
+						if (res.data.data.name.length === 0){
+							this.uPublishPie.chartOptions = {
+								labels: ['啥也没有发~'],
+								colors: ['#A9A9A9'],
+								legend: {
+									show: false,
+									position: 'bottom',
+									horizontalAlign: 'center',
+									verticalAlign: 'middle',
+									floating: false,
+									fontSize: '14px',
+									offsetX: 0,
+									offsetY: -10,
+								},
+								dataLabels: {
+									enabled: false,
+								},
+								responsive: [
+									{
+										breakpoint: 600,
+										options: {
+											chart: {
+												height: 240,
+											},
+											legend: {
+												show: false,
+											},
 										},
 									},
+								],
+							}
+							this.uPublishPie.series = [100];
+						}else{
+							this.uPublishPie.chartOptions = {
+								labels: res.data.data.name,
+								colors: ['#5369f8', '#43d39e', '#f77e53', '#1ce1ac', '#25c2e3'],
+								legend: {
+									show: false,
+									position: 'bottom',
+									horizontalAlign: 'center',
+									verticalAlign: 'middle',
+									floating: false,
+									fontSize: '14px',
+									offsetX: 0,
+									offsetY: -10,
 								},
-							],
-						}
-						this.uPublishPie.series = [100];
-					}else{
-						this.uPublishPie.chartOptions = {
-							labels: res.data.data.name,
-							colors: ['#5369f8', '#43d39e', '#f77e53', '#1ce1ac', '#25c2e3'],
-							legend: {
-								show: false,
-								position: 'bottom',
-								horizontalAlign: 'center',
-								verticalAlign: 'middle',
-								floating: false,
-								fontSize: '14px',
-								offsetX: 0,
-								offsetY: -10,
-							},
-							dataLabels: {
-								enabled: false,
-							},
-							responsive: [
-								{
-									breakpoint: 600,
-									options: {
-										chart: {
-											height: 240,
-										},
-										legend: {
-											show: false,
+								dataLabels: {
+									enabled: false,
+								},
+								responsive: [
+									{
+										breakpoint: 600,
+										options: {
+											chart: {
+												height: 240,
+											},
+											legend: {
+												show: false,
+											},
 										},
 									},
-								},
-							],
+								],
+							}
+							await axios.get('http://localhost:8081/assets/select-somebody-assets-counts',{
+								params: id
+							}).then(res => {
+								this.uPublishPie.series = res.data.data.count;
+							})
 						}
-						await axios.get('http://localhost:8081/assets/select-somebody-assets-counts',{
-							params: id
-						}).then(res => {
-							this.uPublishPie.series = res.data.data.count;
-						})
-					}
 
-				})
-				return result;
-			},
-			/**
-			 * @method
-			 * @param {number} id
-			 * @return {Promise} result 调用缺勤打卡天数接口返回值
-			 * @desc 获取某人本周缺勤人数与打卡天数占比图
-			 */
-			async getAttendance(id){
-				let result;
-				await axios.get('http://localhost:8081/sign-in/select-compared-person',{
-					params:{
-						userId: id
-					}
-				}).then(res => {
-					result = res;
-					this.uAttendancePie.series = res.data.data;
-					console.log(res.data.data);
-				}).catch(error => {console.log(error);})
-				return result;
-			},
-			/**
-			 * @param {number} id
-			 * @desc 调用所有绘图方法
-			 */
-			async getCharts(id){
-				await this.getDurationTends(id);
-				await this.getAssetsData(id);
-				await this.getPublishPie(id);
-				await this.getAttendance(id);
-			},
+					})
+					return result;
+				},
+				/**
+				 * @method
+				 * @param {number} id
+				 * @return {Promise} result 调用缺勤打卡天数接口返回值
+				 * @desc 获取某人本周缺勤人数与打卡天数占比图
+				 */
+				async getAttendance(id){
+					let result;
+					await axios.get('http://localhost:8081/sign-in/select-compared-person',{
+						params:{
+							userId: id
+						}
+					}).then(res => {
+						result = res;
+						this.uAttendancePie.series = res.data.data;
+						console.log(res.data.data);
+					}).catch(error => {console.log(error);})
+					return result;
+				},
+			/* /end--他的签到统计相关方法 */
 		},
 	}
 </script>
@@ -1056,11 +1109,6 @@
 															<small class=" text-muted">
 															{{ data.date }}
 															</small>
-
-															<span class="text-nowrap align-middle font-size-13 mr-2 float-right">
-																							<i class="uil uil-eye text-muted mr-1"></i>
-																							{{ data.hits }}
-																						</span>
 															<!--<span class="text-nowrap align-middle font-size-13 mr-2 float-right">-->
 															<!--<i class="uil uil-trash-alt text-muted mr-1"></i>-->
 															<!--</span>-->

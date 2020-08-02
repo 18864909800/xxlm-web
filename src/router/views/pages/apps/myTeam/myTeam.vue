@@ -4,12 +4,6 @@
 	import Member from './teamMates/member'
 	import Activity from './teamMates/activities/activities'
 	import axios from '../../../../../utils/http'
-	import {
-		uPublishTends,
-		uDurationTends,
-		uPublishPie,
-		uAttendancePie
-	}from './../signin/records'
 
 
 	/**
@@ -28,12 +22,12 @@
 			return {
 				title: '我的团队',
 
-				// 时间线
+				// 未经过滤的时间线数据
 				signRecords: [],
 				blogRecords: [],
 				assetRecords: [],
 
-				// 图表
+				// start--图表数据
 				uDurationTends:   {
 					series: [],
 					chartOptions: {
@@ -131,7 +125,6 @@
 					},
 					series: [],
 				},
-
 				uPublishPie:  {
 					series: [],
 					chartOptions: {},
@@ -203,15 +196,15 @@
 						],
 					},
 				},
+				// end--图表数据
 
-				// 当前日期
+				// 日历相关数据
 				value: new Date(),
 				calendarData: [],
 
 				// 成员数据
 				membersData: [],
 				selectedMember: '',
-				isActive: false,
 
 				// 博客，资料数据
 				tabOptions: [
@@ -268,7 +261,7 @@
 		},
 		watch: {
 			// 选中成员变化后重新调用API
-			selectedMember(newVal,oldValue){
+			async selectedMember(newVal,oldValue){
 				// this.getCalendar(newVal.userId).then(res => {
 				// 	this.calendarData = res;
 				// });
@@ -278,19 +271,32 @@
 				// this.getAsset(newVal.userId).then(res => {
 				//
 				// });
-				this.getDurationTends(newVal.userId).then(res => {
-					console.log("略略略1")
+				await this.getDurationTends(newVal.userId).then(res => {
 					this.uDurationTends.series = [{
 						data : res.data.data
 					}]
 				});
-				this.getPublishPie(newVal.userId).then(async res => {
+				await this.getAssetsData(newVal.userId).then(async res => {
+					if (this.uPublishTends.series !== null){
+						this.uPublishTends.series.pop();
+					}
+					this.uPublishTends.series[0] = {
+						name: '资料 - ' + new Date().getFullYear(),
+						data: res,
+					};
+					await this.getBlogsData(newVal.userId).then(res => {
+						this.uPublishTends.series.push({
+							name: '博客 - ' + new Date().getFullYear(),
+							data: res,
+						});
+					})
+				});
 
-					console.log("略略略")
+				this.getPublishPie(newVal.userId).then(async res => {
 					if (res.data.data.name.length === 0){
 						this.uPublishPie.chartOptions = {
 							labels: ['啥也没有发~'],
-							colors: ['#f77e53'],
+							colors: ['#A9A9A9'],
 							legend: {
 								show: false,
 								position: 'bottom',
@@ -359,19 +365,11 @@
 				})
 				this.getAttendance(newVal.userId).then(res => {
 					this.uAttendancePie.series = res.data.data;
-					console.log(res.data.data);
 				})
-				this.getCharts(newVal.userId).then(res => {
-					this.getDurationTends(id);
-					this.getAssets(id);
-					this.getBlogs(id);
-					this.getPublishPie(id);
-					this.getAttendance(id);
-				});
 			}
 		},
 		computed: {
-			 // 获取指定用户的时间线
+			 // 过滤出指定用户的时间线
 			 signTimeLine: function () {
 			 	let result =  this.signRecords.filter((item) => {
 					return	this.selectedMember.userId === item.userId
@@ -390,11 +388,13 @@
 			}
 		},
 		async mounted(){
-
-			// 挂载时加载团队成员
+			// 挂载时加载页面所有所需信息
 			await this.getMembers();
-			// 加载时间线
 			await this.getActivity();
+			await this.getCalendar(this.selectedMember.userId);
+			await this.getBlog(this.selectedMember.userId);
+			await this.getAsset(this.selectedMember.userId);
+			await this.getCharts(this.selectedMember.userId);
 		},
 		methods:{
 
@@ -427,7 +427,7 @@
 
 			/**
 			 * @method
-			 * @desc changeMember 点击团队成员事件。切换选中成员触发的事件。包括改颜色，切换时间线
+			 * @desc changeMember 切换选中成员触发的事件。包含颜色变化，被选中成员变化。
  			 */
 			changeMember(member){
 				// 改变背景颜色
@@ -447,6 +447,7 @@
 					let data = response.data.data;
 					// 接口数据映射
 					for (let i = 0; i<data.length; i++){
+						// 首先获取姓名
 						await  this.getName(data[i].umId).then(res =>{
 							let title = data[i].simType === 0 ? ' 签到' : ' 签退';
 							this.signRecords.push({
@@ -508,7 +509,7 @@
 			/**
 			 * @method
 			 * @param {number} id
-			 * @return {Promise} data
+			 * @return {Promise} data 姓名
 			 * @desc 根据id查询用户姓名，返回的是一个promise对象
 			 **/
 			async getName(id){
@@ -581,9 +582,8 @@
 			// TODO asset 查看某个用户的资料
 			getAsset(id){},
 
-			// TODO charts 查看某个用户的签到统计
 			/**
-			 *@method
+			 * @method
 			 * @return {Promise} result
 			 * @desc 获取本周学习时长趋势图
 			 */
@@ -603,42 +603,50 @@
 			},
 			/**
 			 * @method
+			 * @return {Promise} assetsNum 资料数量
 			 * @desc 获取资料数据
 			 */
-			async getAssets(id){
-				axios.get('http://localhost:8081/assets/select-everyday-everyone-assets')
-						.then((response) => {
-							console.log(response.data);
-							this.uPublishTends.series.push({
-								name: '资料 - ' + new Date().getFullYear(),
-								data: response.data.data,
-							})
-						}).catch((error) => {
-					console.log(error);
-				});
-			},
-			/**
-			 * @method
-			 * @desc 获取博客数据
-			 */
-			getBlogs(id){
-				axios.get('http://localhost:8081/blog/select-everyday-someone-blog',{
+			async getAssetsData(id){
+				let assetsNum;
+				await axios.get('http://localhost:8081/assets/select-everyday-someone-assets',{
 					params: {
 						userId: id
 					}
 				}).then((response) => {
 					console.log(response.data);
-					this.uPublishTends.series.push({
-						name: '博客 - ' + new Date().getFullYear(),
+					this.uPublishTends.series[0] = {
+						name: '资料 - ' + new Date().getFullYear(),
 						data: response.data.data,
-					})
+					};
+					assetsNum = response.data.data;
 				}).catch((error) => {
 					console.log(error);
 				});
+				return assetsNum;
 			},
 			/**
-			 *@method
-			 * @desc 获取本周不同资料占比
+			 * @method
+			 * @return {Promise} blogNum 博客数量
+			 * @desc 获取博客数据
+			 */
+			async getBlogsData(id){
+				let blogNum;
+				await axios.get('http://localhost:8081/blog/select-everyday-someone-blog',{
+					params: {
+						userId: id
+					}
+				}).then((response) => {
+					blogNum = response.data.data;
+				}).catch((error) => {
+					console.log(error);
+				});
+				return blogNum;
+			},
+			/**
+			 * @method
+			 * @param {number} id
+			 * @return {Promise} result 调用资料名接口返回值
+			 * @desc 获取指定用户本周不同资料占比
 			 */
 			async getPublishPie(id){
 				let result;
@@ -651,7 +659,7 @@
 					if (res.data.data.name.length === 0){
 						this.uPublishPie.chartOptions = {
 							labels: ['啥也没有发~'],
-							colors: ['#f77e53'],
+							colors: ['#A9A9A9'],
 							legend: {
 								show: false,
 								position: 'bottom',
@@ -723,25 +731,32 @@
 			},
 			/**
 			 * @method
+			 * @param {number} id
+			 * @return {Promise} result 调用缺勤打卡天数接口返回值
 			 * @desc 获取某人本周缺勤人数与打卡天数占比图
 			 */
-			getAttendance(id){
-				axios.get('http://localhost:8081/sign-in/select-compared-self',{
+			async getAttendance(id){
+				let result;
+				await axios.get('http://localhost:8081/sign-in/select-compared-person',{
 					params:{
 						userId: id
 					}
 				}).then(res => {
+					result = res;
 					this.uAttendancePie.series = res.data.data;
 					console.log(res.data.data);
-				})
+				}).catch(error => {console.log(error);})
+				return result;
 			},
-
-			getCharts(id){
-				this.getDurationTends(id);
-				this.getAssets(id);
-				this.getBlogs(id);
-				this.getPublishPie(id);
-				this.getAttendance(id);
+			/**
+			 * @param {number} id
+			 * @desc 调用所有绘图方法
+			 */
+			async getCharts(id){
+				await this.getDurationTends(id);
+				await this.getAssetsData(id);
+				await this.getPublishPie(id);
+				await this.getAttendance(id);
 			},
 		},
 	}
@@ -833,7 +848,6 @@
 							</b-tab>
 							<b-tab
 									title="签到日历"
-									@click="getCalendar(selectedMember.userId)"
 							>
 								<el-scrollbar style="width: 100%;height: 600px;">
 									<el-calendar v-model="value">
@@ -856,7 +870,6 @@
 							</b-tab>
 							<b-tab
 									title="他的博客"
-									@click="getBlog(selectedMember.userId)"
 							>
 								<div style="display: flex; justify-content: space-between; margin:0;">
 
@@ -924,7 +937,6 @@
 							</b-tab>
 							<b-tab
 									title="他的资料"
-									@click="getAsset(selectedMember.userId)"
 							>
 								<div style="display: flex; justify-content: space-between; margin:0;">
 
@@ -992,7 +1004,6 @@
 							</b-tab>
 							<b-tab
 									title="他的签到统计"
-									@click="getCharts(selectedMember.userId)"
 							>
 								<el-scrollbar style="width: 100%;height: 600px;">
 									<!-- 第一行图表 -->

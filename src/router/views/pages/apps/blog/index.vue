@@ -166,7 +166,7 @@ export default {
 
     methods: {
         addTypeLoad() {
-            axios.get('http://localhost:8080/user/select-admin-message').then(res => {
+            axios.get('http://localhost:8081/user/select-admin-message').then(res => {
                 // console.log("侧边栏数据接口")
                 // console.log(this.user.data.sessionId)
                 if (res.data.responseCode == '200') {
@@ -180,7 +180,7 @@ export default {
         },
 
         addType() {
-            axios.get("http://localhost:8080/blog/add-blog-category", {
+            axios.get("http://localhost:8081/blog/add-blog-category", {
                 params: {
                     cName: this.dataType
                 }
@@ -217,7 +217,7 @@ export default {
 
         // 查询所有分类
         getAllCategory() {
-            axios.get("http://localhost:8080/blog/get-all-category").then(res => {
+            axios.get("http://localhost:8081/blog/get-all-category").then(res => {
                 if (res.data.responseCode == '200') {
                     if (res.data.data != null) {
                         this.tabOptions = [];
@@ -244,7 +244,7 @@ export default {
 
         // 查询所有详细信息
         getAllDetails() {
-            axios.get("http://localhost:8080/blog/select-blog-by-category-search?cId=" + this.typeId).then(res => {
+            axios.get("http://localhost:8081/blog/select-blog-by-category-search?cId=" + this.typeId).then(res => {
                 if (res.data.responseCode == '200') {
                     if (res.data.data != null) {
                         this.dataList = [];
@@ -273,7 +273,7 @@ export default {
         },
 
         confirmDelete() {
-            axios.get("http://localhost:8080/blog/delete-by-id", {
+            axios.get("http://localhost:8081/blog/delete-by-id", {
                 params: {
                     delId: this.delId
                 }

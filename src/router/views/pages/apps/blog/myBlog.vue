@@ -122,7 +122,7 @@ export default {
     methods: {
         // 查询所有分类
         getAllCategory() {
-            axios.get("http://localhost:8080/blog/get-all-category").then(res => {
+            axios.get("http://localhost:8081/blog/get-all-category").then(res => {
                 if (res.data.responseCode == '200') {
                     if (res.data.data != null) {
                         this.tabOptions = [];
@@ -148,7 +148,7 @@ export default {
 
         // 查询所有详细信息
         getAllDetails() {
-            axios.get("http://localhost:8080/blog/select-current-user-blog?category=" + this.typeId).then(res => {
+            axios.get("http://localhost:8081/blog/select-current-user-blog?category=" + this.typeId).then(res => {
                 if (res.data.responseCode == '200') {
                     if (res.data.data != null) {
                         this.dataList = [];
@@ -184,7 +184,7 @@ export default {
         },
 
         confirmDelete() {
-            axios.get("http://localhost:8080/blog/delete-by-id", {
+            axios.get("http://localhost:8081/blog/delete-by-id", {
                 params: {
                     delId: this.delId
                 }

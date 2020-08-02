@@ -256,7 +256,7 @@
             },
 
             loadNotice(noticeFlag) {
-                axios.get("http://localhost:8080/notice/select-all-message", {
+                axios.get("http://localhost:8081/notice/select-all-message", {
                     params: {
                         typeId: noticeFlag === 'normal' ? 0 : 1
                     }
@@ -297,7 +297,7 @@
             noticeDelete() {
 
                 // 删除ID 为 this.dId
-                axios.get("http://localhost:8080/notice/delete-notice/" + this.dId).then(res => {
+                axios.get("http://localhost:8081/notice/delete-notice/" + this.dId).then(res => {
                     if(res.data.responseCode == '200') {
                         if(res.data.data) {
                             this.initNotice();
@@ -317,7 +317,7 @@
                 this.dText = '';
                 this.dHits =  '';
                 // 查看普通公告详情
-                axios.get("http://localhost:8080/notice/select-details-by-id/" + index).then(res => {
+                axios.get("http://localhost:8081/notice/select-details-by-id/" + index).then(res => {
                     if(res.data.responseCode == '200') {
                         if(res.data.data != null) {
                             this.dId =  res.data.data.noticeId;
@@ -330,7 +330,7 @@
                 })
 
                 // 查询身份权限
-                axios.get('http://localhost:8080/user/select-admin-message').then(res=>{
+                axios.get('http://localhost:8081/user/select-admin-message').then(res=>{
                     // console.log("侧边栏数据接口")
                     // console.log(this.user.data.sessionId)
                     if(res.data.responseCode == '200') {

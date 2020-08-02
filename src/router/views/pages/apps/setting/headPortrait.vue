@@ -55,7 +55,7 @@
 								<!-- 上传头像 -->
 								 <el-upload
 									class="avatar-uploader image-item"
-									action="http://localhost:8080/user/upload-user-head/"
+									action="http://localhost:8081/user/upload-user-head/"
 									:show-file-list="false"
 									:on-success="handleAvatarSuccess"
 									:on-remove="handleRemove"
@@ -191,7 +191,7 @@
 				// 调用接口
 				axios({
 					method: 'post',
-					url: 'http://localhost:8080/user/change-user-head/',
+					url: 'http://localhost:8081/user/change-user-head/',
 					data: querystring.stringify({
 						"userHeadUrl": this.dialogImageUrl
 					})

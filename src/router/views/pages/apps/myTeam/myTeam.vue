@@ -4,12 +4,6 @@
 	import Member from './teamMates/member'
 	import Activity from './teamMates/activities/activities'
 	import axios from '../../../../../utils/http'
-	import {
-		uPublishTends,
-		uDurationTends,
-		uPublishPie,
-		uAttendancePie
-	}from './../signin/records'
 
 
 	/**
@@ -28,18 +22,52 @@
 			return {
 				title: '我的团队',
 
-				// 时间线
+				// start--成员数据 //
+				membersData: [],
+				// 被选中成员
+				selectedMember: '',
+				// end--成员数据//
+
+				// start--未经过滤的时间线数据 //
 				signRecords: [],
 				blogRecords: [],
 				assetRecords: [],
+				// end--未经过滤的时间线数据 //
 
-				// 图表
+				// 日历相关数据
+				value: new Date(),
+				calendarData: [],
+				selectedMonth: '',
+
+				// start--博客，资料数据 //
+				// 博客，资料分类数据
+				blogsSorts: [
+					{
+						id: 0,
+						tab: '全部'
+					},
+				],
+				assetsSorts: [
+					{
+						id: 0,
+						tab: '全部'
+					},
+				],
+				// 博客，资料列表
+				blogsList: [],
+				assetsList: [],
+				// end--博客，资料数据 //
+
+				// start--图表数据 //
 				uDurationTends:   {
 					series: [],
 					chartOptions: {
 						chart: {
 							type: 'line',
-							height: 350
+							height: 350,
+							toolbar: {
+								show: false,
+							},
 						},
 						stroke: {
 							curve: 'stepline',
@@ -131,7 +159,6 @@
 					},
 					series: [],
 				},
-
 				uPublishPie:  {
 					series: [],
 					chartOptions: {},
@@ -203,94 +230,78 @@
 						],
 					},
 				},
-
-				// 当前日期
-				value: new Date(),
-				calendarData: [],
-
-				// 成员数据
-				membersData: [],
-				selectedMember: '',
-				isActive: false,
-
-				// 博客，资料数据
-				tabOptions: [
-					{
-						id: 0,
-						tab: '全部'
-					},
-					{
-						id: 1,
-						tab: 'Python'
-					},
-					{
-						id: 2,
-						tab: 'Java'
-					},
-					{
-						id: 3,
-						tab: '前端'
-					},
-					{
-						id: 4,
-						tab: '数据库'
-					}, {
-						id: 5,
-						tab: '区块链'
-					},
-					{
-						id: 6,
-						tab: '云计算'
-					},
-					{
-						id: 7,
-						tab: '架构'
-					},
-					{
-						id: 8,
-						tab: '人工智能'
-					},
-					{
-						id: 9,
-						tab: '大数据'
-					},
-					{
-						id: 10,
-						tab: '5G'
-					},
-					{
-						id: 11,
-						tab: '移动开发'
-					},
-				],
-				dataList: [],
+				// end--图表数据 //
 			}
 		},
+		// 选中成员变化后重新调用API。
 		watch: {
-			// 选中成员变化后重新调用API
-			selectedMember(newVal,oldValue){
-				// this.getCalendar(newVal.userId).then(res => {
-				// 	this.calendarData = res;
-				// });
-				// this.getBlog(newVal.userId).then(res => {
-				//
-				// });
-				// this.getAsset(newVal.userId).then(res => {
-				//
-				// });
-				this.getDurationTends(newVal.userId).then(res => {
-					console.log("略略略1")
+			/*
+			 由于刚开始selectedMember是空值，挂载执行完getMember（）后才赋值，所以会先执行一次watch的事件
+			 对于需要通过成员id获取的值，不需要在mouted里执行，直接在watch里进行首次执行即可
+			 否则会重复向服务器发出请求，出bug
+			 */
+			async selectedMember(newVal,oldValue){
+				this.getCalendar(newVal.userId,this.selectedMonth).then(res => {
+					this.calendarData = res;
+				});
+				await this.getBlog(newVal.userId).then(res => {
+					if (this.blogsList !== null){
+						this.blogsList = [];
+					}
+					res.map(item => {
+						this.blogsList.push({
+							id: item.bdId,
+							title: item.bdTitle,
+							name: item.assetsName,
+							date: item.bdDate,
+							text: item.bdContent,
+							address: item.bdLink,
+							groupId: 1,
+						})
+					});
+				});
+				await this.getAsset(newVal.userId).then(res => {
+					if (this.assetsList !== null){
+						this.assetsList = [];
+					}
+					res.map(item => {
+						this.assetsList.push({
+							id: item.acId,
+							title: item.acTitle,
+							name: item.assetsName,
+							date: item.acDate,
+							text: item.acContent,
+							address: item.acLink,
+							groupId: 1,
+						})
+					});
+				});
+				await this.getDurationTends(newVal.userId).then(res => {
 					this.uDurationTends.series = [{
 						data : res.data.data
 					}]
 				});
-				this.getPublishPie(newVal.userId).then(async res => {
+				await this.getAssetsData(newVal.userId).then(async res => {
+					if (this.uPublishTends.series !== null){
+						this.uPublishTends.series.pop();
+					}
+					this.uPublishTends.series[0] = {
+						name: '资料 - ' + new Date().getFullYear(),
+						data: res,
+					};
+					await this.getBlogsData(newVal.userId).then(res => {
+						this.uPublishTends.series.push({
+							name: '博客 - ' + new Date().getFullYear(),
+							data: res,
+						});
+					})
+				});
 
-					console.log("略略略")
+				this.getPublishPie(newVal.userId).then(async res => {
 					if (res.data.data.name.length === 0){
 						this.uPublishPie.chartOptions = {
 							labels: ['啥也没有发~'],
-							colors: ['#f77e53'],
+							colors: ['#A9A9A9'],
 							legend: {
 								show: false,
 								position: 'bottom',
@@ -350,7 +361,7 @@
 								},
 							],
 						}
-						await axios.get('http://localhost:8080/assets/select-somebody-assets-counts',{
+						await axios.get('http://localhost:8081/assets/select-somebody-assets-counts',{
 							params: newVal.userId
 						}).then(res => {
 							this.uPublishPie.series = res.data.data.count;
@@ -359,19 +370,12 @@
 				})
 				this.getAttendance(newVal.userId).then(res => {
 					this.uAttendancePie.series = res.data.data;
-					console.log(res.data.data);
 				})
-				this.getCharts(newVal.userId).then(res => {
-					this.getDurationTends(id);
-					this.getAssets(id);
-					this.getBlogs(id);
-					this.getPublishPie(id);
-					this.getAttendance(id);
-				});
 			}
 		},
+		// 过滤指定用户时间线
 		computed: {
-			 // 获取指定用户的时间线
+			 // 过滤出指定用户的时间线
 			 signTimeLine: function () {
 			 	let result =  this.signRecords.filter((item) => {
 					return	this.selectedMember.userId === item.userId
@@ -389,360 +393,517 @@
 				})
 			}
 		},
-		async mounted(){
+		// 进行签到日历点击事件注册
+		created: function() {
+			this.selectedMonth = new Date().getMonth() + 1;
+			this.$nextTick(() => {
+				// 点击前一个月
+				let prevBtn = document.querySelector(
+						".el-calendar__button-group .el-button-group>button:nth-child(1)"
+				);
+				let that = this;
 
-			// 挂载时加载团队成员
+				prevBtn.addEventListener("click", e => {
+					let month = this.value.getMonth()+1;
+					this.selectedMonth = month;
+					that.getCalendar(that.selectedMember.userId,month);
+				});
+
+				// 点击下一个月
+				let nextBtn = document.querySelector(
+						".el-calendar__button-group .el-button-group>button:nth-child(3)"
+				);
+				nextBtn.addEventListener("click", () => {
+					let month = this.value.getMonth()+1;
+					this.selectedMonth = month;
+					that.getCalendar(that.selectedMember.userId,month);
+				});
+
+				// 点击今天
+				let todayBtn = document.querySelector(
+						".el-calendar__button-group .el-button-group>button:nth-child(2)"
+				);
+				todayBtn.addEventListener("click", () => {
+					let month = this.value.getMonth()+1;
+					this.selectedMonth = month;
+					that.getCalendar(that.selectedMember.userId,month);
+				});
+			});
+		},
+		// 挂载时加载页面所有所需信息。加载的是不需要通过成员id获取的公共数据。
+		async mounted(){
+			// 首先要获取成员信息，在这里将第一个成员设为被选中成员
 			await this.getMembers();
-			// 加载时间线
+			// 获取所有用户时间线，在computed里过滤指定成员的时间线
 			await this.getActivity();
+			// 获取资料，博客分类信息
+			this.getAssetsSorts();
+			this.getBlogsSorts();
 		},
 		methods:{
 
-			/**
-			 * @method
-			 * @desc 获取团队成员，加载到memberData里
-			 **/
- 			getMembers(){
-				axios.get('http://localhost:8080/user/select-all-normal-users').
-				then((response) =>{
-					let data = response.data.data;
-					let arr = Object.values(data);
-					for (let i = 0; i < arr.length; i++) {
-						for (let j = 0; j < arr[i].length; j++) {
-							// 加载到memberData里
-							this.membersData.push({
-								userId: arr[i][j].userId,
-								userHead: arr[i][j].userHead,
-								name: arr[i][j].name,
-								userSex: arr[i][j].userSex === 1 ? "男" : "女",
-								isSelected: i === 0
-							})
+			/* start--团队成员相关方法 */
+				/**
+				 * @method
+				 * @desc 获取团队成员，加载到memberData里。并将加载出的第一个团队成员设为被选中成员。
+				 **/
+				getMembers(){
+					axios.get('http://localhost:8081/user/select-all-normal-users').
+					then((response) =>{
+						let data = response.data.data;
+						let arr = Object.values(data);
+						for (let i = 0; i < arr.length; i++) {
+							for (let j = 0; j < arr[i].length; j++) {
+								// 加载到memberData里
+								this.membersData.push({
+									userId: arr[i][j].userId,
+									userHead: arr[i][j].userHead,
+									name: arr[i][j].name,
+									userSex: arr[i][j].userSex === 1 ? "男" : "女",
+									isSelected: i === 0
+								})
 
+							}
 						}
-					}
-					this.selectedMember = this.membersData[0];
-				})
-				return this.selectedMember;
-			},
-
-			/**
-			 * @method
-			 * @desc changeMember 点击团队成员事件。切换选中成员触发的事件。包括改颜色，切换时间线
- 			 */
-			changeMember(member){
-				// 改变背景颜色
-				this.selectedMember.isSelected = false;
-				this.selectedMember = member;
-				this.selectedMember.isSelected = true;
-			},
-
-			/**
-			 * @method
-			 * @desc 获取实验室成员签到签退，发布博客，发布资料时间线
-			 **/
-			async getActivity(){
-				// 获取签到签退时间线
-				await axios.get('http://localhost:8080/sign-in/select-time-line')
-				.then(async response => {
-					let data = response.data.data;
-					// 接口数据映射
-					for (let i = 0; i<data.length; i++){
-						await  this.getName(data[i].umId).then(res =>{
-							let title = data[i].simType === 0 ? ' 签到' : ' 签退';
-							this.signRecords.push({
-								ID: i,
-								userId: data[i].umId,
-								selectedId: this.selectedMember.userId,
-								time: data[i].simDateExact,
-								title: res +' '+ title,
-								text: res + '在 ' + data[i].simDateExact + title
-							})
-						});
-					}
-				}).catch(error => {
-					console.log(error);
-				});
-				// 获取博客发布时间线
-				await axios.get('http://localhost:8080/blog/select-blog-line')
-				.then(async response => {
-					let data = response.data.data;
-					// 接口数据映射
-					for (let i = 0; i<data.length; i++){
-						await  this.getName(data[i].umId).then(res =>{
-							let title = ' 发布了博客';
-							this.blogRecords.push({
-								ID: i,
-								userId: data[i].umId,
-								selectedId: this.selectedMember.userId,
-								time: data[i].bdDate,
-								title: res +' '+ title,
-								text: res + '在 ' + data[i].bdDate + title
-							})
-						});
-					}
-				}).catch(error => {
-					console.log(error);
-				});
-				// 获取资料分享时间线
-				await axios.get('http://localhost:8080/assets/select-assets-line')
-				.then(async response => {
-					let data = response.data.data;
-					// 接口数据映射
-					for (let i = 0; i<data.length; i++){
-						await  this.getName(data[i].umId).then(res =>{
-							let title = ' 分享了资料';
-							this.assetRecords.push({
-								ID: i,
-								userId: data[i].umId,
-								selectedId: this.selectedMember.userId,
-								time: data[i].acDate,
-								title: res +' '+ title,
-								text: res + '在 ' + data[i].acDate + title
-							})
-						});
-					}
-				}).catch(error => {
-					console.log(error);
-				});
-			},
-			/**
-			 * @method
-			 * @param {number} id
-			 * @return {Promise} data
-			 * @desc 根据id查询用户姓名，返回的是一个promise对象
-			 **/
-			async getName(id){
-				console.log("getName，查询id" + id);
-				let data;
-				await axios.get('http://localhost:8080/user/get-name-by-Id',{
-					params:{userId: id}
-				}).then((response) => {
-					data = response.data.data;
-					// console.log(response.data.data);
-				}).catch((error) => {
-					console.log(error);
-				});
-				return data;
-			},
-
-			/**
-			 * @method
-			 * @param {number} id
-			 * @desc 根据id获取指定用户的签到日历，返回已签到日期的promise对象
-			 */
-			getCalendar(id){
-				let ID = parseInt(id);
-				let year = new Date().getFullYear();
-				let month = new Date().getMonth() + 1;
-				console.log(typeof month)
-
-				axios.get('http://localhost:8080/sign-in/select-assign-user-calendar',{
-					params: {
-						userId: ID,
-						year: year,
-						month: month
-					}
-				}).then((response) => {
-					this.calendarData = response.data.data;
-					console.log(response.data.data);
-				}).catch((error) => {
-					console.log(error);
-				});
-			},
-
-			/**
-			 * TODO 将测试数据全部换成后台数据
-			 * @method
-			 * @param {number} id
-			 * @desc 根据id获取指定用户的博客
-			 */
-			getBlog(id){
-				axios.get('http://localhost:8080/blog/select-assign-user-blog',{
-					params:{
-						category: this.tabOptions[3].id,
-						userId: this.selectedMember.userId
-					}
-				}).then(res => {
-					res.map(item => {
-						this.dataList.push({
-							id: item.bdId,
-							title: item.bdTitle,
-							name: item.assetsName,
-							date: item.bdDate,
-							text: item.bdContent,
-							address: item.bdLink,
-							groupId: 1,
-						})
+						this.selectedMember = this.membersData[0];
 					})
-				})
-				return this.dataList;
-			},
+				},
 
-			// TODO asset 查看某个用户的资料
-			getAsset(id){},
+				/**
+				 * @method
+				 * @param {member} member 每一个memberData数组里的元素都是一个member对象。
+				 * @desc changeMember 点击成员触发的事件。包含颜色变化，被选中成员变化。
+				 */
+				changeMember(member){
+					// 改变背景颜色
+					this.selectedMember.isSelected = false;
+					// 将被点中的成员赋值给selectedMember
+					this.selectedMember = member;
+					this.selectedMember.isSelected = true;
+				},
+			/* /end--团队成员相关方法 */
 
-			// TODO charts 查看某个用户的签到统计
-			/**
-			 *@method
-			 * @return {Promise} result
-			 * @desc 获取本周学习时长趋势图
-			 */
-			async getDurationTends(id){
-				let result;
-				await axios.get('http://localhost:8080/sign-in/select-learn-time-somebody',{
-					params: {
-						userId: id
-					}
-				}).then(res => {
-					result = res;
-					this.uDurationTends.series = [{
-						data : res.data.data
-					}]
-				})
-				return result;
-			},
-			/**
-			 * @method
-			 * @desc 获取资料数据
-			 */
-			async getAssets(id){
-				axios.get('http://localhost:8080/assets/select-everyday-everyone-assets')
-						.then((response) => {
-							console.log(response.data);
-							this.uPublishTends.series.push({
-								name: '资料 - ' + new Date().getFullYear(),
-								data: response.data.data,
-							})
-						}).catch((error) => {
-					console.log(error);
-				});
-			},
-			/**
-			 * @method
-			 * @desc 获取博客数据
-			 */
-			getBlogs(id){
-				axios.get('http://localhost:8080/blog/select-everyday-someone-blog',{
-					params: {
-						userId: id
-					}
-				}).then((response) => {
-					console.log(response.data);
-					this.uPublishTends.series.push({
-						name: '博客 - ' + new Date().getFullYear(),
-						data: response.data.data,
+			/* start--时间线相关方法 */
+				/**
+				 * @method
+				 * @desc 获取实验室成员签到签退，发布博客，发布资料时间线
+				 **/
+				async getActivity(){
+					// 获取签到签退时间线
+					await axios.get('http://localhost:8081/sign-in/select-time-line')
+					.then(async response => {
+						let data = response.data.data;
+						// 接口数据映射
+						for (let i = 0; i<data.length; i++){
+							// 首先获取姓名
+							await  this.getName(data[i].umId).then(res =>{
+								let title = data[i].simType === 0 ? ' 签到' : ' 签退';
+								this.signRecords.push({
+									ID: i,
+									userId: data[i].umId,
+									selectedId: this.selectedMember.userId,
+									time: data[i].simDateExact,
+									title: res +' '+ title,
+									text: res + '在 ' + data[i].simDateExact + title
+								})
+							});
+						}
+					}).catch(error => {
+						console.log(error);
+					});
+					// 获取博客发布时间线
+					await axios.get('http://localhost:8081/blog/select-blog-line')
+					.then(async response => {
+						let data = response.data.data;
+						// 接口数据映射
+						for (let i = 0; i<data.length; i++){
+							await  this.getName(data[i].umId).then(res =>{
+								let title = ' 发布了博客';
+								this.blogRecords.push({
+									ID: i,
+									userId: data[i].umId,
+									selectedId: this.selectedMember.userId,
+									time: data[i].bdDate,
+									title: res +' '+ title,
+									text: res + '在 ' + data[i].bdDate + title
+								})
+							});
+						}
+					}).catch(error => {
+						console.log(error);
+					});
+					// 获取资料分享时间线
+					await axios.get('http://localhost:8081/assets/select-assets-line')
+					.then(async response => {
+						let data = response.data.data;
+						// 接口数据映射
+						for (let i = 0; i<data.length; i++){
+							await  this.getName(data[i].umId).then(res =>{
+								let title = ' 分享了资料';
+								this.assetRecords.push({
+									ID: i,
+									userId: data[i].umId,
+									selectedId: this.selectedMember.userId,
+									time: data[i].acDate,
+									title: res +' '+ title,
+									text: res + '在 ' + data[i].acDate + title
+								})
+							});
+						}
+					}).catch(error => {
+						console.log(error);
+					});
+				},
+				/**
+				 * @method
+				 * @param {number} id
+				 * @return {Promise} data 姓名
+				 * @desc 根据id查询用户姓名，返回的是一个promise对象
+				 **/
+				async getName(id){
+					console.log("getName，查询id" + id);
+					let data;
+					await axios.get('http://localhost:8081/user/get-name-by-Id',{
+						params:{userId: id}
+					}).then((response) => {
+						data = response.data.data;
+						// console.log(response.data.data);
+					}).catch((error) => {
+						console.log(error);
+					});
+					return data;
+				},
+			/* /end--时间线相关方法 */
+
+			/* start--签到日历相关方法 */
+				/**
+				 * @method
+				 * @param {number} id
+				 * @desc 根据id获取指定用户的签到日历，返回已签到日期的promise对象
+				 */
+				async getCalendar(id , mon){
+					let ID = parseInt(id);
+					let year = new Date().getFullYear();
+					let month = mon || this.selectedMonth;
+					let result;
+
+					await axios.get('http://localhost:8081/sign-in/select-assign-user-calendar',{
+						params: {
+							userId: ID,
+							year: year,
+							month: month
+						}
+					}).then((response) => {
+						result = response;
+						this.calendarData = response.data.data;
+					}).catch((error) => {console.log(error);});
+					return result;
+				},
+			/* /end--签到日历相关方法 */
+
+			/* start--博客资料模块相关方法 */
+				/**
+				 * @method
+				 * @param {number} id 用户id
+				 * @return {Promise} result 博客对象数组
+				 * @desc 根据id获取指定用户的博客
+				 */
+				async getBlog(id){
+					let result;
+					await axios.get('http://localhost:8081/blog/select-assign-user-blog',{
+						params:{
+							category: 0,
+							userId: id
+						}
+					}).then(res => {
+						result = res.data.data;
 					})
-				}).catch((error) => {
-					console.log(error);
-				});
-			},
-			/**
-			 *@method
-			 * @desc 获取本周不同资料占比
-			 */
-			async getPublishPie(id){
-				let result;
-				await axios.get('http://localhost:8080/assets/select-somebody-assets-names',{
-					params: {
-						userId: id
-					}
-				}).then(async res => {
-					result = res;
-					if (res.data.data.name.length === 0){
-						this.uPublishPie.chartOptions = {
-							labels: ['啥也没有发~'],
-							colors: ['#f77e53'],
-							legend: {
-								show: false,
-								position: 'bottom',
-								horizontalAlign: 'center',
-								verticalAlign: 'middle',
-								floating: false,
-								fontSize: '14px',
-								offsetX: 0,
-								offsetY: -10,
-							},
-							dataLabels: {
-								enabled: false,
-							},
-							responsive: [
-								{
-									breakpoint: 600,
-									options: {
-										chart: {
-											height: 240,
-										},
-										legend: {
-											show: false,
+					return result;
+				},
+
+				/**
+				 * @method
+				 * @desc 獲取博客所有分類
+				 */
+				getBlogsSorts(){
+					axios.get('http://localhost:8081/blog/get-all-category')
+							.then(res => {
+								let arr = res.data.data;
+								arr.map(item => {
+									this.blogsSorts.push({
+										id: item.blogCId,
+										tab: item.blogCName
+									})
+								})
+							}).catch(error => error);
+				},
+
+				/**
+				 * @method
+				 * @param {number} cId 分類id
+				 * @desc 博客分類點擊事件
+				 */
+				blogSortsSelect(cId){
+					axios.get('http://localhost:8081/blog/select-assign-user-blog',{
+						params:{
+							category: cId,
+							userId: this.selectedMember.userId
+						}
+					}).then(res => {
+						let result = res.data.data;
+						if (this.blogsList !== null){
+							this.blogsList = [];
+						}
+						// start--映射结果 //
+						result.map(item => {
+							this.blogsList.push({
+								id: item.bdId,
+								title: item.bdTitle,
+								name: item.assetsName,
+								date: item.bdDate,
+								text: item.bdContent,
+								address: item.bdLink,
+								groupId: 1,
+							})
+						});
+						// end--映射结果 //
+					}).catch(error => error);
+				},
+
+				/**
+				 * @method
+				 * @param {number} id 用户id
+				 * @return {Promise} result 资料对象数组
+				 * @desc 根据id获取指定用户的資料
+				 */
+				async getAsset(id){
+					let result;
+					await axios.get('http://localhost:8081/assets/select-assign-assets',{
+						params:{
+							category: 0,
+							userId: id
+						}
+					}).then(res => {
+						result = res.data.data;
+					})
+					return result;
+				},
+
+				/**
+				 * @method
+				 * @desc 獲取資料所有分類
+				 */
+				getAssetsSorts(){
+					axios.get('http://localhost:8081/assets/get-all-category')
+							.then(res => {
+								let arr = res.data.data;
+								arr.map(item => {
+									this.assetsSorts.push({
+										id: item.assetsId,
+										tab: item.assetsName
+									})
+								})
+							}).catch(error => error);
+				},
+				/**
+				 * @method
+				 * @param {number} aId 分類id
+				 * @desc 資料分類點擊事件
+				 */
+				assetsSortsSelect(aId){
+					axios.get('http://localhost:8081/assets/select-assign-assets',{
+						params:{
+							category: aId,
+							userId: this.selectedMember.userId
+						}
+					}).then(res => {
+						let result = res.data.data;
+						if (this.assetsList !== null){
+							this.assetsList = [];
+						}
+						result.map(item => {
+							this.assetsList.push({
+								id: item.acId,
+								title: item.acTitle,
+								name: item.assetsName,
+								date: item.acDate,
+								text: item.acContent,
+								address: item.acLink,
+								groupId: 1,
+							})
+						});
+					})
+				},
+			/* /end--博客资料模块相关方法 */
+
+			/* start--他的签到统计相关方法 */
+				/**
+				 * @method
+				 * @return {Promise} result
+				 * @desc 获取本周学习时长趋势图
+				 */
+				async getDurationTends(id){
+					let result;
+					await axios.get('http://localhost:8081/sign-in/select-learn-time-somebody',{
+						params: {
+							userId: id
+						}
+					}).then(res => {
+						result = res;
+						this.uDurationTends.series = [{
+							data : res.data.data
+						}]
+					})
+					return result;
+				},
+				/**
+				 * @method
+				 * @return {Promise} assetsNum 资料数量
+				 * @desc 获取资料数据
+				 */
+				async getAssetsData(id){
+					let assetsNum;
+					await axios.get('http://localhost:8081/assets/select-everyday-someone-assets',{
+						params: {
+							userId: id
+						}
+					}).then((response) => {
+						console.log(response.data);
+						this.uPublishTends.series[0] = {
+							name: '资料 - ' + new Date().getFullYear(),
+							data: response.data.data,
+						};
+						assetsNum = response.data.data;
+					}).catch((error) => {
+						console.log(error);
+					});
+					return assetsNum;
+				},
+				/**
+				 * @method
+				 * @return {Promise} blogNum 博客数量
+				 * @desc 获取博客数据
+				 */
+				async getBlogsData(id){
+					let blogNum;
+					await axios.get('http://localhost:8081/blog/select-everyday-someone-blog',{
+						params: {
+							userId: id
+						}
+					}).then((response) => {
+						blogNum = response.data.data;
+					}).catch((error) => {
+						console.log(error);
+					});
+					return blogNum;
+				},
+				/**
+				 * @method
+				 * @param {number} id
+				 * @return {Promise} result 调用资料名接口返回值
+				 * @desc 获取指定用户本周不同资料占比
+				 */
+				async getPublishPie(id){
+					let result;
+					await axios.get('http://localhost:8081/assets/select-somebody-assets-names',{
+						params: {
+							userId: id
+						}
+					}).then(async res => {
+						result = res;
+						if (res.data.data.name.length === 0){
+							this.uPublishPie.chartOptions = {
+								labels: ['啥也没有发~'],
+								colors: ['#A9A9A9'],
+								legend: {
+									show: false,
+									position: 'bottom',
+									horizontalAlign: 'center',
+									verticalAlign: 'middle',
+									floating: false,
+									fontSize: '14px',
+									offsetX: 0,
+									offsetY: -10,
+								},
+								dataLabels: {
+									enabled: false,
+								},
+								responsive: [
+									{
+										breakpoint: 600,
+										options: {
+											chart: {
+												height: 240,
+											},
+											legend: {
+												show: false,
+											},
 										},
 									},
+								],
+							}
+							this.uPublishPie.series = [100];
+						}else{
+							this.uPublishPie.chartOptions = {
+								labels: res.data.data.name,
+								colors: ['#5369f8', '#43d39e', '#f77e53', '#1ce1ac', '#25c2e3'],
+								legend: {
+									show: false,
+									position: 'bottom',
+									horizontalAlign: 'center',
+									verticalAlign: 'middle',
+									floating: false,
+									fontSize: '14px',
+									offsetX: 0,
+									offsetY: -10,
 								},
-							],
-						}
-						this.uPublishPie.series = [100];
-					}else{
-						this.uPublishPie.chartOptions = {
-							labels: res.data.data.name,
-							colors: ['#5369f8', '#43d39e', '#f77e53', '#1ce1ac', '#25c2e3'],
-							legend: {
-								show: false,
-								position: 'bottom',
-								horizontalAlign: 'center',
-								verticalAlign: 'middle',
-								floating: false,
-								fontSize: '14px',
-								offsetX: 0,
-								offsetY: -10,
-							},
-							dataLabels: {
-								enabled: false,
-							},
-							responsive: [
-								{
-									breakpoint: 600,
-									options: {
-										chart: {
-											height: 240,
-										},
-										legend: {
-											show: false,
+								dataLabels: {
+									enabled: false,
+								},
+								responsive: [
+									{
+										breakpoint: 600,
+										options: {
+											chart: {
+												height: 240,
+											},
+											legend: {
+												show: false,
+											},
 										},
 									},
-								},
-							],
+								],
+							}
+							await axios.get('http://localhost:8081/assets/select-somebody-assets-counts',{
+								params: id
+							}).then(res => {
+								this.uPublishPie.series = res.data.data.count;
+							})
 						}
-						await axios.get('http://localhost:8080/assets/select-somebody-assets-counts',{
-							params: id
-						}).then(res => {
-							this.uPublishPie.series = res.data.data.count;
-						})
-					}
 
-				})
-				return result;
-			},
-			/**
-			 * @method
-			 * @desc 获取某人本周缺勤人数与打卡天数占比图
-			 */
-			getAttendance(id){
-				axios.get('http://localhost:8080/sign-in/select-compared-self',{
-					params:{
-						userId: id
-					}
-				}).then(res => {
-					this.uAttendancePie.series = res.data.data;
-					console.log(res.data.data);
-				})
-			},
-
-			getCharts(id){
-				this.getDurationTends(id);
-				this.getAssets(id);
-				this.getBlogs(id);
-				this.getPublishPie(id);
-				this.getAttendance(id);
-			},
+					})
+					return result;
+				},
+				/**
+				 * @method
+				 * @param {number} id
+				 * @return {Promise} result 调用缺勤打卡天数接口返回值
+				 * @desc 获取某人本周缺勤人数与打卡天数占比图
+				 */
+				async getAttendance(id){
+					let result;
+					await axios.get('http://localhost:8081/sign-in/select-compared-person',{
+						params:{
+							userId: id
+						}
+					}).then(res => {
+						result = res;
+						this.uAttendancePie.series = res.data.data;
+						console.log(res.data.data);
+					}).catch(error => {console.log(error);})
+					return result;
+				},
+			/* /end--他的签到统计相关方法 */
 		},
 	}
 </script>
@@ -833,7 +994,6 @@
 							</b-tab>
 							<b-tab
 									title="签到日历"
-									@click="getCalendar(selectedMember.userId)"
 							>
 								<el-scrollbar style="width: 100%;height: 600px;">
 									<el-calendar v-model="value">
@@ -842,11 +1002,14 @@
 												slot-scope="{date, data}"
 										>
 											<div class="item" v-for="item in calendarData">
-												<div class="is-selected" v-if="item.indexOf(data.day.split('-').slice(2)) !== -1">
+												<div
+														class="is-selected"
+														v-if="item.indexOf(data.day.split('-').slice(2)) !== -1
+														&& parseInt(data.day.split('-')[1]) === parseInt(selectedMonth) "
+												>
 													✔️
 												</div>
 											</div>
-											{{parseInt(data.day.split('-')[1])}}
 											<p :class="data.isSelected ? 'is-selected' : ''">
 												{{ data.day.split('-').slice(1).join('-') }}
 											</p>
@@ -856,7 +1019,6 @@
 							</b-tab>
 							<b-tab
 									title="他的博客"
-									@click="getBlog(selectedMember.userId)"
 							>
 								<div style="display: flex; justify-content: space-between; margin:0;">
 
@@ -868,7 +1030,7 @@
 											<div class="tasks border" style="width: 100%;margin-bottom: 0">
 												<div id="task-list-two" class="task-list-items">
 												<transition-group type="transition" :name="'flip-list'">
-													<div v-for="(data,index) in dataList" :key="data.id"
+													<div v-for="(data,index) in blogsList" :key="data.id"
 														@click="noticeDetail(index)">
 													<div class="card border mb-0">
 														<div class="card-body p-3">
@@ -892,10 +1054,6 @@
 															{{ data.date }}
 															</small>
 
-															<span class="text-nowrap align-middle font-size-13 mr-2 float-right">
-																							<i class="uil uil-eye text-muted mr-1"></i>
-																							{{ data.hits }}
-																						</span>
 															<!--<span class="text-nowrap align-middle font-size-13 mr-2 float-right">-->
 															<!--<i class="uil uil-trash-alt text-muted mr-1"></i>-->
 															<!--</span>-->
@@ -913,8 +1071,8 @@
 									</el-scrollbar>
 
 									<el-scrollbar class="card" style="width: 20%;height: 450px;">
-										<el-menu v-for="item in tabOptions" :key="item.id" :default-active="tabOptions[0].id">
-										<el-menu-item @click="menuSelect(item.id)">
+										<el-menu v-for="item in blogsSorts" :key="item.id" :default-active="blogsSorts[0].id">
+										<el-menu-item @click="blogSortsSelect(item.id)">
 											<span slot="title">{{item.tab}}</span>
 										</el-menu-item>
 										</el-menu>
@@ -924,7 +1082,6 @@
 							</b-tab>
 							<b-tab
 									title="他的资料"
-									@click="getAsset(selectedMember.userId)"
 							>
 								<div style="display: flex; justify-content: space-between; margin:0;">
 
@@ -936,7 +1093,7 @@
 											<div class="tasks border" style="width: 100%;margin-bottom: 0">
 												<div id="task-list-two" class="task-list-items">
 												<transition-group type="transition" :name="'flip-list'">
-													<div v-for="(data,index) in dataList" :key="data.id"
+													<div v-for="(data,index) in assetsList" :key="data.id"
 														@click="noticeDetail(index)">
 													<div class="card border mb-0">
 														<div class="card-body p-3">
@@ -959,11 +1116,6 @@
 															<small class=" text-muted">
 															{{ data.date }}
 															</small>
-
-															<span class="text-nowrap align-middle font-size-13 mr-2 float-right">
-																							<i class="uil uil-eye text-muted mr-1"></i>
-																							{{ data.hits }}
-																						</span>
 															<!--<span class="text-nowrap align-middle font-size-13 mr-2 float-right">-->
 															<!--<i class="uil uil-trash-alt text-muted mr-1"></i>-->
 															<!--</span>-->
@@ -981,8 +1133,8 @@
 									</el-scrollbar>
 
 									<el-scrollbar class="card" style="width: 20%;height: 450px;">
-										<el-menu v-for="item in tabOptions" :key="item.id" :default-active="tabOptions[0].id">
-										<el-menu-item @click="menuSelect(item.id)">
+										<el-menu v-for="item in assetsSorts" :key="item.id" :default-active="assetsSorts[0].id">
+										<el-menu-item @click="assetsSortsSelect(item.id)">
 											<span slot="title">{{item.tab}}</span>
 										</el-menu-item>
 										</el-menu>
@@ -992,7 +1144,6 @@
 							</b-tab>
 							<b-tab
 									title="他的签到统计"
-									@click="getCharts(selectedMember.userId)"
 							>
 								<el-scrollbar style="width: 100%;height: 600px;">
 									<!-- 第一行图表 -->

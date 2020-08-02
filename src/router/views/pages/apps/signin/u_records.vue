@@ -3,13 +3,6 @@
   import PageHeader from '@components/page-header'
   import axios from '../../../../../utils/http'
 
-  // 引入图表插件
-  import {
-    uPublishTends,
-    uDurationTends,
-    uPublishPie,
-    uAttendancePie
-  }from './records'
   /**
    * Starter component
    */
@@ -24,7 +17,10 @@
               chartOptions: {
                   chart: {
                       type: 'line',
-                      height: 350
+                      height: 350,
+                      toolbar: {
+                          show: false,
+                      },
                   },
                   stroke: {
                       curve: 'stepline',
@@ -254,7 +250,7 @@
                   if (res.data.data.name.length === 0){
                       this.uPublishPie.chartOptions = {
                           labels: ['啥也没有发~'],
-                          colors: ['#f77e53'],
+                          colors: ['#A9A9A9'],
                           legend: {
                               show: false,
                               position: 'bottom',

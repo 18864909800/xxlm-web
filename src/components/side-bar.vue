@@ -121,6 +121,17 @@
             })
 
         },
+        methods: {
+            logout(){
+                axios.get('http://localhost:8081/user/delete-session')
+                .then(res => {
+                    if (res.data.data){
+                        console.log(res.data.data);
+                        window.location.href = '/logout';
+                    }
+                })
+            }
+        },
 
 
     }
@@ -168,7 +179,7 @@
 
                 <b-dropdown-divider></b-dropdown-divider>
 
-                <b-dropdown-item href="/logout" class="notify-item">
+                <b-dropdown-item @click="logout" class="notify-item">
                     <feather
                             type="log-out"
                             class="icon-dual icon-xs mr-2 align-middle"

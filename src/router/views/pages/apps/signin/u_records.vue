@@ -254,7 +254,7 @@
                   if (res.data.data.name.length === 0){
                       this.uPublishPie.chartOptions = {
                           labels: ['啥也没有发~'],
-                          colors: ['#f77e53'],
+                          colors: ['#A9A9A9'],
                           legend: {
                               show: false,
                               position: 'bottom',

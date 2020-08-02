@@ -350,7 +350,7 @@
 								},
 							],
 						}
-						await axios.get('http://localhost:8081/assets/select-somebody-assets-counts',{
+						await axios.get('http://localhost:8080/assets/select-somebody-assets-counts',{
 							params: newVal.userId
 						}).then(res => {
 							this.uPublishPie.series = res.data.data.count;
@@ -403,7 +403,7 @@
 			 * @desc 获取团队成员，加载到memberData里
 			 **/
  			getMembers(){
-				axios.get('http://localhost:8081/user/select-all-normal-users').
+				axios.get('http://localhost:8080/user/select-all-normal-users').
 				then((response) =>{
 					let data = response.data.data;
 					let arr = Object.values(data);
@@ -442,7 +442,7 @@
 			 **/
 			async getActivity(){
 				// 获取签到签退时间线
-				await axios.get('http://localhost:8081/sign-in/select-time-line')
+				await axios.get('http://localhost:8080/sign-in/select-time-line')
 				.then(async response => {
 					let data = response.data.data;
 					// 接口数据映射
@@ -463,7 +463,7 @@
 					console.log(error);
 				});
 				// 获取博客发布时间线
-				await axios.get('http://localhost:8081/blog/select-blog-line')
+				await axios.get('http://localhost:8080/blog/select-blog-line')
 				.then(async response => {
 					let data = response.data.data;
 					// 接口数据映射
@@ -484,7 +484,7 @@
 					console.log(error);
 				});
 				// 获取资料分享时间线
-				await axios.get('http://localhost:8081/assets/select-assets-line')
+				await axios.get('http://localhost:8080/assets/select-assets-line')
 				.then(async response => {
 					let data = response.data.data;
 					// 接口数据映射
@@ -514,7 +514,7 @@
 			async getName(id){
 				console.log("getName，查询id" + id);
 				let data;
-				await axios.get('http://localhost:8081/user/get-name-by-Id',{
+				await axios.get('http://localhost:8080/user/get-name-by-Id',{
 					params:{userId: id}
 				}).then((response) => {
 					data = response.data.data;
@@ -536,7 +536,7 @@
 				let month = new Date().getMonth() + 1;
 				console.log(typeof month)
 
-				axios.get('http://localhost:8081/sign-in/select-assign-user-calendar',{
+				axios.get('http://localhost:8080/sign-in/select-assign-user-calendar',{
 					params: {
 						userId: ID,
 						year: year,
@@ -557,7 +557,7 @@
 			 * @desc 根据id获取指定用户的博客
 			 */
 			getBlog(id){
-				axios.get('http://localhost:8081/blog/select-assign-user-blog',{
+				axios.get('http://localhost:8080/blog/select-assign-user-blog',{
 					params:{
 						category: this.tabOptions[3].id,
 						userId: this.selectedMember.userId
@@ -589,7 +589,7 @@
 			 */
 			async getDurationTends(id){
 				let result;
-				await axios.get('http://localhost:8081/sign-in/select-learn-time-somebody',{
+				await axios.get('http://localhost:8080/sign-in/select-learn-time-somebody',{
 					params: {
 						userId: id
 					}
@@ -606,7 +606,7 @@
 			 * @desc 获取资料数据
 			 */
 			async getAssets(id){
-				axios.get('http://localhost:8081/assets/select-everyday-everyone-assets')
+				axios.get('http://localhost:8080/assets/select-everyday-everyone-assets')
 						.then((response) => {
 							console.log(response.data);
 							this.uPublishTends.series.push({
@@ -622,7 +622,7 @@
 			 * @desc 获取博客数据
 			 */
 			getBlogs(id){
-				axios.get('http://localhost:8081/blog/select-everyday-someone-blog',{
+				axios.get('http://localhost:8080/blog/select-everyday-someone-blog',{
 					params: {
 						userId: id
 					}
@@ -642,7 +642,7 @@
 			 */
 			async getPublishPie(id){
 				let result;
-				await axios.get('http://localhost:8081/assets/select-somebody-assets-names',{
+				await axios.get('http://localhost:8080/assets/select-somebody-assets-names',{
 					params: {
 						userId: id
 					}
@@ -711,7 +711,7 @@
 								},
 							],
 						}
-						await axios.get('http://localhost:8081/assets/select-somebody-assets-counts',{
+						await axios.get('http://localhost:8080/assets/select-somebody-assets-counts',{
 							params: id
 						}).then(res => {
 							this.uPublishPie.series = res.data.data.count;
@@ -726,7 +726,7 @@
 			 * @desc 获取某人本周缺勤人数与打卡天数占比图
 			 */
 			getAttendance(id){
-				axios.get('http://localhost:8081/sign-in/select-compared-self',{
+				axios.get('http://localhost:8080/sign-in/select-compared-self',{
 					params:{
 						userId: id
 					}

@@ -167,7 +167,7 @@
                 this.publishModel = false;
 
                 axios({
-                    url: 'http://localhost:8081/notice/push-notice',
+                    url: 'http://localhost:8080/notice/push-notice',
                     method: "POST",
                     data: qs.encode({
                         noticeTitle: this.title,

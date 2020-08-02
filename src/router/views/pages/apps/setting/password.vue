@@ -329,7 +329,7 @@
 				// 发送 POST 请求
 				axios({
 					method: 'post',
-					url: 'http://localhost:8081/user/change-normal-user-password/',
+					url: 'http://localhost:8080/user/change-normal-user-password/',
 					data: querystring.stringify({
 						"oldPassword": old,
 						"newPassword": newP

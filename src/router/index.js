@@ -86,6 +86,7 @@ router.beforeResolve(async (routeTo, routeFrom, next) => {
             if (args.length) {
               // If redirecting to the same route we're coming from...
               if (routeFrom.name === args[0].name) {
+
                 // Complete the animation of the route progress bar.
                 NProgress.done()
               }

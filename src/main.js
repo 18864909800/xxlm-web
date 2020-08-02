@@ -43,15 +43,32 @@ Vue.component('apexchart', VueApexCharts)
 // Vue.prototype.$http.defaults.baseURL  = 'http://mock-api.coderthemes.com/'
 
 const app = new Vue({
-  router,
-  store,
-  render: (h) => h(App),
+    router,
+    store,
+    render: (h) => h(App),
+    created() {
+        console.log(this.$route);
+        console.log(this.$router);
+        let routes = [
+            {
+                path: '/apps/myTeam/myTeam',
+                name: '我的团队',
+                icon: 'package',
+                component: () => lazyLoadView(import('@views/pages/apps/myTeam/myTeam')),
+                meta: {authRequired: true},
+                props: (route) => ({user: store.state.auth.currentUser || {}}),
+            }
+        ]
+
+        this.$router.options.routes = routes;
+        this.$router.addRoutes(routes);
+    }
 }).$mount('#app')
 
 // If running e2e tests...
 if (process.env.VUE_APP_TEST === 'e2e') {
-  // Attach the app to the window, which can be useful
-  // for manually setting state in Cypress commands
-  // such as `cy.logIn()`.
-  window.__app__ = app
+    // Attach the app to the window, which can be useful
+    // for manually setting state in Cypress commands
+    // such as `cy.logIn()`.
+    window.__app__ = app
 }

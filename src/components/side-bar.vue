@@ -6,6 +6,7 @@
     import {settingRoutes} from '../router/routes'
     import axios from '../utils/http.js'
 
+
     /**
      * Left sidebar component - contains mainly the application menu
      */
@@ -44,7 +45,7 @@
                 // 用户姓名
                 userName:null,
                 // 用户头像
-                umHeadUrl:null
+                umHeadUrl:null,
             }
         },
         computed: {
@@ -95,18 +96,14 @@
                 }
             },
         },
-        // beforeMount () {
-        //     Vue.prototype.$cookieStore = {
-        //         setCookie,
-        //         getCookie,
-        //         delCookie
-        //     }
-        // },
         created() {
+
             // console.log("222")
             // console.log(this.user.data.identify)
             if (this.user.data.identify === '1') {
                 this.userIdentity = '管理员'
+
+                this.$store.commit('slideBar/CHANGE_FLAG', true);
             } else {
                 this.userIdentity = '普通用户'
             }
@@ -115,7 +112,7 @@
 
             // this.$cookieStore.getCookie(JSESSIONID)
             //  侧边栏获取信息
-            axios.get('http://localhost:8081/user/select-admin-message').then(res=>{
+            axios.get('http://localhost:8080/user/select-admin-message').then(res=>{
                 // console.log("侧边栏数据接口")
                 // console.log(this.user.data.sessionId)
                 // console.log(res)
@@ -189,7 +186,7 @@
                     :settings="settings"
             >
                 <div id="sidebar-menu">
-                    <Appmenu/>
+                    <Appmenu />
                 </div>
             </VuePerfectScrollbar>
             <div v-else id="sidebar-menu">

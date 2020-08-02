@@ -147,7 +147,7 @@
         methods: {
             // 获取资料所有分类
             getAssertCategory() {
-                axios.get("http://localhost:8081/assets/get-all-category").then(res => {
+                axios.get("http://localhost:8080/assets/get-all-category").then(res => {
                     if(res.data.responseCode == '200') {
                         if(res.data.data != null) {
 
@@ -214,7 +214,7 @@
                 console.log(this.text);
 
                 axios({
-                    url: 'http://localhost:8081/assets/upload-assets',
+                    url: 'http://localhost:8080/assets/upload-assets',
                     method: "POST",
                     data: qs.encode({
                         assetsId: this.type,

@@ -39,15 +39,15 @@
                 return url;
             },
             search() {
-                if(this.getUrl() === '/data/data-index'){
-                    axios.get("https://api.lightingsui.com/assets/search-assets-by-filed?searchFiled=" + this.filed).then(res => {
-                        if (res.data.responseCode === '200') {
-                            if (res.data.data != null) {
-
-                            }
-                        }
-                    })
-                }
+                // if(this.getUrl() === '/data/data-index'){
+                //     axios.get("https://api.lightingsui.com/assets/search-assets-by-filed?searchFiled=" + this.filed).then(res => {
+                //         if (res.data.responseCode === '200') {
+                //             if (res.data.data != null) {
+                //
+                //             }
+                //         }
+                //     })
+                // }
 
             }
         },

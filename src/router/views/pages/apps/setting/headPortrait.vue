@@ -201,6 +201,10 @@
 						// 更新成功提示
 						that.success();
 						that.dialogImageUrl = '';
+						// 修改完头像一秒后自动刷新
+						setTimeout(function () {
+							window.location.reload(true);
+						},1000);
 					}else{
 						console.log("失败")
 					}

@@ -36,7 +36,7 @@
     "@fullcalendar/vue": "^4.3.1",
     "animate.css": "^3.7.2",
     "apexcharts": "^3.8.5",
-    "axios": "0.18.0",
+    "axios": "0.18.1",
     "bootstrap": "^4.3.1",
     "bootstrap-vue": "^2.0.3",
     "element-ui": "^2.13.2",

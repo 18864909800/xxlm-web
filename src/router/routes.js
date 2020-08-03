@@ -90,7 +90,7 @@ const noticeAppsRoutes = [
     {
         path: '/notice',
         name: '公告',
-        icon: 'calendar',
+        icon: 'clipboard',
         manager: 2,
         meta: {authRequired: true},
         component: {
@@ -123,7 +123,7 @@ const dataAppsRoutes = [
     {
         path: '/data',
         name: '资料 ',
-        icon: 'inbox',
+        icon: 'book',
         manager: 2,
         meta: {authRequired: true},
         component: {
@@ -163,7 +163,7 @@ const blogAppsRoutes = [
     {
         path: '/blog',
         name: '博客 ',
-        icon: 'inbox',
+        icon: 'bold',
         manager: 2,
         meta: {authRequired: true},
         component: {
@@ -203,7 +203,7 @@ const aSigninAppsRoutes = [
     {
         path: '/apps/aRecords',
         name: '团队签到统计',
-        icon: 'file-text',
+        icon: 'activity',
         manager: 0,
         component: () => lazyLoadView(import('@views/pages/apps/signin/a_records')),
         meta: {authRequired: true},
@@ -216,7 +216,7 @@ const uSigninAppsRoutes = [
     {
         path: '/apps/uRecords',
         name: '签到统计',
-        icon: 'file-text',
+        icon: 'activity',
         manager: 1,
         component: () => lazyLoadView(import('@views/pages/apps/signin/u_records')),
         meta: {authRequired: true},
@@ -229,7 +229,7 @@ const myTeamRoutes = [
     {
         path: '/apps/myTeam/myTeam',
         name: '我的团队',
-        icon: 'package',
+        icon: 'users',
         manager: 0,
         component: () => lazyLoadView(import('@views/pages/apps/myTeam/myTeam')),
         meta: {authRequired: true},

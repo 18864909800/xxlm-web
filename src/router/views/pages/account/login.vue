@@ -47,7 +47,7 @@
                                                     <div class="input-group-prepend">
 														<span class="input-group-text">
 															<feather
-                                                                    type="mail"
+                                                                    type="user"
                                                                     class="align-middle icon-dual"
                                                             ></feather>
 														</span>
@@ -154,8 +154,8 @@
         components: {Layout},
         data() {
             return {
-                username: 'admin',
-                password: 'admin',
+                username: null,
+                password: null,
                 authError: null,
                 tryingToLogIn: false,
                 isAuthError: false,

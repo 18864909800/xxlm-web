@@ -228,8 +228,10 @@
               axios.get('http://localhost:8081/sign-in/select-learn-time-total')
               .then(res => {
                   let result = res.data.data;
-                  let key = Object.keys(result).slice(0,10);
-                  let value = Object.values(result).slice(0,10);
+                  let key = Object.keys(result);
+                  let value = Object.values(result);
+                  let keyTop10 = key.slice(0,10);
+                  let valueTop10 = value.slice(0,10);
                   this.aDurationTop10.chartOptions = {
                       chart: {
                           toolbar: {
@@ -248,7 +250,7 @@
                       colors: ['#5369f8'],
                       xaxis: {
                           // tslint:disable-next-line: max-line-length
-                          categories: key,
+                          categories: keyTop10,
                           axisBorder: {
                               color: '#d6ddea',
                           },
@@ -270,40 +272,77 @@
                       },
                   };
                   this.aDurationTop10.series = [{
-                      data : value
+                      data : valueTop10
                   }];
-
-                  this.aDurationPie.series = value;
-                  this.aDurationPie.chartOptions = {
-                      labels: key,
-                      colors: ['#5369f8', '#43d39e', '#f77e53', '#1ce1ac', '#25c2e3'],
-                      legend: {
-                          show: false,
-                          position: 'bottom',
-                          horizontalAlign: 'center',
-                          verticalAlign: 'middle',
-                          floating: false,
-                          fontSize: '14px',
-                          offsetX: 0,
-                          offsetY: -10,
-                      },
-                      dataLabels: {
-                          enabled: false,
-                      },
-                      responsive: [
-                          {
-                              breakpoint: 600,
-                              options: {
-                                  chart: {
-                                      height: 240,
-                                  },
-                                  legend: {
-                                      show: false,
+                  let temp = value.filter(item => {
+                      return item !== 0;
+                  });
+                  if (temp.length !== 0){
+                      this.aDurationPie.series = value;
+                      this.aDurationPie.chartOptions = {
+                          labels: key,
+                          colors: ['#5369f8', '#43d39e', '#f77e53', '#1ce1ac', '#25c2e3'],
+                          legend: {
+                              show: false,
+                              position: 'bottom',
+                              horizontalAlign: 'center',
+                              verticalAlign: 'middle',
+                              floating: false,
+                              fontSize: '14px',
+                              offsetX: 0,
+                              offsetY: -10,
+                          },
+                          dataLabels: {
+                              enabled: false,
+                          },
+                          responsive: [
+                              {
+                                  breakpoint: 600,
+                                  options: {
+                                      chart: {
+                                          height: 240,
+                                      },
+                                      legend: {
+                                          show: false,
+                                      },
                                   },
                               },
+                          ],
+                      }
+                  }else {
+                      this.aDurationPie.chartOptions = {
+                          labels: ['还没有人学习过哦~'],
+                          colors: ['#A9A9A9'],
+                          legend: {
+                              show: false,
+                              position: 'bottom',
+                              horizontalAlign: 'center',
+                              verticalAlign: 'middle',
+                              floating: false,
+                              fontSize: '14px',
+                              offsetX: 0,
+                              offsetY: -10,
                           },
-                      ],
+                          dataLabels: {
+                              enabled: false,
+                          },
+                          responsive: [
+                              {
+                                  breakpoint: 600,
+                                  options: {
+                                      chart: {
+                                          height: 240,
+                                      },
+                                      legend: {
+                                          show: false,
+                                      },
+                                  },
+                              },
+                          ],
+                      }
+                      this.aDurationPie.series = [100];
                   }
+
 
                   console.log("TOP10");
                   console.log(res.data.data);
@@ -379,7 +418,7 @@
               class="apex-charts"
               height="380"
               type="line"
-              :series="aPublishTends.series"       
+              :series="aPublishTends.series"
               :options="aPublishTends.chartOptions"
             ></apexchart>
           </div>

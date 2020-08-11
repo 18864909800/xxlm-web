@@ -188,7 +188,7 @@
     },
      mounted(){
       // 周博客资料发布趋势图 数据获取
-         this.getDurationTends();
+      //    this.getDurationTends();
         this.getAssets();
         this.getBlogs();
         this.getPublishPie();

@@ -146,58 +146,7 @@
                 delId: null,
 
                 tabOptions: [],
-                dataList: [
-                    {
-                        id: 1,
-                        title: '标题1',
-                        name: '赵如冰',
-                        date: 'Jan 16, 2019',
-                        text: '描述',
-                        address: 'http://www.baidu.com',
-                        hits: 7,
-                        groupId: 1,
-                    },
-                    {
-                        id: 2,
-                        title: '标题',
-                        name: '赵如冰',
-                        date: 'Jan 16, 2019',
-                        text: '描述',
-                        address: 'http://www.baidu.com',
-                        hits: 7,
-                        groupId: 1,
-                    },
-                    {
-                        id: 3,
-                        title: '标题',
-                        name: '赵如冰',
-                        date: 'Jan 16, 2019',
-                        text: '描述',
-                        address: 'http://www.baidu.com',
-                        hits: 7,
-                        groupId: 1,
-                    },
-                    {
-                        id: 4,
-                        title: '标题',
-                        name: '赵如冰',
-                        date: 'Jan 16, 2019',
-                        text: '描述',
-                        address: 'http://www.baidu.com',
-                        hits: 7,
-                        groupId: 1,
-                    },
-                    {
-                        id: 5,
-                        title: '标题',
-                        name: '赵如冰',
-                        date: 'Jan 16, 2019',
-                        text: '描述',
-                        address: 'http://www.baidu.com',
-                        hits: 7,
-                        groupId: 1,
-                    },
-                ],
+                dataList: [],
             }
         },
         computed: {},
@@ -212,7 +161,7 @@
 
         methods: {
             addTypeLoad() {
-                axios.get('http://localhost:8081/user/select-admin-message').then(res => {
+                axios.get('http://localhost:8080/user/select-admin-message').then(res => {
                     // console.log("侧边栏数据接口")
                     // console.log(this.user.data.sessionId)
                     if (res.data.responseCode === '200') {
@@ -232,7 +181,7 @@
 
             // 查询所有分类
             getAllCategory() {
-                axios.get("http://localhost:8081/assets/get-all-category").then(res => {
+                axios.get("http://localhost:8080/assets/get-all-category").then(res => {
                     if (res.data.responseCode === '200') {
                         if (res.data.data != null) {
                             this.tabOptions = [];
@@ -257,7 +206,7 @@
             },
             // 查询所有详细信息
             getAllDetails() {
-                axios.get("http://localhost:8081/assets/select-assets-by-category-search?cId=" + this.typeId).then(res => {
+                axios.get("http://localhost:8080/assets/select-assets-by-category-search?cId=" + this.typeId).then(res => {
                     if (res.data.responseCode === '200') {
                         if (res.data.data != null) {
                             this.dataList = [];
@@ -293,7 +242,7 @@
             },
 
             confirmDelete() {
-                axios.get("http://localhost:8081/assets/delete-by-id", {
+                axios.get("http://localhost:8080/assets/delete-by-id", {
                     params: {
                         delId: this.delId
                     }

@@ -40,7 +40,7 @@
             },
             search() {
                 // if(this.getUrl() === '/data/data-index'){
-                //     axios.get("https://api.lightingsui.com/assets/search-assets-by-filed?searchFiled=" + this.filed).then(res => {
+                //     axios.get("http://localhost:8080/assets/search-assets-by-filed?searchFiled=" + this.filed).then(res => {
                 //         if (res.data.responseCode === '200') {
                 //             if (res.data.data != null) {
                 //

@@ -14,7 +14,7 @@
                             </div>
                             <div class="col text-right">
                                 <button id="btn-new-event" class="btn btn-primary" @click="noticePublish">
-                                    <i class="uil-share-alt mr-1"></i>发表
+                                    <i :class="publishIcon" class="mr-1"></i>{{ publishText }}
                                 </button>
                             </div>
                         </div>
@@ -97,7 +97,8 @@
         components: { Layout, PageHeader, VueEditor},
         data() {
             return {
-
+                publishIcon: "el-icon-paperclip",
+                publishText: "发表",
                 // 模态框显示开关
                 publishModel:false,
 
@@ -165,9 +166,10 @@
                 console.log(this.text);
 
                 this.publishModel = false;
-
+                this.publishText = "正在发表";
+                this.publishIcon = "el-icon-loading";
                 axios({
-                    url: 'http://localhost:8081/notice/push-notice',
+                    url: 'http://localhost:8080/notice/push-notice',
                     method: "POST",
                     data: qs.encode({
                         noticeTitle: this.title,
@@ -186,13 +188,16 @@
                                 type: 'success'
                             });
 
-
+                            this.publishText = "发表";
+                            this.publishIcon = "el-icon-paperclip";
                             this.title = '';
                             this.type = '';
                             this.text = '';
                         }
                     }
                 }).catch(error => {
+                    this.publishText = "发表";
+                    this.publishIcon = "el-icon-paperclip";
                     this.$notify({
                         title: '警告',
                         message: '服务器正忙，请稍后再试',

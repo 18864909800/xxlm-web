@@ -50,7 +50,9 @@ export default {
         var matchingMenuItem = null
         // let menuItemEl = null
         for (var i = 0; i < links.length; i++) {
-            if (window.location.pathname === links[i].pathname) {
+            console.log(links[i].hash);
+            console.log(links[i]);
+            if (window.location.hash == links[i].hash) {
                 matchingMenuItem = links[i]
                 break
             }

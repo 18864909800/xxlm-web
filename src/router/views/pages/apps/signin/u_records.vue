@@ -201,7 +201,7 @@
          * @desc 获取本周学习时长趋势图
          */
         getDurationTends(){
-            axios.get('http://localhost:8081/sign-in/select-learn-time-self')
+            axios.get('http://localhost:8080/sign-in/select-learn-time-self')
             .then(res => {
                 this.uDurationTends.series = [{
                     data : res.data.data
@@ -213,7 +213,7 @@
            * @desc 获取资料数据
            */
           getAssets(){
-              axios.get('http://localhost:8081/assets/select-everyday-everyone-assets')
+              axios.get('http://localhost:8080/assets/select-everyday-everyone-assets')
                   .then((response) => {
                       console.log(response.data);
                       this.uPublishTends.series.push({
@@ -229,7 +229,7 @@
            * @desc 获取博客数据
            */
           getBlogs(){
-              axios.get('http://localhost:8081/blog/select-everyday-everyone-blog')
+              axios.get('http://localhost:8080/blog/select-everyday-everyone-blog')
                   .then((response) => {
                       console.log(response.data);
                       this.uPublishTends.series.push({
@@ -245,7 +245,7 @@
            * @desc 获取本周不同资料占比
            */
           getPublishPie(){
-             axios.get('http://localhost:8081/assets/select-assets-names')
+             axios.get('http://localhost:8080/assets/select-assets-names')
               .then(async res => {
                   if (res.data.data.name.length === 0){
                       this.uPublishPie.chartOptions = {
@@ -310,7 +310,7 @@
                               },
                           ],
                       }
-                      await axios.get('http://localhost:8081/assets/select-assets-counts')
+                      await axios.get('http://localhost:8080/assets/select-assets-counts')
                           .then(res => {
                               this.uPublishPie.series = res.data.data.count;
                           })
@@ -323,7 +323,7 @@
            * @desc 获取今日缺勤人数与打卡人数占比图
            */
           getAttendance(){
-              axios.get('http://localhost:8081/sign-in/select-compared-self')
+              axios.get('http://localhost:8080/sign-in/select-compared-self')
                   .then(res => {
                       this.uAttendancePie.series = res.data.data;
                       console.log('alert')

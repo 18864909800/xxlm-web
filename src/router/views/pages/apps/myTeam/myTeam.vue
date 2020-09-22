@@ -181,7 +181,7 @@
 							width: 2,
 						},
 						colors: ['#43d39e', '#f77e53'],
-						labels: ['打卡', '缺勤'],
+						labels: ['打卡(天)', '缺勤(天)'],
 						dataLabels: {
 							dropShadow: {
 								blur: 3,
@@ -278,6 +278,7 @@
 				});
 				await this.getDurationTends(newVal.userId).then(res => {
 					this.uDurationTends.series = [{
+					    name: "时间(小时)",
 						data : res.data.data
 					}]
 				});
@@ -361,7 +362,7 @@
 								},
 							],
 						}
-						await axios.get('http://localhost:8081/assets/select-somebody-assets-counts',{
+						await axios.get('http://localhost:8080/assets/select-somebody-assets-counts',{
 							params: newVal.userId
 						}).then(res => {
 							this.uPublishPie.series = res.data.data.count;
@@ -448,7 +449,7 @@
 				 * @desc 获取团队成员，加载到memberData里。并将加载出的第一个团队成员设为被选中成员。
 				 **/
 				getMembers(){
-					axios.get('http://localhost:8081/user/select-all-normal-users').
+					axios.get('http://localhost:8080/user/select-all-normal-users').
 					then((response) =>{
 						let data = response.data.data;
 						let arr = Object.values(data);
@@ -490,7 +491,7 @@
 				 **/
 				async getActivity(){
 					// 获取签到签退时间线
-					await axios.get('http://localhost:8081/sign-in/select-time-line')
+					await axios.get('http://localhost:8080/sign-in/select-time-line')
 					.then(async response => {
 						let data = response.data.data;
 						// 接口数据映射
@@ -512,7 +513,7 @@
 						console.log(error);
 					});
 					// 获取博客发布时间线
-					await axios.get('http://localhost:8081/blog/select-blog-line')
+					await axios.get('http://localhost:8080/blog/select-blog-line')
 					.then(async response => {
 						let data = response.data.data;
 						// 接口数据映射
@@ -533,7 +534,7 @@
 						console.log(error);
 					});
 					// 获取资料分享时间线
-					await axios.get('http://localhost:8081/assets/select-assets-line')
+					await axios.get('http://localhost:8080/assets/select-assets-line')
 					.then(async response => {
 						let data = response.data.data;
 						// 接口数据映射
@@ -563,7 +564,7 @@
 				async getName(id){
 					console.log("getName，查询id" + id);
 					let data;
-					await axios.get('http://localhost:8081/user/get-name-by-Id',{
+					await axios.get('http://localhost:8080/user/get-name-by-Id',{
 						params:{userId: id}
 					}).then((response) => {
 						data = response.data.data;
@@ -587,7 +588,7 @@
 					let month = mon || this.selectedMonth;
 					let result;
 
-					await axios.get('http://localhost:8081/sign-in/select-assign-user-calendar',{
+					await axios.get('http://localhost:8080/sign-in/select-assign-user-calendar',{
 						params: {
 							userId: ID,
 							year: year,
@@ -610,7 +611,7 @@
 				 */
 				async getBlog(id){
 					let result;
-					await axios.get('http://localhost:8081/blog/select-assign-user-blog',{
+					await axios.get('http://localhost:8080/blog/select-assign-user-blog',{
 						params:{
 							category: 0,
 							userId: id
@@ -626,7 +627,7 @@
 				 * @desc 獲取博客所有分類
 				 */
 				getBlogsSorts(){
-					axios.get('http://localhost:8081/blog/get-all-category')
+					axios.get('http://localhost:8080/blog/get-all-category')
 							.then(res => {
 								let arr = res.data.data;
 								arr.map(item => {
@@ -644,7 +645,7 @@
 				 * @desc 博客分類點擊事件
 				 */
 				blogSortsSelect(cId){
-					axios.get('http://localhost:8081/blog/select-assign-user-blog',{
+					axios.get('http://localhost:8080/blog/select-assign-user-blog',{
 						params:{
 							category: cId,
 							userId: this.selectedMember.userId
@@ -678,7 +679,7 @@
 				 */
 				async getAsset(id){
 					let result;
-					await axios.get('http://localhost:8081/assets/select-assign-assets',{
+					await axios.get('http://localhost:8080/assets/select-assign-assets',{
 						params:{
 							category: 0,
 							userId: id
@@ -694,7 +695,7 @@
 				 * @desc 獲取資料所有分類
 				 */
 				getAssetsSorts(){
-					axios.get('http://localhost:8081/assets/get-all-category')
+					axios.get('http://localhost:8080/assets/get-all-category')
 							.then(res => {
 								let arr = res.data.data;
 								arr.map(item => {
@@ -711,7 +712,7 @@
 				 * @desc 資料分類點擊事件
 				 */
 				assetsSortsSelect(aId){
-					axios.get('http://localhost:8081/assets/select-assign-assets',{
+					axios.get('http://localhost:8080/assets/select-assign-assets',{
 						params:{
 							category: aId,
 							userId: this.selectedMember.userId
@@ -744,7 +745,7 @@
 				 */
 				async getDurationTends(id){
 					let result;
-					await axios.get('http://localhost:8081/sign-in/select-learn-time-somebody',{
+					await axios.get('http://localhost:8080/sign-in/select-learn-time-somebody',{
 						params: {
 							userId: id
 						}
@@ -763,7 +764,7 @@
 				 */
 				async getAssetsData(id){
 					let assetsNum;
-					await axios.get('http://localhost:8081/assets/select-everyday-someone-assets',{
+					await axios.get('http://localhost:8080/assets/select-everyday-someone-assets',{
 						params: {
 							userId: id
 						}
@@ -786,7 +787,7 @@
 				 */
 				async getBlogsData(id){
 					let blogNum;
-					await axios.get('http://localhost:8081/blog/select-everyday-someone-blog',{
+					await axios.get('http://localhost:8080/blog/select-everyday-someone-blog',{
 						params: {
 							userId: id
 						}
@@ -805,7 +806,7 @@
 				 */
 				async getPublishPie(id){
 					let result;
-					await axios.get('http://localhost:8081/assets/select-somebody-assets-names',{
+					await axios.get('http://localhost:8080/assets/select-somebody-assets-names',{
 						params: {
 							userId: id
 						}
@@ -874,7 +875,7 @@
 									},
 								],
 							}
-							await axios.get('http://localhost:8081/assets/select-somebody-assets-counts',{
+							await axios.get('http://localhost:8080/assets/select-somebody-assets-counts',{
 								params: id
 							}).then(res => {
 								this.uPublishPie.series = res.data.data.count;
@@ -892,7 +893,7 @@
 				 */
 				async getAttendance(id){
 					let result;
-					await axios.get('http://localhost:8081/sign-in/select-compared-person',{
+					await axios.get('http://localhost:8080/sign-in/select-compared-person',{
 						params:{
 							userId: id
 						}

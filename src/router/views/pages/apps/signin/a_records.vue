@@ -52,7 +52,7 @@
                 xaxis: {
                     categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                     title: {
-                        text: 'week',
+                        text: '星期',
                     },
                     axisBorder: {
                         color: '#d6ddea',
@@ -123,7 +123,7 @@
                     width: 2,
                 },
                 colors: ['#43d39e', '#f77e53'],
-                labels: ['打卡', '缺勤'],
+                labels: ['打卡（人）', '缺勤（人）'],
                 dataLabels: {
                     dropShadow: {
                         blur: 3,
@@ -193,12 +193,12 @@
            * @desc 获取资料数据
            */
           getAssets(){
-            axios.get('http://localhost:8081/assets/select-everyday-assets')
+            axios.get('http://localhost:8080/assets/select-everyday-assets')
             .then((response) => {
                 console.log(response.data);
                 this.aPublishTends.series.push({
                     name: '资料 - ' + new Date().getFullYear(),
-                    data: response.data.data,
+                    data: response.data.data ,
                 })
             }).catch((error) => {
                 console.log(error);
@@ -209,12 +209,12 @@
            * @desc 获取博客数据
            */
           getBlogs(){
-              axios.get('http://localhost:8081/blog/select-everyday-blog')
+              axios.get('http://localhost:8080/blog/select-everyday-blog')
               .then((response) => {
                   console.log(response.data);
                   this.aPublishTends.series.push({
                       name: '博客 - ' + new Date().getFullYear(),
-                      data: response.data.data,
+                      data: response.data.data ,
                   })
               }).catch((error) => {
                   console.log(error);
@@ -225,7 +225,7 @@
            * @desc 获取学习时长排行top10
            */
           getDurationTop10(){
-              axios.get('http://localhost:8081/sign-in/select-learn-time-total')
+              axios.get('http://localhost:8080/sign-in/select-learn-time-total')
               .then(res => {
                   let result = res.data.data;
                   let key = Object.keys(result).slice(0,10);
@@ -270,12 +270,14 @@
                       },
                   };
                   this.aDurationTop10.series = [{
+                      name: "时间(小时)",
                       data : value
                   }];
 
+
                   this.aDurationPie.series = value;
                   this.aDurationPie.chartOptions = {
-                      labels: key,
+                      labels: key ,
                       colors: ['#5369f8', '#43d39e', '#f77e53', '#1ce1ac', '#25c2e3'],
                       legend: {
                           show: false,
@@ -316,7 +318,7 @@
            * @desc 获取今日缺勤人数与打卡人数占比图
            */
           getAttendance(){
-              axios.get('http://localhost:8081/sign-in/select-compared')
+              axios.get('http://localhost:8080/sign-in/select-compared')
               .then(res => {
                   this.aAttendancePie.series = res.data.data;
                   console.log('alert')
@@ -326,6 +328,7 @@
 
       }
   }
+
 </script>
 <template>
   <Layout>

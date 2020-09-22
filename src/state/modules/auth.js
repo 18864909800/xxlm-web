@@ -34,7 +34,7 @@ export const actions = {
         // if (getters.loggedIn) return dispatch('validate')
         // return axios
         //
-        //     .post('http://localhost:8081/user/login', {username, password})
+        //     .post('http://localhost:8080/user/login', {username, password})
         //     .then((response) => {
         //
         //         const user = response.data
@@ -43,7 +43,7 @@ export const actions = {
         //     })
         return axios({
             method: "post",
-            url: "http://localhost:8081/user/login",
+            url: "http://localhost:8080/user/login",
             headers: {
                 'Content-type': 'application/x-www-form-urlencoded'
             },
